@@ -13,6 +13,7 @@ public enum ChessResult
     BlackWinsWithWhiteResigning;
     
     // ChessResultReason als Grund fuer einen Gewinn?
+    // - Forfeiting, Nothing, CheckMate
     // oder als Wert mit abspeichern?
     
     // moeglich waere noch entsprechende String-Methode

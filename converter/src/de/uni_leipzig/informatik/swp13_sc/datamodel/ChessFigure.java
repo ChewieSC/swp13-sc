@@ -31,6 +31,7 @@ public enum ChessFigure
         WhitePawn3, WhitePawn4, WhitePawn5, WhitePawn6, WhitePawn7, WhitePawn8};
     private final static Chessfigure[] BlackPawns = {BlackPawn1, BlackPawn2,
         BlackPawn3, BlackPawn4, BlackPawn5, BlackPawn6, BlackPawn7, BlackPawn8};
+    // private final static List<ChessFigure> = Arrays.asList();
     // TODO: add some more?
     //       better alternative?
     

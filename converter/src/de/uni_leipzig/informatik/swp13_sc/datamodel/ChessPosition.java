@@ -44,4 +44,15 @@ public enum ChessPosition
     {
         return number;
     }
+    
+    public int getPosX()
+    {
+        // TODO: check please.
+        return this.getLetter() - 'a';
+    }
+    
+    public int getPosY()
+    {
+        return (int) this.getNumber();
+    }
 }
