@@ -82,6 +82,18 @@ public abstract class Converter
         return null;
     }
     
+    @Override
+    public void finishedInput()
+    {
+        // TODO: add
+    }
+    
+    @Override
+    public void finishedOutput()
+    {
+        // TODO: add
+    }
+    
     
     
     // TODO: make protected?

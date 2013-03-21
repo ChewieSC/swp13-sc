@@ -14,6 +14,10 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessResult;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import java.lang.Runnable;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,9 +56,41 @@ public final class PGNFileInput extends FileInput
     
     private void converting()
     {
-        // TODO: add code for converting
-        //
-        // code for parsing pgns
+        if (! super.fileExists())
+        {
+            return;
+        }
+        
+        String strLine = null;
+        BufferedReader br = null;
+        try
+        {
+            br = super.getInputFileReader();
+            
+            while((strLine = br.readLine()) != null)
+            {
+                
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            // ?
+        }
+        catch (IOException e)
+        {
+            // ?
+        }
+        finally
+        {
+            try
+            {
+                br.close();
+            }
+            catch (IOException e)
+            {
+                // ?
+            }
+        }
     }
     
     @Override
@@ -63,6 +99,7 @@ public final class PGNFileInput extends FileInput
         converting();
         
         this.isConverting = false;
+        this.getDataStore().finishedInput();
         //this.getConverter().finishedInput();
     }
     

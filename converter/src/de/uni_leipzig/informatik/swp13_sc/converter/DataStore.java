@@ -21,4 +21,11 @@ public interface DataStore
     public List<ChessGame> getBachGames(int count);
     
     public List<ChessGame> getAllGames();
+    
+    // probably better to know if still working
+    // polling is not soo good?
+    // only for async threads ...
+    public void finishedInput();
+    
+    public void finishedOutput();
 }
