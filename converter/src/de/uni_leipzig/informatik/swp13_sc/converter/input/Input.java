@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class Input
 {
     private final Converter converter;
-    
+
     public Input(Converter c)
         throws NullPointerException
     {
@@ -31,7 +31,7 @@ public abstract class Input
     }
     
     // converts all
-    public abstract List<ChessGame> convertFile();
+    public abstract List<ChessGame> convert();
     
     // threaded, should add converted parts to Converter c
     public abstract void beginConvert();
@@ -43,4 +43,7 @@ public abstract class Input
     {
         throw new RuntimeException("Method not yet implemented.");
     }
+    
+	// TODO: needed?
+	public abstract String getFormat();
 }
