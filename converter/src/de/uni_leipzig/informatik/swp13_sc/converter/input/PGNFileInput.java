@@ -31,8 +31,8 @@ public final class PGNFileInput extends FileInput
         if (isAsync)
         {
             // TODO: add single or batch?
-            this.getConverter().addGame(cg);
-            // this.getConverter().addBatchGames(gameBatch);
+            this.getDataStore().addGame(cg);
+            // this.getDataStore().addBatchGames(gameBatch);
         }
         else
         {
@@ -53,7 +53,7 @@ public final class PGNFileInput extends FileInput
         converting();
         
         this.isConverting = false;
-        this.getConverter().finishedInput();
+        //this.getConverter().finishedInput();
     }
     
     @Override
@@ -63,10 +63,10 @@ public final class PGNFileInput extends FileInput
         this.isConverting = true;
         this.gameList = new ArrayList<ChessGame>():
         
-        converting()
+        converting();
         
-        this.getConverter().addAllGames(this.gameList);
-        this.getConverter().finishedInput();
+        this.getDataStore().addAllGames(this.gameList);
+        //this.getConverter().finishedInput();
         this.isConverting = false;
     }
 
@@ -77,7 +77,7 @@ public final class PGNFileInput extends FileInput
         this.isConverting = true;
         
         tc = new Thread(this);
-        tc.start()
+        tc.start();
     }
     
     @Override

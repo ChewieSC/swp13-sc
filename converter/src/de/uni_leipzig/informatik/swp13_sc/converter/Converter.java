@@ -4,6 +4,7 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
+import de.uni_leipzig.informatik.swp13_sc.converter.DataStore;
 import de.uni_leipzig.informatik.swp13_sc.converter.input.Input;
 import de.uni_leipzig.informatik.swp13_sc.converter.output.Output;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Vector;
 
 public abstract class Converter
+    implements DataStore
 {
     // threadsafe datastore (concurrent, ...)
     private Vector<ChessGame> gameList = new Vector<ChessGame>();
@@ -40,45 +42,41 @@ public abstract class Converter
     
     
     
+    @Override
     public void addSingleGame(ChessGame cg)
     {
         // TODO: add Game to datastore
     }
     
+    @Override
     public void addBatchGames(List<ChessGame> cgs)
     {
         // TODO: add Games
     }
     
+    @Override
     public void addAllGames(List<ChessGame> cgs)
     {
         // TODO: add Games
         //       called when finished sync
     }
     
+    @Override
     public ChessGame getSingleGame()
     {
         // TODO: return next Game & remove
     }
     
+    @Override
     public List<ChessGame> getBachGames(int count)
     {
         // TODO: return Games
     }
     
+    @Override
     public List<ChessGame> getAllGames()
     {
         // TODO: return Games & clear list
-    }
-    
-    public void finishedInput()
-    {
-        // TODO:
-    }
-    
-    public void finishedOutput()
-    {
-        // TODO:
     }
     
     

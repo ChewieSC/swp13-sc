@@ -4,7 +4,7 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter.input;
 
-import de.uni_leipzig.informatik.swp13_sc.converter.Converter;
+import de.uni_leipzig.informatik.swp13_sc.converter.DataStore;
 import de.uni_leipzig.informatik.swp13_sc.converter.input.Input;
 
 import java.lang.NullPointerException;
@@ -13,10 +13,10 @@ public abstract class FileInput extends Input
 {
     private String filename;
     
-    public FileInput(Converter c, String filename)
+    public FileInput(DataStore d, String filename)
         throws NullPointerException
     {
-        super(c);
+        super(d);
         // TODO: add & check arg filename
         this.filename = filename;
     }

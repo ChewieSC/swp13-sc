@@ -4,7 +4,7 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter.input;
 
-import de.uni_leipzig.informatik.swp13_sc.converter.Converter;
+import de.uni_leipzig.informatik.swp13_sc.converter.DataStore;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 
 import java.lang.NullPointerException;
@@ -13,21 +13,21 @@ import java.util.List;
 
 public abstract class Input
 {
-    private final Converter converter;
+    private final DataStore datastore;
 
-    public Input(Converter c)
+    public Input(DataStore d)
         throws NullPointerException
     {
-        if (c == null)
+        if (d == null)
         {
-           throw new NullPointerException("No Converter c!");
+           throw new NullPointerException("No DataStore d!");
         }
-        this.converter = c;
+        this.datastore = d;
     }
     
-    public Converter getConverter()
+    public DataStore getDataStore()
     {
-        return this.converter;
+        return this.datastore;
     }
     
     // converts all

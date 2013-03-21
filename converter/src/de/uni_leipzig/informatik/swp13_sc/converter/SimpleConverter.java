@@ -18,7 +18,7 @@ public class SimpleConverter extends Converter
 
    private void loadInputsAndOutputs()
    {
-       super.addInput(new PGNFileInput());
+       super.addInput(new PGNFileInput(this));
    }
    
    
