@@ -31,7 +31,7 @@ public class ChessGame
    
    public ChessGame(ChessPlayer white, ChessPlayer black)
    {
-       this(white, black, null, null, "", "", ""):
+       this(white, black, null, null, "", "", "");
    }
    
    // TODO: add some constructors
@@ -90,7 +90,7 @@ public class ChessGame
    {
        if (moves != null)
        {
-           this.moves.addAll(moves)
+           this.moves.addAll(moves);
        }
    }
    

@@ -50,22 +50,26 @@ public class ChessBoard
     public String getGBR()
     {
         // TODO: add
+		return null;
     }
     
     public String getFEN()
     {
         // TODO: add
+		return null;
     }
     
     public static ChessBoard getChessBoardFromFEN(String fen)
     {
         // TODO: add
         // direct access ...
+		return null;
     }
     
     public static ChessBoard getChessBoardFromGBR(String gbr)
     {
         // TODO: add
+		return null;
     }
     
     public static String getFENFromChessBoard(ChessBoard cb)

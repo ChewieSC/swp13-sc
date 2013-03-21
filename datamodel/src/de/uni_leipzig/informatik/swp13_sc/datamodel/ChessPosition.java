@@ -4,6 +4,10 @@
 
 package de.uni_leipzig.informatik.swt13_sc.datamodel;
 
+import java.lang.Byte;
+import java.lang.IndexOutOfBoundsException;
+import java.lang.NumberFormatException;
+
 public enum ChessPosition
 {
     A1, A2, A3, A4, A5, A6, A7, A8,
@@ -21,7 +25,23 @@ public enum ChessPosition
     private ChessPosition()
     {
         letter = this.name().toLowerCase().charAt(0);
-        number = Byte.parseByte(this.name().charAt(1));
+		byte temp = 0;
+		try
+		{
+		    temp = Byte.parseByte(this.name().substring(1));
+        }
+		catch (NumberFormatException e)
+		{
+		    // TODO: log warn!
+		}
+		catch (IndexOutOfBoundsException e)
+		{
+		    // TODO: log warn!
+		}
+		finally
+		{
+		    number = temp;
+		}
     }
     
     @Override

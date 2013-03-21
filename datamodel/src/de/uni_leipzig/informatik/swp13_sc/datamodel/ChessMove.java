@@ -88,7 +88,7 @@ public class ChessMove
         return this.origMove;
     }
     
-    public String setPGNMove(String pgnmove)
+    public void setPGNMove(String pgnmove)
     {
         this.origMove = pgnmove;
     }
