@@ -44,6 +44,6 @@ public abstract class Input
         throw new RuntimeException("Method not yet implemented.");
     }
     
-	// TODO: needed?
-	public abstract String getFormat();
+    // TODO: needed?
+    public abstract String getFormat();
 }

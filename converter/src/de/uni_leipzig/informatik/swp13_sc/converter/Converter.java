@@ -19,9 +19,9 @@ public abstract class Converter
 {
     // threadsafe datastore (concurrent, ...)
     private Vector<ChessGame> gameList = new Vector<ChessGame>();
-	// ConcurrentLinkedQueue<E> ?
-	//
-
+    // ConcurrentLinkedQueue<E> ?
+    //
+    
     // selected In-/Output classes for converting
     private Input input;
     private Output output;
@@ -30,54 +30,70 @@ public abstract class Converter
     //       or simple List?
     private Map<String, Input> inputFormats = new HashMap<String, Input>();
     private Map<String, Output> outputFormats = new HashMap<String, Output>();
-   
+    
     private boolean isAsync;
     
     public Converter()
-	{
-	    // TODO: ?
-	}
+    {
+        // TODO: ?
+    }
     
     
     
     public void addSingleGame(ChessGame cg)
-	{
-	    // TODO: add Game to datastore
-	}
-	
+    {
+        // TODO: add Game to datastore
+    }
+    
     public void addBatchGames(List<ChessGame> cgs)
-	{
-	    // TODO: add Games
-	}
+    {
+        // TODO: add Games
+    }
     
-	public void addAllGames(List<ChessGame> cgs)
-	{
-	    // TODO: add Games
-		//       called when finished sync
-	}
-	
-	public void finishedInput()
-	{
-	    // TODO:
-	}
-	
-	public void finishedOutput()
-	{
-	    // TODO:
-	}
-	
+    public void addAllGames(List<ChessGame> cgs)
+    {
+        // TODO: add Games
+        //       called when finished sync
+    }
     
-	// TODO: make protected?
+    public ChessGame getSingleGame()
+    {
+        // TODO: return next Game & remove
+    }
+    
+    public List<ChessGame> getBachGames(int count)
+    {
+        // TODO: return Games
+    }
+    
+    public List<ChessGame> getAllGames()
+    {
+        // TODO: return Games & clear list
+    }
+    
+    public void finishedInput()
+    {
+        // TODO:
+    }
+    
+    public void finishedOutput()
+    {
+        // TODO:
+    }
+    
+    
+    
+    // TODO: make protected?
     public void addInput(Input input)
-	{
-	    // TODO: needs try catch ?
-	    this.inputFormats.put(input.getFormat(), input);
-	}
+    {
+        // TODO: needs try catch ?
+        this.inputFormats.put(input.getFormat(), input);
+    }
     
-	public void addOutput(Output output)
-	{
-	    this.outputFormats.put(input.getFormat(), output);
-	}
+    public void addOutput(Output output)
+    {
+        this.outputFormats.put(input.getFormat(), output);
+    }
     
     public List<String> getInputFormats()
     {
@@ -89,15 +105,15 @@ public abstract class Converter
         return formats;
     }
     
-	public boolean supportsInput(String inputFormat)
-	{
-	    return this.inputFormats.containsKey(inputFormat);
-	}
+    public boolean supportsInput(String inputFormat)
+    {
+        return this.inputFormats.containsKey(inputFormat);
+    }
     
     public boolean supportsOutput(String outputFormat)
-	{
-	    return this.outputFormats.containsKey(outputFormat);
-	}
+    {
+        return this.outputFormats.containsKey(outputFormat);
+    }
     
     public List<String> getOutputFormats()
     {

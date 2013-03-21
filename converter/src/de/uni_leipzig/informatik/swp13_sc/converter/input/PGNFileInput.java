@@ -22,74 +22,74 @@ public final class PGNFileInput extends FileInput
     // should be set by convert-methods
     private boolean isAsync;
     private boolean isConverting;
-	private List<ChessGame> gameList;
+    private List<ChessGame> gameList;
     private Thread tc;
     
     private addGame(ChessGame cg)
     {
         // TODO: async?
-		if (isAsync)
-		{
-		    // TODO: add single or batch?
-			this.getConverter().addGame(cg);
-			// this.getConverter().addBatchGames(gameBatch);
-		}
-		else
-		{
-		    this.gameList.add(cg);
-		}
+        if (isAsync)
+        {
+            // TODO: add single or batch?
+            this.getConverter().addGame(cg);
+            // this.getConverter().addBatchGames(gameBatch);
+        }
+        else
+        {
+            this.gameList.add(cg);
+        }
     }
     
-	private converting()
-	{
-	    // TODO: add code for converting
-		//
-		// code for parsing pgns
-	}
-    
-	@Override
-	public void run()
-	{
-	    converting();
-		
-		this.isConverting = false;
-		this.getConverter().finishedInput();
-	}
+    private converting()
+    {
+        // TODO: add code for converting
+        //
+        // code for parsing pgns
+    }
     
     @Override
-	public List<ChessGame> convert()
-	{
-	    this.isAsync = false;
-		this.isConverting = true;
-        this.gameList = new ArrayList<ChessGame>():
-		
-		converting()
+    public void run()
+    {
+        converting();
         
-		this.getConverter().addAllGames(this.gameList);
-		this.getConverter().finishedInput();
-		this.isConverting = false;
-	}
+        this.isConverting = false;
+        this.getConverter().finishedInput();
+    }
+    
+    @Override
+    public List<ChessGame> convert()
+    {
+        this.isAsync = false;
+        this.isConverting = true;
+        this.gameList = new ArrayList<ChessGame>():
+        
+        converting()
+        
+        this.getConverter().addAllGames(this.gameList);
+        this.getConverter().finishedInput();
+        this.isConverting = false;
+    }
 
-	@Override
-	public void beginConvert()
-	{
-	    this.isAsync = true;
-		this.isConverting = true;
+    @Override
+    public void beginConvert()
+    {
+        this.isAsync = true;
+        this.isConverting = true;
         
         tc = new Thread(this);
-		tc.start()
-	}
+        tc.start()
+    }
     
-	@Override
+    @Override
     public String getFormat()
-	{
-	    return PGNFileInput.getFormat();
-	}
+    {
+        return PGNFileInput.getFormat();
+    }
     
-	@Override
-	public static String getFormat()
-	{
-	    return "pgn";
-	    //return "file.pgn"
-	}
+    @Override
+    public static String getFormat()
+    {
+        return "pgn";
+        //return "file.pgn"
+    }
 }
