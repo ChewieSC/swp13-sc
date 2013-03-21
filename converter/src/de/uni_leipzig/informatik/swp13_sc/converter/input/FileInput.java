@@ -13,11 +13,24 @@ public abstract class FileInput extends Input
 {
     private String filename;
     
+    /*
+    // for adding to converter not so good ...
     public FileInput(DataStore d, String filename)
         throws NullPointerException
     {
         super(d);
         // TODO: add & check arg filename
+        this.filename = filename;
+    }
+    */
+    
+    public FileInput(DataStore d)
+    {
+        super(d);
+    }
+    
+    public void setFilename(String filename)
+    {
         this.filename = filename;
     }
     

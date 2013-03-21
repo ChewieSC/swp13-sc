@@ -4,6 +4,7 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter.input;
 
+import de.uni_leipzig.informatik.swp13_sc.converter.DataStore;
 import de.uni_leipzig.informatik.swp13_sc.converter.input.FileInput;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessFigure;
@@ -14,6 +15,8 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessResult;
 
 import java.lang.Runnable;
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: make it final?
 public final class PGNFileInput extends FileInput
@@ -25,13 +28,20 @@ public final class PGNFileInput extends FileInput
     private List<ChessGame> gameList;
     private Thread tc;
     
-    private addGame(ChessGame cg)
+    
+    public PGNFileInput(DataStore d)
+    {
+        super(d);
+    }
+    
+    
+    private void addGame(ChessGame cg)
     {
         // TODO: async?
         if (isAsync)
         {
             // TODO: add single or batch?
-            this.getDataStore().addGame(cg);
+            this.getDataStore().addSingleGame(cg);
             // this.getDataStore().addBatchGames(gameBatch);
         }
         else
@@ -40,7 +50,7 @@ public final class PGNFileInput extends FileInput
         }
     }
     
-    private converting()
+    private void converting()
     {
         // TODO: add code for converting
         //
@@ -61,13 +71,15 @@ public final class PGNFileInput extends FileInput
     {
         this.isAsync = false;
         this.isConverting = true;
-        this.gameList = new ArrayList<ChessGame>():
+        this.gameList = new ArrayList<ChessGame>();
         
         converting();
         
-        this.getDataStore().addAllGames(this.gameList);
+        //this.getDataStore().addAllGames(this.gameList);
         //this.getConverter().finishedInput();
         this.isConverting = false;
+        
+        return this.gameList;
     }
 
     @Override
@@ -75,6 +87,7 @@ public final class PGNFileInput extends FileInput
     {
         this.isAsync = true;
         this.isConverting = true;
+        this.gameList = new ArrayList<ChessGame>(); // ?
         
         tc = new Thread(this);
         tc.start();
@@ -83,13 +96,6 @@ public final class PGNFileInput extends FileInput
     @Override
     public String getFormat()
     {
-        return PGNFileInput.getFormat();
-    }
-    
-    @Override
-    public static String getFormat()
-    {
         return "pgn";
-        //return "file.pgn"
     }
 }

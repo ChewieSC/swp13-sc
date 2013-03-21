@@ -8,7 +8,6 @@ import de.uni_leipzig.informatik.swp13_sc.converter.DataStore;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 
 import java.lang.NullPointerException;
-import java.lang.RuntimeException;
 import java.util.List;
 
 public abstract class Input
@@ -38,12 +37,5 @@ public abstract class Input
     
     // e.g.: "pgn"
     //   or: "file.pgn", "db.pgn", ...
-    public static String getFormat()
-       throws RuntimeException
-    {
-        throw new RuntimeException("Method not yet implemented.");
-    }
-    
-    // TODO: needed?
     public abstract String getFormat();
 }

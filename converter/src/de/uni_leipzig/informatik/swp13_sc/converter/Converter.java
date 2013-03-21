@@ -65,18 +65,21 @@ public abstract class Converter
     public ChessGame getSingleGame()
     {
         // TODO: return next Game & remove
+        return null;
     }
     
     @Override
     public List<ChessGame> getBachGames(int count)
     {
         // TODO: return Games
+        return null;
     }
     
     @Override
     public List<ChessGame> getAllGames()
     {
         // TODO: return Games & clear list
+        return null;
     }
     
     

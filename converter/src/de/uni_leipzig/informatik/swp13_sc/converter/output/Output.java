@@ -25,7 +25,7 @@ public abstract class Output
         this.datastore = d;
     }
     
-    public Converter getDataStore()
+    public DataStore getDataStore()
     {
         return this.datastore;
     }
