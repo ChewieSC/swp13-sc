@@ -2,7 +2,7 @@
  * ChessFigureType.java
  */
 
-package de.uni_leipzig.informatik.swt13_sc.datamodel;
+package de.uni_leipzig.informatik.swp13_sc.datamodel;
 
 public enum ChessFigureType
 {

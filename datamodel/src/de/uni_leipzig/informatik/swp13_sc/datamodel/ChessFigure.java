@@ -2,11 +2,11 @@
  * ChessFigure.java
  */
 
-package de.uni_leipzig.informatik.swt13_sc.datamodel;
+package de.uni_leipzig.informatik.swp13_sc.datamodel;
 
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessColor;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessFigureType;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessPosition;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessColor;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessFigureType;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
 
 public enum ChessFigure
 {

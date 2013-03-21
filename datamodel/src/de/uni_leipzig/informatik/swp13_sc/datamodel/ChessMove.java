@@ -2,11 +2,11 @@
  * ChessMove.java
  */
 
-package de.uni_leipzig.informatik.swt13_sc.datamodel;
+package de.uni_leipzig.informatik.swp13_sc.datamodel;
 
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessBoard;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessFigure;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessPosition;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessFigure;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
 
 public class ChessMove
 {

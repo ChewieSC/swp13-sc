@@ -2,11 +2,11 @@
  * ChessBoard.java
  */
 
-package de.uni_leipzig.informatik.swt13_sc.datamodel;
+package de.uni_leipzig.informatik.swp13_sc.datamodel;
 
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessFigure;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessFigureType;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessMove;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessFigure;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessFigureType;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 
 import java.util.ArrayList;
 import java.util.List;

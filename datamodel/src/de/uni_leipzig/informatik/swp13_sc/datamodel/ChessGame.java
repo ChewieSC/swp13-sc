@@ -2,11 +2,11 @@
  * ChessGame.java
  */
 
-package de.uni_leipzig.informatik.swt13_sc.datamodel;
+package de.uni_leipzig.informatik.swp13_sc.datamodel;
 
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessMove;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessPlayer;
-import de.uni_leipzig.informatik.swt13_sc.datamodel.ChessResult;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessResult;
 
 import java.util.ArrayList;
 import java.util.Collections;
