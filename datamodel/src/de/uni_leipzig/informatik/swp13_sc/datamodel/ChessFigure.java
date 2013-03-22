@@ -123,7 +123,7 @@ public enum ChessFigure
         ArrayList<ChessFigure> l = new ArrayList<ChessFigure>();
         for (ChessFigure f : ChessFigure.values())
         {
-            if (f.getColor().equals(color)
+            if (f.getColor().equals(color))
             {
                 l.add(f);
             }
@@ -131,9 +131,9 @@ public enum ChessFigure
         return l;
     }
     
-    public final static List<ChessFigure> intersect(List<ChessFigure> first, List<ChessFigur> second)
+    public final static List<ChessFigure> intersect(List<ChessFigure> first, List<ChessFigure> second)
     {
-        List<ChessFigure> l;
+        List<ChessFigure> l = new ArrayList<ChessFigure>();
         // which is better? (performance)
         // or write own code?
         if (first.size() > second.size())

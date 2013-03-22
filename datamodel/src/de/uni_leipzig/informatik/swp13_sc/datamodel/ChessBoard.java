@@ -22,7 +22,33 @@ public class ChessBoard
     {
     }
     
+    public ChessBoard(String fen)
+    {
+        this();
+        // TODO: create ChessBoard with FEN
+        //       set & move Figures, create Moves
+    }
     
+    
+    public ChessMove setMove(String pgnMove, int moveNr)
+    {
+        // TODO: convert pgnMove to ChessMove class
+        //       single Move (either white or black)
+        
+        // show if only dest Field
+        // show which figure
+        return null;
+    }
+    
+    public List<ChessMove> setMove(String pgnMoves)
+    {
+        // TODO: extract moveNr, split into two moves
+        //       use setMove(String, int)
+        return null;
+    }
+    
+    /*
+    // TODO: for later use
     private void move(ChessMove move)
     {
         // TODO: move on board
@@ -36,6 +62,7 @@ public class ChessBoard
             move(move);
         }
     }
+    */
     
     public List<ChessMove> getMoves()
     {
