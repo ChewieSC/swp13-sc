@@ -23,7 +23,7 @@ public class ChessMove
     private boolean castling;      // Rochade // format?
     private boolean smallCastling; // ?
     private ChessFigure pawnTransformation;
-
+    private String comment;
     // ...
     
     public ChessMove()
@@ -60,6 +60,7 @@ public class ChessMove
         this.figure = builder.figure;
         this.from = builder.from;
         this.to = builder.to;
+        this.comment = builder.comment;
         this.check = builder.check;
         this.checkMate = builder.checkMate;
         this.isLast = builder.checkMate;
@@ -86,6 +87,21 @@ public class ChessMove
     {
         // or compute, if needed?
         return this.check;
+    }
+    
+    public String getComment()
+    {
+        return ((this.comment == null) ? "" : this.comment);
+    }
+    
+    public String setComment(String comment)
+    {
+        this.comment = comment;
+    }
+    
+    public boolean hasComment()
+    {
+        return (this.comment != null);
     }
     
     // ...
@@ -137,6 +153,7 @@ public class ChessMove
         private boolean checkMate = false;
         private boolean isLast = false;
         private ChessFigure pawnTransformation = null;
+        private String comment = null;
         
         public Builder()
         {
@@ -180,6 +197,12 @@ public class ChessMove
                 // TODO: this.figure should be Pawn
                 return null; // TODO: fix this
             }
+            return this;
+        }
+        
+        public Builder setComment(String comment)
+        {
+            this.comment = comment;
             return this;
         }
         
