@@ -8,6 +8,9 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 
 import java.util.List;
 
+// TODO: need  InputDataStore,
+//            OutputDataStore.
+//       for Input & Output separate!?
 public interface DataStore
 {
     public void addSingleGame(ChessGame cg);
