@@ -1,0 +1,69 @@
+#
+# My Git-Command list
+# ###################
+#
+# git add .
+# git add <filepath>
+# -> add files for commit
+#
+# git -f rm <filename>
+# -> removes staged file
+#
+# git mv <from> <to>
+# -> moves files/directories
+#
+# git commit -m "<message>"
+# -> commit added files
+#
+# git commit -amend
+# -> add to last commit
+#
+#
+# git branch [-v]
+# -> show branches on local computer
+#
+# git checkout <branch|master>
+# -> get code from specified branch
+#
+# git checkout -b <newbranch>
+# -> create new branch at last commit location (?)
+#
+# git checkout -- <file>
+# -> reset file to last commit
+#
+# git branch -d <branch>
+# -> delete branch
+#
+# git merge <branch>
+# -> merges branch into current branch
+#
+#
+# git pull
+# -> get latest from remote repo, merges automaticly
+#
+# git fetch
+# -> get latest from remote repo
+#
+# git push git@github.com:<repoowner>/<repo>.git
+# -> sends local commits to remote repo
+#
+# git push git@github.com:<repoowner>/<repo>.git <branchname>
+# -> sends local commits to remote repo into branch <branchname>
+#
+# git push git@github.com:<repoowner>/<repo>.git :<branch>
+# -> deletes given remote branch
+#
+#
+# git config -l
+# -> list all git configs
+#
+# git config <key> <value>
+# -> set new config value or overwrite old one
+#
+# git config --get <key>
+# -> returns value to key
+#
+#
+# git log [--oneline] --decorate --graph
+# -> shows a commit graph of local repo
+#
