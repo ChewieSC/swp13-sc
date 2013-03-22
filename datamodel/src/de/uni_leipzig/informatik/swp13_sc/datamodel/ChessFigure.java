@@ -8,6 +8,9 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessColor;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessFigureType;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum ChessFigure
 {
     WhitePawn1(ChessColor.White, ChessFigureType.Pawn, ChessPosition.A2),
@@ -89,7 +92,7 @@ public enum ChessFigure
             	return f;
             } 
         }
-		return null;
+        return null;
     }
     
     public final static ChessFigure[] getWhitePawns()
@@ -102,16 +105,53 @@ public enum ChessFigure
         return ChessFigure.BlackPawns;
     }
     
-    public final static ChessFigure[] getFigures(ChessFigureType type)
+    public final static List<ChessFigure> getFigures(ChessFigureType type)
     {
-        // TODO: add code
-		return null;
+        ArrayList<ChessFigure> l = new ArrayList<ChessFigure>();
+        for (ChessFigure f : ChessFigure.values())
+        {
+            if (f.getFigureType().equals(type))
+            {
+                l.add(f);
+            }
+        }
+        return l;
     }
     
-    public final static ChessFigure[] getFigures(ChessColor color)
+    public final static List<ChessFigure> getFigures(ChessColor color)
     {
-        // TODO: add code
-		return null;
+        ArrayList<ChessFigure> l = new ArrayList<ChessFigure>();
+        for (ChessFigure f : ChessFigure.values())
+        {
+            if (f.getColor().equals(color)
+            {
+                l.add(f);
+            }
+        }
+        return l;
     }
     
+    public final static List<ChessFigure> intersect(List<ChessFigure> first, List<ChessFigur> second)
+    {
+        List<ChessFigure> l;
+        // which is better? (performance)
+        // or write own code?
+        if (first.size() > second.size())
+        {
+            l.addAll(second);
+            l.retainAll(first);
+            return l;
+        }
+        else // (first <= second)
+        {
+            l.addAll(second);
+            l.retainAll(first);
+            return l;
+        }
+    }
+    
+    static
+    {
+        // TODO: add some collections (final)
+    }
 }

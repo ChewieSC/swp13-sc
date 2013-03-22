@@ -66,7 +66,7 @@ public class ChessGame
        return this.black;
    }
    
-   public void setBlack()
+   public void setBlack(ChessPlayer black)
    {
        this.black = black;
    }

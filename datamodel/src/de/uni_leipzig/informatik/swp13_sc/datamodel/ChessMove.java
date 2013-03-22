@@ -21,15 +21,21 @@ public class ChessMove
 
     // ...
     
-    public ChessMove(ChessFigure figure, ChessPosition from, ChessPosition to)
+    public ChessMove()
+    {
+        this(null, null, null, null, false);
+    }
+    
+    public ChessMove(String origMove, ChessFigure figure, ChessPosition from, ChessPosition to)
     {
         // better, to compute, if check ...
         // compute other too?
-        this(figure, from, to, false);
+        this(origMove, figure, from, to, false);
     }
     
-    public ChessMove(ChessFigure figure, ChessPosition from, ChessPosition to, boolean check)
+    public ChessMove(String origMove, ChessFigure figure, ChessPosition from, ChessPosition to, boolean check)
     {
+        this.origMove = origMove;
         this.figure = figure;
         this.from = from;
         this.to = to;

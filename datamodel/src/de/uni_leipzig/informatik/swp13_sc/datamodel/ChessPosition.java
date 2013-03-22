@@ -25,23 +25,23 @@ public enum ChessPosition
     private ChessPosition()
     {
         letter = this.name().toLowerCase().charAt(0);
-		byte temp = 0;
-		try
-		{
-		    temp = Byte.parseByte(this.name().substring(1));
+        byte temp = 0;
+        try
+        {
+            temp = Byte.parseByte(this.name().substring(1));
         }
-		catch (NumberFormatException e)
-		{
-		    // TODO: log warn!
-		}
-		catch (IndexOutOfBoundsException e)
-		{
-		    // TODO: log warn!
-		}
-		finally
-		{
-		    number = temp;
-		}
+        catch (NumberFormatException e)
+        {
+            // TODO: log warn!
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            // TODO: log warn!
+        }
+        finally
+        {
+            number = temp;
+        }
     }
     
     @Override
