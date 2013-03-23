@@ -15,4 +15,6 @@ public enum ChessFigureType
     
     // TODO: Wertung mit abspeichern? (Schlagwert, Bauerneinheiten)
     //       Zugrichtung? Bewegungsmatrix? (siehe andere PGN-Engines)
+    
+    // TODO: safe prnbqk-PRNBQK ? (FEN)
 }

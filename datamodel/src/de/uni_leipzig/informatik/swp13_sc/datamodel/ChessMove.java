@@ -61,6 +61,7 @@ public class ChessMove
         this.from = builder.from;
         this.to = builder.to;
         this.comment = builder.comment;
+        this.fen = builder.fen;
         this.check = builder.check;
         this.checkMate = builder.checkMate;
         this.isLast = builder.checkMate;
@@ -154,6 +155,7 @@ public class ChessMove
         private boolean isLast = false;
         private ChessFigure pawnTransformation = null;
         private String comment = null;
+        private String fen = null;
         
         public Builder()
         {
@@ -228,6 +230,12 @@ public class ChessMove
         public Builder isLast()
         {
             this.isLast = true;
+            return this;
+        }
+        
+        public Builder setFEN(String fen)
+        {
+            this.fen = fen;
             return this;
         }
         
