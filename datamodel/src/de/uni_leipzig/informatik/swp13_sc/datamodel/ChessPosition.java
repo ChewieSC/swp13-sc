@@ -73,6 +73,6 @@ public enum ChessPosition
     
     public int getPosY()
     {
-        return (int) this.getNumber();
+        return (int) this.getNumber() - 1;
     }
 }

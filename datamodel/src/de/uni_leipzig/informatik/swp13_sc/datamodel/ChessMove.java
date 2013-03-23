@@ -94,7 +94,7 @@ public class ChessMove
         return ((this.comment == null) ? "" : this.comment);
     }
     
-    public String setComment(String comment)
+    public void setComment(String comment)
     {
         this.comment = comment;
     }

@@ -14,8 +14,7 @@ import java.util.List;
 public class ChessBoard
 {
     private ChessFigure[][] field = new ChessFigure[8][8];
-    private byte whitePawnCount = 8;
-    private byte blackPawnCount = 8;
+    private List<ChessFigure> figuresLeft = new ArrayList<ChessFigure>();
     private List<ChessMove> moves = new ArrayList<ChessMove>();
     
     public ChessBoard()
@@ -23,9 +22,11 @@ public class ChessBoard
         for (ChessFigure f : ChessFigure.values())
         {
             ChessPosition pos = f.getStartPosition();
-            this.field[pos.getPosY() - 1][pos.getPosX() - 1] = f;
+            this.field[pos.getPosY()][pos.getPosX()] = f;
+            this.figuresLeft.add(f);
         }
         // Fields left should be null
+        //this.figuresLeft.addAll(ChessFigure.values());
     }
     
     public ChessBoard(String fen)
@@ -62,7 +63,7 @@ public class ChessBoard
     public String getGBR()
     {
         // TODO: add
-		return null;
+        return null;
     }
     
     public String getFEN()
