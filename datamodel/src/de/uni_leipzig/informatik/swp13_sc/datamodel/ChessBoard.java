@@ -20,35 +20,21 @@ public class ChessBoard
     
     public ChessBoard()
     {
+        for (ChessFigure f : ChessFigure.values())
+        {
+            ChessPosition pos = f.getStartPosition();
+            this.field[pos.getPosY() - 1][pos.getPosX() - 1] = f;
+        }
+        // Fields left should be null
     }
     
     public ChessBoard(String fen)
     {
-        this();
         // TODO: create ChessBoard with FEN
         //       set & move Figures, create Moves
     }
     
     
-    public ChessMove setMove(String pgnMove, int moveNr)
-    {
-        // TODO: convert pgnMove to ChessMove class
-        //       single Move (either white or black)
-        
-        // show if only dest Field
-        // show which figure
-        return null;
-    }
-    
-    public List<ChessMove> setMove(String pgnMoves)
-    {
-        // TODO: extract moveNr, split into two moves
-        //       use setMove(String, int)
-        return null;
-    }
-    
-    /*
-    // TODO: for later use
     private void move(ChessMove move)
     {
         // TODO: move on board
@@ -62,7 +48,6 @@ public class ChessBoard
             move(move);
         }
     }
-    */
     
     public List<ChessMove> getMoves()
     {
@@ -83,20 +68,20 @@ public class ChessBoard
     public String getFEN()
     {
         // TODO: add
-		return null;
+        return null;
     }
     
     public static ChessBoard getChessBoardFromFEN(String fen)
     {
         // TODO: add
         // direct access ...
-		return null;
+        return null;
     }
     
     public static ChessBoard getChessBoardFromGBR(String gbr)
     {
         // TODO: add
-		return null;
+        return null;
     }
     
     public static String getFENFromChessBoard(ChessBoard cb)
