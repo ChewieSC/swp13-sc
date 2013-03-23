@@ -55,11 +55,26 @@ public enum ChessFigure
     //       better alternative?
     
     
+    /**
+     * The figure type of a chess piece.
+     */
     private final ChessFigureType type;
+    /**
+     * The color of a chess piece.
+     */
     private final ChessColor color;
+    /**
+     * The start position of a chess piece.
+     */
     private final ChessPosition startPosition;
     // TODO: needs more attributes?
     
+    /**
+     * Internal
+     * @param color {@link ChessColor}
+     * @param type {@link ChessFigureType}
+     * @param start {@link ChessPosition}
+     */
     private ChessFigure(ChessColor color, ChessFigureType type, ChessPosition start)
     {
         this.type = type;
@@ -67,22 +82,40 @@ public enum ChessFigure
         this.startPosition = start;
     }
     
+    /**
+     * Returns the {@link ChessFigureType} of this ChessFigure.
+     * @return ChessFigureType
+     */
     public final ChessFigureType getFigureType()
     {
         return type;
     }
     
+    /**
+     * Returns the {@link ChessColor} of this chess piece.
+     * @return ChessColor
+     */
     public final ChessColor getColor()
     {
         return color;
     }
     
+    /**
+     * Returns the starting position of this chess piece
+     * @return {@link ChessPosition}
+     */
     public final ChessPosition getStartPosition()
     {
         // getStartField() ?
         return startPosition;
     }
     
+    /**
+     * Gets the {@link Chessfigure} which starting {@link ChessPosition}
+     * equals the given ChessPosition pos.
+     * @param pos ChessPosition from where a ChessFigure started.
+     * @return ChessFigure
+     */
     public static ChessFigure getFigureFromPosition(ChessPosition pos)
     {
         for (ChessFigure f : ChessFigure.values())
@@ -105,6 +138,12 @@ public enum ChessFigure
         return ChessFigure.BlackPawns;
     }
     
+    /**
+     * Returns a List of ChessFigures whose {@link ChessFigureType} equals
+     * the given Parameter type.
+     * @param type ChessFigureType
+     * @return List<ChessFigure>, is never null if <strong>valid</strong> ChessFigureType!
+     */
     public final static List<ChessFigure> getFigures(ChessFigureType type)
     {
         ArrayList<ChessFigure> l = new ArrayList<ChessFigure>();
@@ -118,6 +157,13 @@ public enum ChessFigure
         return l;
     }
     
+    /**
+     * Returns  List of ChessFigures whose {@link ChessColor} equals the
+     * given Parameter color.
+     * @param color ChessColor
+     * @return List<ChessFigure>
+     * @see #getFigures(ChessFigureType)
+     */
     public final static List<ChessFigure> getFigures(ChessColor color)
     {
         ArrayList<ChessFigure> l = new ArrayList<ChessFigure>();
@@ -131,7 +177,17 @@ public enum ChessFigure
         return l;
     }
     
-    public final static List<ChessFigure> intersect(List<ChessFigure> first, List<ChessFigure> second)
+    /**
+     * Gets the intersection of two Lists of ChessFigures. Used for generating list of
+     * ChessFigures whose attributes are the same. (?)
+     * @param first List<ChessFigure>
+     * @param second List<ChessFigure>
+     * @return List<ChessFigure>
+     * @see #getFigures(ChessFigureType)
+     * @see #getFigures(ChessColor)
+     */
+    public final static List<ChessFigure> intersect(List<ChessFigure> first,
+        List<ChessFigure> second)
     {
         List<ChessFigure> l = new ArrayList<ChessFigure>();
         // which is better? (performance)
