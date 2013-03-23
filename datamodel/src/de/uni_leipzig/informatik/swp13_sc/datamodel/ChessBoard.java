@@ -14,6 +14,7 @@ import java.lang.IllegalArgumentException;
 import java.lang.StringBuilder;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ChessBoard
@@ -53,11 +54,11 @@ public class ChessBoard
         String[] parts = position.split("/");
         if (parts.length != 8)
         {
-            // ERROR
             // TODO: what now?
             throw new IllegalArgumentException("Not 8 Rows in FEN: " + position + ", orig: " + fen);
         }
         
+        // need it for checking ...
         List<ChessFigure> fig = new ArrayList<ChessFigure>();
         for (ChessFigure f : ChessFigure.values())
         {
@@ -76,6 +77,7 @@ public class ChessBoard
                 }
                 switch (p)
                 {
+                    // empty fields
                     case '8':
                         // this.field[y][x] = null; // should be null
                         x ++; 
@@ -94,48 +96,43 @@ public class ChessBoard
                     case '1':
                         x ++;
                         break;
+                    
+                    // fields with figure on it
                     case 'P':
-                        // TODO: which Pawn ???
-                        //       Add some Pawns without Positioning?
-                        //       need some next fig function ...
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Pawn, ChessColor.White, row);
                         break;
                     case 'p':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Pawn, ChessColor.Black, row);
                         break;
                     case 'R':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Rook, ChessColor.White, row);
                         break;
                     case 'r':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Rook, ChessColor.Black, row);
                         break;
                     case 'N':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Knight, ChessColor.White, row);
                         break;
                     case 'n':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Knight, ChessColor.Black, row);
                         break;
                     case 'B':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Bishop, ChessColor.White, row);
                         break;
                     case 'b':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Bishop, ChessColor.Black, row);
                         break;
                     case 'Q':
-                        if (fig.remove(ChessFigure.WhiteQueen))
-                        {
-                            this.field[y][x] = ChessFigure.WhiteQueen;
-                        }
-                        else
-                        {
-                            throw new IllegalArgumentException("Multiple Queens! - " + row + " in " + fen);
-                        }
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Queen, ChessColor.White, row);
                         break;
                     case 'q':
-                        if (fig.remove(ChessFigure.BlackQueen))
-                        {
-                            this.field[y][x] = ChessFigure.BlackQueen;
-                        }
-                        else
-                        {
-                            throw new IllegalArgumentException("Multiple black Queens! - " + row + " in " + fen);
-                        }
+                        this.field[y][x] = getFigure(fig, ChessFigureType.Queen, ChessColor.Black, row);
                         break;
                     case 'K':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.King, ChessColor.White, row);
                         break;
                     case 'k':
+                        this.field[y][x] = getFigure(fig, ChessFigureType.King, ChessColor.Black, row);
                         break;
                     default:
                         // should not happen
@@ -144,6 +141,26 @@ public class ChessBoard
             }
         }
     }
+    
+    private ChessFigure getFigure(List<ChessFigure> list, ChessFigureType type, ChessColor color, String msg)
+        throws IllegalArgumentException
+    {
+        Iterator<ChessFigure> iter = list.iterator();
+        while (iter.hasNext())
+        {
+            ChessFigure f = iter.next();
+            if (f.getColor().equals(color))
+            {
+                if (f.getFigureType().equals(type))
+                {
+                    iter.remove();
+                    return f;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Too many " + color + " " + type + "(s) ! - " + msg);
+    }
+    
     
     
     private void move(ChessMove move)
@@ -173,6 +190,10 @@ public class ChessBoard
     public String getGBR()
     {
         // TODO: add
+        
+        // 1st count figures
+        // put them in list
+        // complete.
         return null;
     }
     
@@ -230,9 +251,7 @@ public class ChessBoard
     
     public static ChessBoard getChessBoardFromFEN(String fen)
     {
-        // TODO: add
-        // direct access ...
-        return null;
+        return new ChessBoard(fen);
     }
     
     public static ChessBoard getChessBoardFromGBR(String gbr)
