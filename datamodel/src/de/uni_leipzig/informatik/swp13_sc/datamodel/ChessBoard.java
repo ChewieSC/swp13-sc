@@ -17,13 +17,34 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ *
+ *
+ * @author Erik
+ *
+ */
 public class ChessBoard
 {
+    /**
+     * field
+     */
     private ChessFigure[][] field = new ChessFigure[8][8];
+    /**
+     * figuresLeft
+     */
     private List<ChessFigure> figuresLeft = new ArrayList<ChessFigure>();
+    /**
+     * moves
+     */
     private List<ChessMove> moves = new ArrayList<ChessMove>();
+    /**
+     * canUseFigurePositions
+     */
     private boolean canUseFigurePositions = false;
     
+    /**
+     * 
+     */
     public ChessBoard()
     {
         this.canUseFigurePositions = true;
@@ -37,6 +58,10 @@ public class ChessBoard
         //this.figuresLeft.addAll(ChessFigure.values());
     }
     
+    /**
+     * @param fen
+     * @throws IllegalArgumentException
+     */
     public ChessBoard(String fen)
         throws IllegalArgumentException
     {
@@ -142,6 +167,14 @@ public class ChessBoard
         }
     }
     
+    /**
+     * @param list
+     * @param type
+     * @param color
+     * @param msg
+     * @return
+     * @throws IllegalArgumentException
+     */
     private ChessFigure getFigure(List<ChessFigure> list, ChessFigureType type, ChessColor color, String msg)
         throws IllegalArgumentException
     {
@@ -163,11 +196,17 @@ public class ChessBoard
     
     
     
+    /**
+     * @param move
+     */
     private void move(ChessMove move)
     {
         // TODO: move on board
     }
     
+    /**
+     * @param move
+     */
     public void setMove(ChessMove move)
     {
         if (move != null)
@@ -177,16 +216,35 @@ public class ChessBoard
         }
     }
     
+    /**
+     * @return
+     */
     public List<ChessMove> getMoves()
     {
         return this.moves;
     }
     
+    /**
+     * @return
+     */
     public boolean hasMoves()
     {
         return (! this.moves.isEmpty());
     }
     
+    /**
+     * Tells whether the {@link ChessPosition}s of the used {@link ChessFigure}s
+     * contain valid information or are used arbitrarily.
+     * @return true if ChessPositions have a meaning
+     */
+    public boolean conUseFigurePosition()
+    {
+    	return this.canUseFigurePositions;
+    }
+    
+    /**
+     * @return
+     */
     public String getGBR()
     {
         // TODO: add
@@ -197,6 +255,9 @@ public class ChessBoard
         return null;
     }
     
+    /**
+     * @return
+     */
     public String getFEN()
     {
         StringBuilder ret = new StringBuilder();
@@ -249,32 +310,56 @@ public class ChessBoard
         return ret.toString();
     }
     
+    /**
+     * @param fen
+     * @return
+     */
     public static ChessBoard getChessBoardFromFEN(String fen)
     {
         return new ChessBoard(fen);
     }
     
+    /**
+     * @param gbr
+     * @return
+     */
     public static ChessBoard getChessBoardFromGBR(String gbr)
     {
         // TODO: add
         return null;
     }
     
+    /**
+     * @param cb
+     * @return
+     */
     public static String getFENFromChessBoard(ChessBoard cb)
     {
         return cb.getFEN();
     }
     
+    /**
+     * @param cb
+     * @return
+     */
     public static String getGBRFromChessBoard(ChessBoard cb)
     {
         return cb.getGBR();
     }
     
+    /**
+     * @param fen
+     * @return
+     */
     public static String convertFEN2GBR(String fen)
     {
         return ChessBoard.getChessBoardFromFEN(fen).getGBR();
     }
     
+    /**
+     * @param gbr
+     * @return
+     */
     public static String convertGBR2FEN(String gbr)
     {
         // or longer:

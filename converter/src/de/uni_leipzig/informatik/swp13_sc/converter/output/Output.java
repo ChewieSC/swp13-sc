@@ -11,10 +11,23 @@ import java.lang.NullPointerException;
 import java.lang.RuntimeException;
 import java.util.List;
 
+/**
+ *
+ *
+ * @author Erik
+ *
+ */
 public abstract class Output
 {
+    /**
+     * datastore
+     */
     private final DataStore datastore;
     
+    /**
+     * @param d
+     * @throws NullPointerException
+     */
     public Output(DataStore d)
         throws NullPointerException
     {
@@ -25,6 +38,9 @@ public abstract class Output
         this.datastore = d;
     }
     
+    /**
+     * @return
+     */
     public DataStore getDataStore()
     {
         return this.datastore;
@@ -34,16 +50,22 @@ public abstract class Output
     //       see FileOutput.java
     
     // async
+    /**
+     * @param games
+     */
     public abstract void outputPart(List<ChessGame> games);
     
     // sync, all
+    /**
+     * @param games
+     */
     public abstract void outputAll(List<ChessGame> games);
     
-    // e.g.: "pgn"
-    //   or: "file.pgn", "db.pgn", ...
-    public static String getFormat()
-       throws RuntimeException
-    {
-        throw new RuntimeException("Method not yet implemented.");
-    }
+    /**
+     * Returns the supported Format.<br />
+     * e. g. "pgn" or<br />
+     * "file.pgn", "db.pgn", ...
+     * @return Format as String
+     */
+    public abstract String getFormat();
 }

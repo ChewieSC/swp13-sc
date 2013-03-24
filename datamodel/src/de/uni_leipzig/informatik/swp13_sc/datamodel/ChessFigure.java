@@ -11,39 +11,141 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ *
+ * @author Erik
+ *
+ */
 public enum ChessFigure
 {
+    /**
+     * WhitePawn1(ChessColor.White, ChessFigureType.Pawn, ChessPosition.A2)
+     */
     WhitePawn1(ChessColor.White, ChessFigureType.Pawn, ChessPosition.A2),
+    /**
+     * WhitePawn2(ChessColor.White, ChessFigureType.Pawn, ChessPosition.B2)
+     */
     WhitePawn2(ChessColor.White, ChessFigureType.Pawn, ChessPosition.B2),
-    WhitePawn3(ChessColor.White, ChessFigureType.Pawn, ChessPosition.C2),
+    /**
+     * WhitePawn3(ChessColor.White, ChessFigureType.Pawn, ChessPosition.D2)
+     */
     WhitePawn4(ChessColor.White, ChessFigureType.Pawn, ChessPosition.D2),
-    WhitePawn5(ChessColor.White, ChessFigureType.Pawn, ChessPosition.E2),
+    /**
+     * WhitePawn3(ChessColor.White, ChessFigureType.Pawn, ChessPosition.C2)
+     */
+    WhitePawn3(ChessColor.White, ChessFigureType.Pawn, ChessPosition.C2),
+    /**
+     * WhitePawn5(ChessColor.White, ChessFigureType.Pawn, ChessPosition.F2)
+     */
     WhitePawn6(ChessColor.White, ChessFigureType.Pawn, ChessPosition.F2),
+    /**
+     * WhitePawn5(ChessColor.White, ChessFigureType.Pawn, ChessPosition.E2)
+     */
+    WhitePawn5(ChessColor.White, ChessFigureType.Pawn, ChessPosition.E2),
+    /**
+     * WhitePawn7(ChessColor.White, ChessFigureType.Pawn, ChessPosition.G2)
+     */
     WhitePawn7(ChessColor.White, ChessFigureType.Pawn, ChessPosition.G2),
+    /**
+     * WhitePawn8(ChessColor.White, ChessFigureType.Pawn, ChessPosition.H2)
+     */
     WhitePawn8(ChessColor.White, ChessFigureType.Pawn, ChessPosition.H2),
+    /**
+     * WhiteRook2(ChessColor.White, ChessFigureType.Rook, ChessPosition.A1)
+     */
     WhiteRook1(ChessColor.White, ChessFigureType.Rook, ChessPosition.A1),
+    /**
+     * WhiteRook2(ChessColor.White, ChessFigureType.Rook, ChessPosition.H1)
+     */
     WhiteRook2(ChessColor.White, ChessFigureType.Rook, ChessPosition.H1),
+    /**
+     * WhiteKnight1(ChessColor.White, ChessFigureType.Knight, ChessPosition.B1)
+     */
     WhiteKnight1(ChessColor.White, ChessFigureType.Knight, ChessPosition.B1),
+    /**
+     * WhiteKnight2(ChessColor.White, ChessFigureType.Knight, ChessPosition.G1)
+     */
     WhiteKnight2(ChessColor.White, ChessFigureType.Knight, ChessPosition.G1),
+    /**
+     * WhiteBishop1(ChessColor.White, ChessFigureType.Bishop, ChessPosition.C1)
+     */
     WhiteBishop1(ChessColor.White, ChessFigureType.Bishop, ChessPosition.C1),
+    /**
+     * WhiteBishop2(ChessColor.White, ChessFigureType.Bishop, ChessPosition.F1)
+     */
     WhiteBishop2(ChessColor.White, ChessFigureType.Bishop, ChessPosition.F1),
+    /**
+     * WhiteQueen(ChessColor.White, ChessFigureType.Queen, ChessPosition.D1)
+     */
     WhiteQueen(ChessColor.White, ChessFigureType.Queen, ChessPosition.D1),
+    /**
+     * WhiteKing(ChessColor.White, ChessFigureType.King, ChessPosition.E1)
+     */
     WhiteKing(ChessColor.White, ChessFigureType.King, ChessPosition.E1),
+    /**
+     * BlackPawn1(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.A7)
+     */
     BlackPawn1(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.A7),
+    /**
+     * BlackPawn2(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.B7)
+     */
     BlackPawn2(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.B7),
+    /**
+     * BlackPawn3(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.C7)
+     */
     BlackPawn3(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.C7),
+    /**
+     * BlackPawn4(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.D7)
+     */
     BlackPawn4(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.D7),
+    /**
+     * BlackPawn5(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.E7)
+     */
     BlackPawn5(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.E7),
+    /**
+     * BlackPawn6(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.F7)
+     */
     BlackPawn6(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.F7),
+    /**
+     * BlackPawn7(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.G7)
+     */
     BlackPawn7(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.G7),
+    /**
+     * BlackPawn8(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.H7)
+     */
     BlackPawn8(ChessColor.Black, ChessFigureType.Pawn, ChessPosition.H7),
+    /**
+     * BlackRook1(ChessColor.Black, ChessFigureType.Rook, ChessPosition.A8)
+     */
     BlackRook1(ChessColor.Black, ChessFigureType.Rook, ChessPosition.A8),
+    /**
+     * BlackRook2(ChessColor.Black, ChessFigureType.Rook, ChessPosition.H8)
+     */
     BlackRook2(ChessColor.Black, ChessFigureType.Rook, ChessPosition.H8),
+    /**
+     * BlackKnight1(ChessColor.Black, ChessFigureType.Knight, ChessPosition.B8)
+     */
     BlackKnight1(ChessColor.Black, ChessFigureType.Knight, ChessPosition.B8),
+    /**
+     * BlackKnight2(ChessColor.Black, ChessFigureType.Knight, ChessPosition.G8)
+     */
     BlackKnight2(ChessColor.Black, ChessFigureType.Knight, ChessPosition.G8),
+    /**
+     * BlackBishop1(ChessColor.Black, ChessFigureType.Bishop, ChessPosition.C8)
+     */
     BlackBishop1(ChessColor.Black, ChessFigureType.Bishop, ChessPosition.C8),
+    /**
+     * BlackBishop2(ChessColor.Black, ChessFigureType.Bishop, ChessPosition.F8)
+     */
     BlackBishop2(ChessColor.Black, ChessFigureType.Bishop, ChessPosition.F8),
+    /**
+     * BlackQueen(ChessColor.Black, ChessFigureType.Queen, ChessPosition.E8)
+     */
     BlackQueen(ChessColor.Black, ChessFigureType.Queen, ChessPosition.E8),
+    /**
+     * BlackKing(ChessColor.Black, ChessFigureType.King, ChessPosition.D8)
+     */
     BlackKing(ChessColor.Black, ChessFigureType.King, ChessPosition.D8);
     
     private final static ChessFigure[] WhitePawns = {WhitePawn1, WhitePawn2,
@@ -177,6 +279,7 @@ public enum ChessFigure
         return l;
     }
     
+    // TODO: add an example: white figures & pawns
     /**
      * Gets the intersection of two Lists of ChessFigures. Used for generating list of
      * ChessFigures whose attributes are the same. (?)

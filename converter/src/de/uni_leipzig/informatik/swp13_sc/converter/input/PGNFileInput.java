@@ -23,22 +23,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 // TODO: make it final?
+/**
+ *
+ *
+ * @author Erik
+ *
+ */
 public final class PGNFileInput extends FileInput
     implements Runnable
 {
     // should be set by convert-methods
+    /**
+     * isAsync
+     */
     private boolean isAsync;
+    /**
+     * isConverting
+     */
     private boolean isConverting;
+    /**
+     * gameList
+     */
     private List<ChessGame> gameList;
+    /**
+     * tc
+     */
     private Thread tc;
     
     
+    /**
+     * @param d
+     */
     public PGNFileInput(DataStore d)
     {
         super(d);
     }
     
     
+    /**
+     * @param cg
+     */
     private void addGame(ChessGame cg)
     {
         // TODO: async?
@@ -54,6 +78,9 @@ public final class PGNFileInput extends FileInput
         }
     }
     
+    /**
+     * 
+     */
     private void converting()
     {
         if (! super.fileExists())
@@ -93,6 +120,9 @@ public final class PGNFileInput extends FileInput
         }
     }
     
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
     @Override
     public void run()
     {
@@ -103,6 +133,9 @@ public final class PGNFileInput extends FileInput
         //this.getConverter().finishedInput();
     }
     
+    /* (non-Javadoc)
+     * @see de.uni_leipzig.informatik.swp13_sc.converter.input.Input#convert()
+     */
     @Override
     public List<ChessGame> convert()
     {
@@ -119,6 +152,9 @@ public final class PGNFileInput extends FileInput
         return this.gameList;
     }
 
+    /* (non-Javadoc)
+     * @see de.uni_leipzig.informatik.swp13_sc.converter.input.Input#beginConvert()
+     */
     @Override
     public void beginConvert()
     {
@@ -130,6 +166,9 @@ public final class PGNFileInput extends FileInput
         tc.start();
     }
     
+    /* (non-Javadoc)
+     * @see de.uni_leipzig.informatik.swp13_sc.converter.input.Input#getFormat()
+     */
     @Override
     public String getFormat()
     {

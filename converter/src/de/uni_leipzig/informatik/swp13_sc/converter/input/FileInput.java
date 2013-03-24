@@ -16,8 +16,17 @@ import java.io.InputStreamReader;
 
 import java.lang.NullPointerException;
 
+/**
+ *
+ *
+ * @author Erik
+ *
+ */
 public abstract class FileInput extends Input
 {
+    /**
+     * filename
+     */
     private String filename;
     
     /*
@@ -31,11 +40,17 @@ public abstract class FileInput extends Input
     }
     */
     
+    /**
+     * @param d
+     */
     public FileInput(DataStore d)
     {
         super(d);
     }
     
+    /**
+     * @param filename
+     */
     public void setFilename(String filename)
     {
         this.filename = filename;
@@ -44,6 +59,9 @@ public abstract class FileInput extends Input
     // TODO: some other Constructors
     // TODO: check if constructor of Input can be called - it should be non visible
     
+    /**
+     * @return
+     */
     public boolean fileExists()
     {
         try
@@ -66,6 +84,10 @@ public abstract class FileInput extends Input
     }
     
     // ? where is it closed ?
+    /**
+     * @return
+     * @throws FileNotFoundException
+     */
     protected BufferedReader getInputFileReader()
         throws FileNotFoundException
     {

@@ -16,18 +16,54 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPosition;
  */
 public class ChessMove
 {
+    /**
+     * figure
+     */
     private final ChessFigure figure;
+    /**
+     * from
+     */
     private final ChessPosition from;
+    /**
+     * to
+     */
     private final ChessPosition to;
+    /**
+     * fen
+     */
     private String fen;
+    /**
+     * origMove
+     */
     private String origMove;
+    /**
+     * check
+     */
     private boolean check;
+    /**
+     * checkMate
+     */
     private boolean checkMate;     // some other method to win?
+    /**
+     * isLast
+     */
     private boolean isLast;
     private boolean enPassant;     // ?       // not shown?
+    /**
+     * castling
+     */
     private boolean castling;      // Rochade // format?
+    /**
+     * smallCastling
+     */
     private boolean smallCastling; // ?
+    /**
+     * pawnTransformation
+     */
     private ChessFigure pawnTransformation;
+    /**
+     * Comment given by user/player.
+     */
     private String comment;
     // ...
     
@@ -59,6 +95,10 @@ public class ChessMove
         // ...
     }
     
+    /**
+     * Probably the favoured creation method. Use the Builder for efficient construction!
+     * @param builder {@link Builder}
+     */
     public ChessMove(Builder builder)
     {
         this.origMove = builder.origMove;
