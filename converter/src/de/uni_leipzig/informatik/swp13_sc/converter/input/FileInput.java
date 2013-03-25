@@ -80,6 +80,10 @@ public abstract class FileInput extends Input
         {
             return false;
         }
+        catch (Exception e)
+        {
+        	return false;
+        }
         return true;
     }
     
@@ -91,6 +95,13 @@ public abstract class FileInput extends Input
     protected BufferedReader getInputFileReader()
         throws FileNotFoundException
     {
-        return new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(this.filename))));
+        if (this.fileExists())
+        {
+        	return new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(this.filename))));
+        }
+        else
+        {
+        	throw new FileNotFoundException("File " + ((this.filename==null)?"[null]":this.filename) + " does not exist.");
+        }
     }
 }

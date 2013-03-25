@@ -15,14 +15,29 @@ import de.uni_leipzig.informatik.swp13_sc.converter.input.PGNFileInput;
  */
 public class SimpleConverter extends Converter
 {
-   
+	private String inputArgs;
+	private String outputArgs;
+	
 
 	/**
 	 * 
 	 */
-	public SimpleConverter()
+	public SimpleConverter(String inputFormat, String inputArgs, String outputFormat, String outputArgs)
 	{
 		this.loadInputsAndOutputs();
+		
+		if (this.supportsInput(inputFormat))
+		{
+			this.inputArgs = inputArgs;
+			super.setInput(super.getInput(inputFormat));
+		}
+		if (this.supportsOutput(outputFormat))
+		{
+			this.outputArgs = outputArgs;
+			super.setOutput(super.getOutput(outputFormat));
+		}
+		
+		// TODO: args parsing / module choosing ...
 	}
 
 	/**
@@ -33,4 +48,6 @@ public class SimpleConverter extends Converter
 		super.addInput(new PGNFileInput(this));
 		// TODO: ...
 	}
+	
+	
 }

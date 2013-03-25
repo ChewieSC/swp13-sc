@@ -26,19 +26,21 @@ import java.util.List;
 public class ChessBoard
 {
     /**
-     * field
+     * The chess field.
+     * Index: [y][x] -> y is number, x is letter
      */
     private ChessFigure[][] field = new ChessFigure[8][8];
     /**
-     * figuresLeft
+     * The {@link ChessFigure}s that are left after the last {@link ChessMove}.
      */
     private List<ChessFigure> figuresLeft = new ArrayList<ChessFigure>();
     /**
-     * moves
+     * A private List of {@link ChessMove}s.
      */
     private List<ChessMove> moves = new ArrayList<ChessMove>();
     /**
-     * canUseFigurePositions
+     * Can the {@link ChessFigure}'s {@link ChessPosition}s be used for
+     * reasoning or are they meaningless in their current context.
      */
     private boolean canUseFigurePositions = false;
     
@@ -202,6 +204,7 @@ public class ChessBoard
     private void move(ChessMove move)
     {
         // TODO: move on board
+    	// is supposedly correct move ...
     }
     
     /**
@@ -211,6 +214,7 @@ public class ChessBoard
     {
         if (move != null)
         {
+        	// TODO: add to chessgame?
             this.moves.add(move);
             move(move);
         }
@@ -240,6 +244,24 @@ public class ChessBoard
     public boolean conUseFigurePosition()
     {
     	return this.canUseFigurePositions;
+    }
+    
+    /**
+     * Returns the {@link ChessFigure} on the specified {@link ChessPosition} or
+     * null if no Figure stands there.
+     * @param position ChessPosition to check
+     * @return ChessFigure or null if no Figure on ChessPosition position
+     */
+    public ChessFigure getFigureFromPosition(ChessPosition position)
+    {
+    	if (position == null)
+    	{
+    		return null;
+    	}
+    	else
+    	{
+    		return this.field[position.getPosY()][position.getPosX()];
+    	}
     }
     
     /**

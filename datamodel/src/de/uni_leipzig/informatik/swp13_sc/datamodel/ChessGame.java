@@ -160,8 +160,10 @@ public class ChessGame
 	 */
 	public void addMove(ChessMove move)
 	{
-		// TODO: check necessary?
-				this.moves.add(move);
+		if (move != null)
+		{
+			this.moves.add(move);
+		}		
 	}
 
 	/**
@@ -213,7 +215,8 @@ public class ChessGame
 	}
 
 	/**
-	 * @return
+	 * Returns the last {@link ChessMove} of this ChessGame.
+	 * @return ChessMove or null if no moves are saved.
 	 */
 	public ChessMove getLastMove()
 	{

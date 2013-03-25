@@ -51,6 +51,11 @@ public abstract class Output
     
     // async
     /**
+     * 
+     */
+    public abstract void startOutput();
+    
+    /**
      * @param games
      */
     public abstract void outputPart(List<ChessGame> games);

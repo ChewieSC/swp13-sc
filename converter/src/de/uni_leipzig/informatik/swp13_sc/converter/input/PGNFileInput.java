@@ -24,7 +24,7 @@ import java.util.List;
 
 // TODO: make it final?
 /**
- *
+ * Reads and parses a PGN-File and returns a List of {@link ChessGame}s.
  *
  * @author Erik
  *
@@ -61,11 +61,12 @@ public final class PGNFileInput extends FileInput
     
     
     /**
-     * @param cg
+     * Internal.<br />
+     * Adds a {@link ChessGame} to the DataStore.
+     * @param cg ChessGame to add.
      */
     private void addGame(ChessGame cg)
     {
-        // TODO: async?
         if (isAsync)
         {
             // TODO: add single or batch?
@@ -130,7 +131,6 @@ public final class PGNFileInput extends FileInput
         
         this.isConverting = false;
         this.getDataStore().finishedInput();
-        //this.getConverter().finishedInput();
     }
     
     /* (non-Javadoc)
