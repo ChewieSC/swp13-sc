@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#"
+     xml:base="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#blackPlayer -->
+
+    <owl:ObjectProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#blackPlayer">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#blackPlayer"/>
+                <owl:onClass rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#moves -->
+
+    <owl:ObjectProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#moves">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#whitePlayer -->
+
+    <owl:ObjectProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#whitePlayer">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#whitePlayer"/>
+                <owl:onClass rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#comment -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#comment">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#commentGame -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#commentGame">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#date -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#date">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#elo -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#elo">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer"/>
+        <rdfs:range rdf:resource="&xsd;nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#event -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#event">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#fen -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#fen">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#fenGame -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#fenGame">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#location -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#location">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#move -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#move">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#moveNr -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#moveNr">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove"/>
+        <rdfs:range rdf:resource="&xsd;nonNegativeInteger"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#name -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#name">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#nationality -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#nationality">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#result -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#result">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#round -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#round">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame -->
+
+    <owl:Class rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove -->
+
+    <owl:Class rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessMove"/>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer -->
+
+    <owl:Class rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessPlayer"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
+
