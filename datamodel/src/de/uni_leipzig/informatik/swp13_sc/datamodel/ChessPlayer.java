@@ -39,6 +39,18 @@ public class ChessPlayer
     }
     
     
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder2 = new StringBuilder();
+        builder2.append("ChessPlayer [name=").append(name).append("]");
+        return builder2.toString();
+    }
+
+
     /**
      * A class for easy construction of {@link ChessPlayer}s. It contains only
      * Setter-methods for configuring the attributes. To create the ChessPlayer
@@ -71,6 +83,18 @@ public class ChessPlayer
             return this;
         }
         
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Builder [name=").append(name).append("]");
+            return builder.toString();
+        }
+        
+
         /**
          * Called last to create the {@link ChessPlayer} object.
          * 

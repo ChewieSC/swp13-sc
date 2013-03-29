@@ -138,6 +138,23 @@ public class ChessMove
     }
     
     
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder2 = new StringBuilder();
+        builder2.append("ChessMove [move=").append(move).append(", fen=")
+                .append(fen).append(", nr=").append(nr).append(", comment=")
+                .append(comment).append(", isWhite()=").append(isWhite())
+                .append("]");
+        return builder2.toString();
+    }
+    
+    
+
+
     /**
      * A class for easy construction of {@link ChessMove}s. It contains only
      * Setter-methods for configuring the attributes. To create the ChessMove
@@ -211,6 +228,20 @@ public class ChessMove
             return this;
         }
         
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Builder [move=").append(move).append(", fen=")
+                    .append(fen).append(", nr=").append(nr)
+                    .append(", comment=").append(comment).append("]");
+            return builder.toString();
+        }
+        
+
         /**
          * This method is called last to generate the {@link ChessMove}.<br />
          * (It is possible to call this method and work with this Builder later

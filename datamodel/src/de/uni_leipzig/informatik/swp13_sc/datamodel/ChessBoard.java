@@ -9,6 +9,7 @@ package de.uni_leipzig.informatik.swp13_sc.datamodel;
 import java.lang.StringBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,55 +21,132 @@ import java.util.List;
 public class ChessBoard
 {
     // TODO: how to initialize? Or better way?
-    private char[][] field = new char[8][8];
+    private char[][] field = getCharChessField();
     /**
      * EMPTY_SQUARE<br />
      * Marks a empty square on a chess board or error.
      */
     public final static char EMPTY_SQUARE = 0x00;
+    
+    // Chess Figure Characters used in FEN and on Board to
+    // differentiate color and piece type.
+    
+    /**
+     * WHITE_PAWN
+     */
+    public final static char WHITE_PAWN = 'P';
+    /**
+     * BLACK_PAWN
+     */
+    public final static char BLACK_PAWN = 'p';
+    /**
+     * WHITE_ROOK
+     */
+    public final static char WHITE_ROOK = 'R';
+    /**
+     * BLACK_ROOK
+     */
+    public final static char BLACK_ROOK = 'r';
+    /**
+     * WHITE_KNIGHT
+     */
+    public final static char WHITE_KNIGHT = 'N';
+    /**
+     * BLACK_KNIGHT
+     */
+    public final static char BLACK_KNIGHT = 'n';
+    /**
+     * WHITE_BISHOP
+     */
+    public final static char WHITE_BISHOP = 'B';
+    /**
+     * BLACK_BISHOP
+     */
+    public final static char BLACK_BISHOP = 'b';
+    /**
+     * WHITE_QUEEN
+     */
+    public final static char WHITE_QUEEN = 'Q';
+    /**
+     * BLACK_QUEEN
+     */
+    public final static char BLACK_QUEEN = 'q';
+    /**
+     * WHITE_KING
+     */
+    public final static char WHITE_KING = 'K';
+    /**
+     * BLACK_KING
+     */
+    public final static char BLACK_KING = 'k';
+    
+    // Chess Figure Characters used in chess moves
+    // Notation knows only uppercase
+    // Possible to have different if not international games
+    
+    /**
+     * CN_PAWN
+     */
+    public final static char CN_PAWN = 'P';
+    /**
+     * CN_ROOK
+     */
+    public final static char CN_ROOK = 'R';
+    /**
+     * CN_KNIGHT
+     */
+    public final static char CN_KNIGHT = 'N';
+    /**
+     * CN_BISHOP
+     */
+    public final static char CN_BISHOP = 'B';
+    /**
+     * CN_QUEEN
+     */
+    public final static char CN_QUEEN = 'Q';
+    /**
+     * CN_KING
+     */
+    public final static char CN_KING = 'K';
+    
+    // Player colors
+    
+    /**
+     * WHITE
+     */
+    private final static char WHITE = 'w';
+    /**
+     * BLACK
+     */
+    private final static char BLACK = 'b';
+    
+    /**
+     * All chess piece chars. For easier access and iteration. Like a enum.
+     * Only uppercase needed -> chess notation.
+     */
+    public final static char[] pieces = new char[]
+            {
+                CN_PAWN, CN_ROOK, CN_KNIGHT, CN_BISHOP,
+                CN_QUEEN, CN_KING
+            };
+    
     private List<String> moves = new ArrayList<String>();
     // initial fen values
     private int moveNr = 1;
     private int halfMoveNr = 0;
-    private char playerColor = 'w';
+    private char playerColor = WHITE;
     private String possibleCastlings = "KQkq";
+    private String possibleCastlingsForMove = "KQkq";
     private String enPassant = "-";
     
     /**
      * Constructs a new ChessBoard with the default positioning of the
      * chess figures.
+     * @see #getCharChessField()
      */
     public ChessBoard()
     {
-        // white figures are uppercase, black ones lowercase.
-        // base: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
-        this.field[7][0] = 'r';
-        this.field[7][1] = 'n';
-        this.field[7][2] = 'b';
-        this.field[7][3] = 'q';
-        this.field[7][4] = 'k';
-        this.field[7][5] = 'b';
-        this.field[7][6] = 'n';
-        this.field[7][7] = 'r';
-        
-        for (int x = 0; x < 8; x ++)
-        {
-            this.field[6][x] = 'p';
-            this.field[5][x] = EMPTY_SQUARE;
-            this.field[4][x] = EMPTY_SQUARE;
-            this.field[3][x] = EMPTY_SQUARE;
-            this.field[2][x] = EMPTY_SQUARE;
-            this.field[1][x] = 'P';
-        }
-        
-        this.field[0][0] = 'R';
-        this.field[0][1] = 'N';
-        this.field[0][2] = 'B';
-        this.field[0][3] = 'Q';
-        this.field[0][4] = 'K';
-        this.field[0][5] = 'B';
-        this.field[0][6] = 'N';
-        this.field[0][7] = 'R';
+        // better construct as static field, see #getCharChessField()
     }
     
     
@@ -86,7 +164,7 @@ public class ChessBoard
         String fen = computeFEN();
         if (suffix == null)
         {
-            fen += this.getFENSuffix();
+            fen += ' ' + this.getFENSuffix();
         }
         else
         {
@@ -127,6 +205,11 @@ public class ChessBoard
                     ret.append(this.field[y][x]);
                 }
             }
+            // needed if complete empty row => 8 empty squares
+            if (emptyRow > 0)
+            {
+                ret.append(emptyRow);
+            }
             // each line is separated from the next with a '/' character
             ret.append('/');
         }
@@ -139,14 +222,14 @@ public class ChessBoard
      * Generates a FEN suffix from the information contained in this class.
      * <br />
      * 
-     * 
-     * @param   move    The 
-     * @return  FEN suffix
+     * @return  String FEN suffix
      * @see     http://de.wikipedia.org/wiki/Forsyth-Edwards-Notation
      */
     public String getFENSuffix()
-    {        
-        return this.playerColor + ' ' + this.possibleCastlings + ' '
+    {
+        // first "" needed to cast playerColor as a String not a int or byte
+        // when returning it
+        return "" + this.playerColor + ' ' + this.possibleCastlings + ' '
                 + this.enPassant + ' ' + this.halfMoveNr + ' ' + this.moveNr;
     }
     
@@ -160,7 +243,7 @@ public class ChessBoard
     {
         // TODO: see how to check
         //       or compute in move()
-        return this.possibleCastlings;
+        return this.possibleCastlingsForMove;
     }
     
     /**
@@ -183,14 +266,14 @@ public class ChessBoard
         {
             // last player was white
             this.halfMoveNr ++;
-            this.playerColor = 'b';
+            this.playerColor = BLACK;
         }
         else
         {
             // last player was black
             this.moveNr ++;
             this.halfMoveNr = 0;
-            this.playerColor = 'w';
+            this.playerColor = WHITE;
         }
     }
     
@@ -240,8 +323,19 @@ public class ChessBoard
         if (pos.length() == 2)
         {
             pos = pos.toLowerCase();
-            int x = -1;
-            int y = Integer.parseInt(pos.substring(1));
+            int x = 0;
+            int y = 0;
+            try
+            {
+                y = Integer.parseInt(pos.substring(1));
+            }
+            catch (NumberFormatException e)
+            {
+                return EMPTY_SQUARE;
+            }
+            // for index
+            x --;
+            y --;
             switch (pos.charAt(0))
             {
                 case 'h':
@@ -271,8 +365,41 @@ public class ChessBoard
             return EMPTY_SQUARE;
         }
     }
-
     
+    /**
+     * Converts a char in chess to a index.
+     * 
+     * @param   c   Char to convert.
+     * @return  int
+     */
+    private int chessCharToInt(char c)
+    {
+        int x = -1;
+        switch (c)
+        {
+            case 'h':
+                x ++;
+            case 'g':
+                x ++;
+            case 'f':
+                x ++;
+            case 'e':
+                x ++;
+            case 'd':
+                x ++;
+            case 'c':
+                x ++;
+            case 'b':
+                x ++;
+            case 'a':
+                x ++;
+                break;
+            default:
+                break;
+        }
+        return x;
+    }
+
     
     /**
      * Moves the figures on the board with the information contained in move.
@@ -280,16 +407,199 @@ public class ChessBoard
      * @param   move    A chess move.
      */
     public synchronized void move(String move)
+        throws NumberFormatException
     {
-        // TODO: validity check
+        if ((move == null) || (move.length() <= 1))
+        {
+            return;
+        }
+        
+        boolean isWhite = this.playerColor == 'w';
+        boolean kingSideCastling = false;
+        boolean queenSideCastling = false;
+        
+        // Check Castling first and return if happend
+        if (move.equalsIgnoreCase("O-O"))
+        {
+            kingSideCastling = true;
+            // move & set class variables above
+        }
+        else if (move.equalsIgnoreCase("O-O-O"))
+        {
+            queenSideCastling = true;
+            // move & set class variables above
+        }
+        if (queenSideCastling || kingSideCastling)
+        {
+            // set remaining castlings
+            if (isWhite)
+            {
+                if (this.possibleCastlings.length() == 4)
+                {
+                    this.possibleCastlings = "kq";
+                }
+                else // (this.possibleCastlings.length() == 2)
+                {
+                    this.possibleCastlings = "";
+                }
+            }
+            else
+            {
+                if (this.possibleCastlings.length() == 4)
+                {
+                    this.possibleCastlings = "KQ";
+                }
+                else // (this.possibleCastlings.length() == 2)
+                {
+                    this.possibleCastlings = "";
+                }
+            }
+            
+            // add move to list and finish
+            this.moves.add(move);
+            this.incrementMoveNr();
+            return; // finish
+        }
+        
+        // --------------------------------------------------------------------
+        
+        int i;
+        int y;
+        int oldY;
+        int x;
+        int oldX;
+        char charX;
+        char oldCharX;
+        String pos;
+        char curFigure = move.charAt(0);
+        
+        // get the figure
+        if (Character.isUpperCase(curFigure))
+        {
+            // remove first
+            move = move.substring(1);
+        }
+        else
+        {
+            // implicit pawn
+            curFigure = CN_PAWN;
+        }
+        
+        // --------------------------------------------------------------------
+        
+        // move the figures
+        switch (curFigure)
+        {
+            case CN_PAWN:
+            {
+                // TODO: have to check ':', too?
+                if ((i = move.indexOf('x')) != -1)
+                {
+                    // hit and run ...
+                    // 'captured' ?
+                    // moved diagonal
+                    pos = move.substring(i+1, i+2+1); // new pos
+                    charX = pos.charAt(0);
+                    oldCharX = move.charAt(i-1); // old x pos, column
+                    x = chessCharToInt(charX);
+                    y = Integer.parseInt(pos.substring(1));
+                    
+                }
+                else
+                {
+                    // moved vertical / or implicitly has moved diagonal?
+                    // check if moved two fields -> en passant
+                    pos = move.substring(0, 2);
+                    charX = pos.charAt(0);
+                    x = chessCharToInt(charX);
+                    y = Integer.parseInt(pos.substring(1)); // on error, abort
+                                        
+                    // get source field
+                    if (isWhite)
+                    {
+                        if (field[y-1][x] == WHITE_PAWN)
+                        {
+                            field[y-1][x] = EMPTY_SQUARE;
+                            field[y][x] = WHITE_PAWN;
+                            this.enPassant = "-";
+                        }
+                        else
+                        {
+                            // ((field[y-1][x] == EMPTY_SQUARE) &&
+                            // (field[y-2][x] == WHITE_PAWN))
+                            field[y-2][x] = EMPTY_SQUARE;
+                            field[y][x] = WHITE_PAWN;
+                            this.enPassant = "" + charX + "" + (y-1);
+                        }
+                    }
+                    else
+                    {
+                        if (field[y+1][x] == BLACK_PAWN)
+                        {
+                            field[y+1][x] = EMPTY_SQUARE;
+                            field[y][x] = BLACK_PAWN;
+                            this.enPassant = "-";
+                        }
+                        else
+                        {
+                            // ((field[y+1][x] == EMPTY_SQUARE) &&
+                            // (field[y+2][x] == BLACK_PAWN))
+                            field[y+2][x] = EMPTY_SQUARE;
+                            field[y][x] = BLACK_PAWN;
+                            this.enPassant = "" + charX + "" + (y+1);
+                        }
+                    }
+                }
+                if ((i = move.indexOf('=')) != -1)
+                {
+                    // was transformed
+                    // 'promoted' ?
+                }
+                break;
+            }
+            case CN_ROOK:
+            {
+                
+            }
+            case CN_KNIGHT:
+            {
+                
+            }
+            case CN_BISHOP:
+            {
+                
+            }
+            case CN_QUEEN:
+            {
+                
+            }
+            case CN_KING:
+            {
+                
+            }
+            // error case, abort
+            default:
+            {
+               return; 
+            }   
+        }
+        
+        // --------------------------------------------------------------------
+        
+        // not used yet
+        if (move.indexOf('+') != -1)
+        {
+            // check
+        }
+        else if (move.indexOf('#') != -1)
+        {
+            // check mate
+            // last move
+        }
+        
+        // TODO: validity check ?
         this.moves.add(move);
         this.incrementMoveNr();
-        
-        // TODO: code ...
-        // parse move
-        // predict source field
-        // move piece
-        // set castlings & enPassant
     }
     
     /**
@@ -303,5 +613,77 @@ public class ChessBoard
     {
         this.move(move);
         return this.getFEN(null);
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ChessBoard [field=").append(Arrays.toString(field))
+                .append(", moves=").append(moves).append(", moveNr=")
+                .append(moveNr).append(", halfMoveNr=").append(halfMoveNr)
+                .append(", playerColor=").append(playerColor)
+                .append(", possibleCastlings=").append(possibleCastlings)
+                .append(", possibleCastlingsForMove=")
+                .append(possibleCastlingsForMove).append(", enPassant=")
+                .append(enPassant).append(", computeFEN()=")
+                .append(computeFEN()).append(", getFENSuffix()=")
+                .append(getFENSuffix()).append(", getMoveCount()=")
+                .append(getMoveCount()).append("]");
+        return builder.toString();
+    }
+    
+    
+
+
+    /**
+     * Creates a new 2-dimensional character based chess field with all chess
+     * figures on their start squares.
+     * 
+     * @return  char[][]
+     */
+    public final static char[][] getCharChessField()
+    {
+        // white figures are uppercase, black ones lowercase.
+        // base: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
+        return new char[][]
+            {
+                {
+                    WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN,
+                    WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK 
+                },
+                {
+                    WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN,
+                    WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN
+                },
+                {
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE,
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE
+                },
+                {
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE,
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE
+                },
+                {
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE,
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE
+                },
+                {
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE,
+                    EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE, EMPTY_SQUARE
+                },
+                {
+                    BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN,
+                    BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN
+                },
+                {
+                    BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
+                    BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK
+                }
+            };
     }
 }

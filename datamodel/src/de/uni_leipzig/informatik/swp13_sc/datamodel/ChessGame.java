@@ -8,7 +8,9 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a chess game played between two {@link ChessPlayer}s.
@@ -31,9 +33,9 @@ public class ChessGame
      */
     private final String event;
     /**
-     * The location this game was played at.
+     * The site/location this game was played at.
      */
-    private final String location;
+    private final String site;
     /**
      * The date this game was played at.
      */
@@ -50,6 +52,10 @@ public class ChessGame
      * The {@link ChessMove}s in this game.
      */
     private final List<ChessMove> moves;
+    /**
+     * Possible attached meta data.
+     */
+    private final Map<String, String> meta;
     
     /**
      * Constructor used to create this chess game.
@@ -61,12 +67,14 @@ public class ChessGame
         this.whitePlayer = builder.whitePlayer;
         this.blackPlayer = builder.blackPlayer;
         this.event       = builder.event;
-        this.location    = builder.location;
+        this.site        = builder.site;
         this.date        = builder.date;
         this.round       = builder.round;
         this.result      = builder.result;
         this.moves       = new ArrayList<ChessMove>();
         this.moves.addAll( builder.moves);
+        this.meta        = new HashMap<String, String>();
+        this.meta.putAll(  builder.meta);
     }
     
     /**
@@ -100,13 +108,13 @@ public class ChessGame
     }
     
     /**
-     * Returns the locations this game was played at.
+     * Returns the location/site this game was played at.
      * 
      * @return  String with the location's name/title.
      */
-    public String getLocation()
+    public String getSite()
     {
-        return this.location;
+        return this.site;
     }
     
     /**
@@ -149,7 +157,49 @@ public class ChessGame
         return this.moves;
     }
     
+    /**
+     * Returns the internal map of meta data key-value pairs.
+     * 
+     * @return  Map<String, String>
+     */
+    public Map<String, String> getMetaData()
+    {
+        return this.meta;
+    }
     
+    /**
+     * Returns a meta value for the specified key or null if no value has been
+     * stored.
+     * 
+     * @param   key     Key-name of the meta value.
+     * @return  Builder
+     */
+    public String getMetaValue(String key)
+    {
+        return this.meta.get(key);
+    }
+        
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString()
+    {
+        StringBuilder builder2 = new StringBuilder();
+        builder2.append("ChessGame [whitePlayer=").append(whitePlayer)
+                .append(", blackPlayer=").append(blackPlayer)
+                .append(", event=").append(event).append(", site=")
+                .append(site).append(", date=").append(date)
+                .append(", round=").append(round).append(", result=")
+                .append(result).append(", moves=").append(moves)
+                .append(", meta=").append(meta).append("]");
+        return builder2.toString();
+    }
+    
+    
+
+
+
     /**
      * A class for easy construction of {@link ChessGame}s. It contains only
      * Setter-methods for configuring the attributes. To create the ChessGame
@@ -163,11 +213,12 @@ public class ChessGame
         private ChessPlayer whitePlayer = null;
         private ChessPlayer blackPlayer = null;
         private String event = null;
-        private String location = null;
+        private String site = null;
         private String date = null;
         private String round = null;
         private String result = null;
         private List<ChessMove> moves = new ArrayList<ChessMove>();
+        private Map<String, String> meta = new HashMap<String, String>();
         
         /**
          * Standard empty constructor.
@@ -213,14 +264,14 @@ public class ChessGame
         }
         
         /**
-         * Sets the location this game was played at.
+         * Sets the site/location this game was played at.
          * 
-         * @param   location    String with location
+         * @param   site    String with site/location
          * @return  Builder
          */
-        public Builder setLocation(String location)
+        public Builder setSite(String site)
         {
-            this.location = location;
+            this.site = site;
             return this;
         }
         
@@ -301,6 +352,19 @@ public class ChessGame
         }
         
         /**
+         * Adds a meta data key-value pair linked to this game.
+         * 
+         * @param   key     The key. A identifier for the value.
+         * @param   value   The actual value.
+         * @return  Builder
+         */
+        public Builder addMetaData(String key, String value)
+        {
+            this.meta.put(key, value);
+            return this;
+        }
+        
+        /**
          * This method is called last to generate the {@link ChessGame}.<br />
          * (It is possible to call this method and work with this Builder later
          * but it is not recommended. But possible for inspecting the object
@@ -310,7 +374,56 @@ public class ChessGame
          */
         public ChessGame build()
         {
+            // add all not null meta values
+            // TODO: keys lowercase for equality check or original?
+            // TODO: add if null for iterator() ?
+            if (this.event != null)
+            {
+                this.meta.put("Event", this.event);
+            }
+            if (this.site != null)
+            {
+                this.meta.put("Site", this.site);
+            }
+            if (this.date != null)
+            {
+                this.meta.put("Date", this.date);
+            }
+            if (this.result != null)
+            {
+                this.meta.put("Result", this.result);
+            }
+            if (this.round != null)
+            {
+                this.meta.put("Round", this.round);
+            }
+            if ((this.whitePlayer != null) && (this.whitePlayer.getName() != null))
+            {
+                this.meta.put("White", this.whitePlayer.getName());
+            }
+            if ((this.blackPlayer != null) && (this.blackPlayer.getName() != null))
+            {
+                this.meta.put("Black", this.blackPlayer.getName());
+            }
             return new ChessGame(this);
+        }
+
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Builder [whitePlayer=").append(whitePlayer)
+                    .append(", blackPlayer=").append(blackPlayer)
+                    .append(", event=").append(event).append(", site=")
+                    .append(site).append(", date=").append(date)
+                    .append(", round=").append(round).append(", result=")
+                    .append(result).append(", moves=").append(moves)
+                    .append(", meta=").append(meta).append("]");
+            return builder.toString();
         }
     }
 }
