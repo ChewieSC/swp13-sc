@@ -422,12 +422,38 @@ public class ChessBoard
         if (move.equalsIgnoreCase("O-O"))
         {
             kingSideCastling = true;
-            // move & set class variables above
+            if (isWhite)
+            {
+                field[0][4] = EMPTY_SQUARE;
+                field[0][5] = WHITE_ROOK;
+                field[0][6] = WHITE_KING;
+                field[0][7] = EMPTY_SQUARE;
+            }
+            else
+            {
+                field[7][4] = EMPTY_SQUARE;
+                field[7][5] = BLACK_ROOK;
+                field[7][6] = BLACK_KING;
+                field[7][7] = EMPTY_SQUARE;
+            }            
         }
         else if (move.equalsIgnoreCase("O-O-O"))
         {
             queenSideCastling = true;
-            // move & set class variables above
+            if (isWhite)
+            {
+                field[0][0] = EMPTY_SQUARE;
+                field[0][2] = WHITE_KING;
+                field[0][3] = WHITE_ROOK;
+                field[0][4] = EMPTY_SQUARE;
+            }
+            else
+            {
+                field[7][0] = EMPTY_SQUARE;
+                field[7][2] = BLACK_KING;
+                field[7][3] = BLACK_ROOK;
+                field[7][4] = EMPTY_SQUARE;
+            }
         }
         if (queenSideCastling || kingSideCastling)
         {
@@ -460,6 +486,8 @@ public class ChessBoard
             this.incrementMoveNr();
             return; // finish
         }
+        
+        this.enPassant = "-";
         
         // --------------------------------------------------------------------
         
@@ -496,18 +524,31 @@ public class ChessBoard
                 if ((i = move.indexOf('x')) != -1)
                 {
                     // hit and run ...
-                    // 'captured' ?
+                    // => 'captured' ?
                     // moved diagonal
                     pos = move.substring(i+1, i+2+1); // new pos
                     charX = pos.charAt(0);
-                    oldCharX = move.charAt(i-1); // old x pos, column
+                    oldCharX = move.charAt(i-1); // old x pos, column, index=0?
                     x = chessCharToInt(charX);
+                    oldX = chessCharToInt(oldCharX);
                     y = Integer.parseInt(pos.substring(1));
                     
+                    // move, no validation...
+                    if (isWhite)
+                    {
+                        field[y-1][oldX] = EMPTY_SQUARE;
+                        field[y][x] = WHITE_PAWN;
+                    }
+                    else
+                    {
+                        field[y+1][oldX] = EMPTY_SQUARE;
+                        field[y][x] = BLACK_PAWN;
+                    }
                 }
                 else
                 {
-                    // moved vertical / or implicitly has moved diagonal?
+                    // moved vertical / or implicitly has moved diagonal??
+                    // TODO: check diagonal movement?
                     // check if moved two fields -> en passant
                     pos = move.substring(0, 2);
                     charX = pos.charAt(0);
@@ -554,6 +595,7 @@ public class ChessBoard
                 {
                     // was transformed
                     // 'promoted' ?
+                    field[y][x] = move.charAt(i+1); // no check so far
                 }
                 break;
             }
@@ -597,7 +639,6 @@ public class ChessBoard
             // last move
         }
         
-        // TODO: validity check ?
         this.moves.add(move);
         this.incrementMoveNr();
     }
