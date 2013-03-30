@@ -1,13 +1,13 @@
 /**
  * ChessBoardTest.java
  */
-package de.uni_leipzig.informatik.swp13_sc.datamodel.test;
+package de.uni_leipzig.informatik.swp13_sc.logic.test;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard;
+import de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard;
 
 /**
  * 

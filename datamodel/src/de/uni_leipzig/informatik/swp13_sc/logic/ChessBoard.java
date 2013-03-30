@@ -2,15 +2,17 @@
  * ChessBoard.java
  */
 
-package de.uni_leipzig.informatik.swp13_sc.datamodel;
+package de.uni_leipzig.informatik.swp13_sc.logic;
 
 //import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 
+import java.lang.IllegalArgumentException;
 import java.lang.StringBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * A virtual chess board. Needed for computing FENs.
@@ -149,6 +151,130 @@ public class ChessBoard
         // better construct as static field, see #getCharChessField()
     }
     
+    /**
+     * Constructs a new ChessBoard from a given FEN. (It should be a
+     * complete FEN, not only the positioning.)
+     * 
+     * @param   fen     The FEN String
+     * @throws IllegalArgumentException
+     * @throws NumberFormatException
+     */
+    public ChessBoard(String fen)
+        throws  IllegalArgumentException, NumberFormatException
+    {
+        if (fen == null)
+        {
+            throw new IllegalArgumentException("Parameter fen is null!");
+        }
+        StringTokenizer parts = new StringTokenizer(fen);
+        if (parts.countTokens() != 6)
+        {
+            throw new IllegalArgumentException("FEN consists of 6 Parts! " +
+                    "This Paramter has only "+ parts.countTokens()+ " Parts.");
+        }
+        StringTokenizer rows = new StringTokenizer(parts.nextToken(), "/");
+        // FEN
+        if (rows.countTokens() != 8)
+        {
+            throw new IllegalArgumentException(
+                    "FEN positioning needs 8 rows!");
+        }
+        for (int y = 7; y >= 0; y --)
+        {
+            String row = rows.nextToken();
+            int x = 0;
+            for (char p : row.toCharArray())
+            {
+                if (x >= 8)
+                {
+                    throw new IllegalArgumentException("Too long " + y +
+                        ". row!");
+                }
+                switch (p)
+                {
+                    // skip fields
+                    case '8':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '7':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '6':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '5':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '4':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '3':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '2':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        x ++;
+                    }
+                    case '1':
+                    {
+                        field[y][x] = EMPTY_SQUARE;
+                        break;
+                    }
+                    // add figure
+                    // TODO: need figure count?
+                    case WHITE_PAWN:
+                    case BLACK_PAWN:
+                    case WHITE_ROOK:
+                    case BLACK_ROOK:
+                    case WHITE_KNIGHT:
+                    case BLACK_KNIGHT:
+                    case WHITE_BISHOP:
+                    case BLACK_BISHOP:
+                    case WHITE_QUEEN:
+                    case BLACK_QUEEN:
+                    case WHITE_KING:
+                    case BLACK_KING:
+                    {
+                        field[y][x] = p;
+                        break;
+                    }
+                    // unknown char!
+                    default:
+                    {
+                        throw new IllegalArgumentException(
+                                "Unknown char in row! " + p);
+                    }
+                }
+            }
+            // next field
+            x ++;
+            // too many fields in row
+            if (x != 8)
+            {
+                throw new IllegalArgumentException("" + y +
+                    ". Row was not 8 squares long!");
+            }
+        }
+        this.playerColor              = parts.nextToken().charAt(0); // Color
+        this.possibleCastlingsForMove = parts.nextToken();     // Castlings
+        this.possibleCastlings        = this.possibleCastlingsForMove; // (?)
+        this.enPassant                = parts.nextToken();     // enPassant
+        this.halfMoveNr = Integer.parseInt(parts.nextToken()); // half move 
+        this.moveNr     = Integer.parseInt(parts.nextToken()); // move count
+    }
     
     /**
      * Generates a FEN figure placement string with an additional suffix.
@@ -254,7 +380,7 @@ public class ChessBoard
     public int getMoveCount()
     {
         //return this.moves.size();
-        return this.moveNr - this.halfMoveNr;
+        return this.moveNr - 1 + this.halfMoveNr;
     }    
 
     /**
@@ -405,6 +531,7 @@ public class ChessBoard
      * Moves the figures on the board with the information contained in move.
      * 
      * @param   move    A chess move.
+     * @throws NumberFormatException
      */
     public synchronized void move(String move)
         throws NumberFormatException
@@ -414,7 +541,7 @@ public class ChessBoard
             return;
         }
         
-        boolean isWhite = this.playerColor == 'w';
+        boolean isWhite = this.playerColor == WHITE;
         boolean kingSideCastling = false;
         boolean queenSideCastling = false;
         
@@ -649,8 +776,10 @@ public class ChessBoard
      * 
      * @param   move    Move to do.
      * @return  String with FEN
+     * @throws NumberFormatException
      */
     public String moveAndGetFEN(String move)
+        throws NumberFormatException
     {
         this.move(move);
         return this.getFEN(null);
