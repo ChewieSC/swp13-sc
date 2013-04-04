@@ -360,6 +360,7 @@ public class ChessGame
          */
         public Builder addMetaData(String key, String value)
         {
+            key = key.toLowerCase(); // easier equality check & ontology
             this.meta.put(key, value);
             return this;
         }
@@ -379,31 +380,31 @@ public class ChessGame
             // TODO: add if null for iterator() ?
             if (this.event != null)
             {
-                this.meta.put("Event", this.event);
+                this.meta.put("event", this.event);
             }
             if (this.site != null)
             {
-                this.meta.put("Site", this.site);
+                this.meta.put("site", this.site);
             }
             if (this.date != null)
             {
-                this.meta.put("Date", this.date);
+                this.meta.put("date", this.date);
             }
             if (this.result != null)
             {
-                this.meta.put("Result", this.result);
+                this.meta.put("result", this.result);
             }
             if (this.round != null)
             {
-                this.meta.put("Round", this.round);
+                this.meta.put("round", this.round);
             }
             if ((this.whitePlayer != null) && (this.whitePlayer.getName() != null))
             {
-                this.meta.put("White", this.whitePlayer.getName());
+                this.meta.put("white", this.whitePlayer.getName());
             }
             if ((this.blackPlayer != null) && (this.blackPlayer.getName() != null))
             {
-                this.meta.put("Black", this.blackPlayer.getName());
+                this.meta.put("black", this.blackPlayer.getName());
             }
             return new ChessGame(this);
         }

@@ -178,6 +178,21 @@ public class ChessMove
         }
         
         /**
+         * Generates a new {@link ChessMove.Builder} from a {@link ChessMove}.
+         * 
+         * @param   move    {@link ChessMove}
+         */
+        public Builder(ChessMove move)
+        {
+            this();
+            // transfer all values
+            this.move = move.move;
+            this.fen = move.fen;
+            this.nr = move.nr;
+            this.comment = move.comment;
+        }
+        
+        /**
          * Sets the name of this {@link ChessMove}.
          * 
          * @param   move    the name

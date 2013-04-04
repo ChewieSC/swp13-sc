@@ -4,6 +4,7 @@
 <!DOCTYPE rdf:RDF [
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
 ]>
@@ -14,7 +15,8 @@
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace">
     <owl:Ontology rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology"/>
     
 
@@ -104,15 +106,6 @@
     
 
 
-    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#location -->
-
-    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#location">
-        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
-        <rdfs:range rdf:resource="&xsd;string"/>
-    </owl:DatatypeProperty>
-    
-
-
     <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#move -->
 
     <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#move">
@@ -152,6 +145,15 @@
     <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#round -->
 
     <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#round">
+        <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#site -->
+
+    <owl:DatatypeProperty rdf:about="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#site">
         <rdfs:domain rdf:resource="http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#ChessGame"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>

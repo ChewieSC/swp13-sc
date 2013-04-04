@@ -95,16 +95,6 @@
 
 
 
-###  http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#location
-
-:location rdf:type owl:DatatypeProperty ;
-          
-          rdfs:domain :ChessGame ;
-          
-          rdfs:range xsd:string .
-
-
-
 ###  http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#move
 
 :move rdf:type owl:DatatypeProperty ;
@@ -152,6 +142,16 @@
        rdfs:domain :ChessGame ;
        
        rdfs:range xsd:string .
+
+
+
+###  http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#site
+
+:site rdf:type owl:DatatypeProperty ;
+      
+      rdfs:domain :ChessGame ;
+      
+      rdfs:range xsd:string .
 
 
 
