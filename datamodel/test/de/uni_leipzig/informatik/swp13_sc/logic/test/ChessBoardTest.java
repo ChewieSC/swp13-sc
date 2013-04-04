@@ -20,7 +20,7 @@ public class ChessBoardTest
     public final static char EMPTY_SQUARE = ChessBoard.EMPTY_SQUARE;
     
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#ChessBoard()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#ChessBoard()}.
      */
     @Test
     public final void testChessBoard()
@@ -32,9 +32,23 @@ public class ChessBoardTest
         
         // TODO: what to test???
     }
+    
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#ChessBoard()}.
+     */
+    @Test
+    public final void testChessBoardString()
+    {
+        ChessBoard cb1 = new ChessBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        
+        assertEquals("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", cb1.getFEN(null));
+        //assertEquals("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNr w KQkq - 0 1", cb1.getFEN(null)); //fails
+        
+        // TODO: what to test???
+    }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getFEN(java.lang.String)}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getFEN(java.lang.String)}.
      */
     @Test
     public final void testGetFEN()
@@ -50,7 +64,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#computeFEN()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#computeFEN()}.
      */
     @Test
     public final void testComputeFEN()
@@ -64,7 +78,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getFENSuffix()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getFENSuffix()}.
      */
     @Test
     public final void testGetFENSuffix()
@@ -78,7 +92,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getPossibleCastlings()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getPossibleCastlings()}.
      */
     @Test
     public final void testGetPossibleCastlings()
@@ -87,33 +101,33 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getMoveCount()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getMoveCount()}.
      */
     @Test
     public final void testGetMoveCount()
     {
         ChessBoard cb = new ChessBoard();
         
-        assertEquals(1, cb.getMoveCount());
+        assertEquals(0, cb.getMoveCount());
         // TODO: same as #testIncrementMoveNr()
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#incrementMoveNr()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#incrementMoveNr()}.
      */
     @Test
     public final void testIncrementMoveNr()
     {
         ChessBoard cb = new ChessBoard();
         
-        assertEquals(1, cb.getMoveCount());
+        assertEquals(0, cb.getMoveCount());
 
         // TODO: add some moves andd check move count
         //       maybe parse FEN-Suffix for move and half move
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getPlayerColor()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getPlayerColor()}.
      */
     @Test
     public final void testGetPlayerColor()
@@ -125,7 +139,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getFigureAt(int, int)}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getFigureAt(int, int)}.
      */
     @Test
     public final void testGetFigureAtIntInt()
@@ -142,7 +156,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getFigureAt(java.lang.String)}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getFigureAt(java.lang.String)}.
      */
     @Test
     public final void testGetFigureAtString()
@@ -165,7 +179,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#move(java.lang.String)}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#move(java.lang.String)}.
      */
     @Test
     public final void testMove()
@@ -174,7 +188,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#moveAndGetFEN(java.lang.String)}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#moveAndGetFEN(java.lang.String)}.
      */
     @Test
     public final void testMoveAndGetFEN()
@@ -183,7 +197,7 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.datamodel.ChessBoard#getCharChessField()}.
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getCharChessField()}.
      * Test for char field initialization.
      */
     @Test

@@ -258,9 +258,9 @@ public class ChessBoard
                                 "Unknown char in row! " + p);
                     }
                 }
-            }
-            // next field
-            x ++;
+                // next field
+                x ++;
+            }            
             // too many fields in row
             if (x != 8)
             {
