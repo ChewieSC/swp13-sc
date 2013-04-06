@@ -776,7 +776,7 @@ public class ChessBoard
      * 
      * @param   move    Move to do.
      * @return  String with FEN
-     * @throws NumberFormatException
+     * @throws  NumberFormatException
      */
     public String moveAndGetFEN(String move)
         throws NumberFormatException

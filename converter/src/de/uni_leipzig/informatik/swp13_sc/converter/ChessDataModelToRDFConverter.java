@@ -23,7 +23,6 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
  * Converts the Chess Datamodel classes to their RDF representation.
  *
  * @author Erik
- *
  */
 public class ChessDataModelToRDFConverter
 {
@@ -33,7 +32,6 @@ public class ChessDataModelToRDFConverter
      * ChessDataModelToRDFConverter}
      *
      * @author Erik
-     *
      */
     public static enum OutputFormats
     {
@@ -97,7 +95,7 @@ public class ChessDataModelToRDFConverter
      * Internal. Seperator char for URI names.
      */
     private static char separator = '_';
-    
+
     /**
      * Basic Constructor
      */
@@ -198,6 +196,9 @@ public class ChessDataModelToRDFConverter
             }            
         }
         
+        // add converted game name to list
+        this.convertedGames.add(gameName);
+        
         // finished!
     }
     
@@ -210,11 +211,12 @@ public class ChessDataModelToRDFConverter
     {
         for (ChessGame g : games)
         {
+            // to add all games fail-safe
             try
             {
                 convert(g);
             }
-            // TODO: differentiate
+            // TODO: differentiate exceptions
             catch (Exception e)
             {
                 // TODO: log
@@ -242,15 +244,41 @@ public class ChessDataModelToRDFConverter
     }
     
     /**
-     * Normalizes the String str. For use as URI.
+     * Normalizes the String str. For use as URI.<br />
+     * All non-alpha-numeric characters are turned to '_'. The resulting String
+     * contains only letters, numbers and the character '_'.
      * 
      * @param   str     String to normalize
      * @return  normalized String
      */
-    protected String getNormalizedString(String str)
+    protected static String getNormalizedString(String str)
     {
-        // TODO: add something -> replace chars
-        return str;
+        if (str == null)
+        {
+            return "_null_";
+        }
+
+        // Use Regex Pattern?
+        int specialCount = 0;
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i ++)
+        {
+            char c = chars[i];
+            if (Character.isLetterOrDigit(c))
+            {
+                int number = c;
+                if (number > 0x7a)
+                {
+                    chars[i] = '_';
+                    specialCount ++;
+                }
+            }
+            else
+            {
+                chars[i] = '_';
+            }
+        }
+        return (new String(chars)) + ((specialCount > 0) ? "_" + specialCount : "");
     }
     
     /**
@@ -267,14 +295,8 @@ public class ChessDataModelToRDFConverter
                 getNormalizedString(white) + separator + getNormalizedString(date);
         if (convertedGames.contains(gn))
         {
-            int i1;
-            int i2;
-            int i3;
             int last_sep;
-            if (((i1 = gn.indexOf(separator)) != -1) &&
-                    ((i2 = gn.indexOf(separator, i1+1)) != -1) &&
-                    ((i3 = gn.indexOf(separator, i2+1)) != -1) &&
-                    (last_sep = gn.indexOf(separator, i3+1)) != -1)
+            if ((last_sep = gn.lastIndexOf(separator)) != -1)
             {
                 int nr = 1;
                 try
@@ -286,6 +308,7 @@ public class ChessDataModelToRDFConverter
                     // ...
                     nr = (new Random(System.currentTimeMillis()))
                             .nextInt(Integer.MAX_VALUE);
+                    last_sep = gn.length() - 1;
                 }
                 gn = gn.substring(0, last_sep+1) + nr;
             }
