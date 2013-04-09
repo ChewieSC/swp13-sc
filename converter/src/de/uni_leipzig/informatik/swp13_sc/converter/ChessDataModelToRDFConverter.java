@@ -4,6 +4,7 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
@@ -106,6 +107,7 @@ public class ChessDataModelToRDFConverter
         // add namespace prefixes
         model.setNsPrefix("cont", ChessRDFVocabulary.getURI());
         model.setNsPrefix("cres", ChessRDFVocabulary.getResourceURI());
+        model.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
         convertedGames = new HashSet<String>();
     }
     
@@ -239,6 +241,15 @@ public class ChessDataModelToRDFConverter
         }
         
         model.write(output, format.getFormat(), null);
+        /*try
+        {
+            output.close();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }*/
         
         return true;
     }

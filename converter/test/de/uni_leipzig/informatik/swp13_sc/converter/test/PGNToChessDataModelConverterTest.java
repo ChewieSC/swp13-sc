@@ -22,7 +22,10 @@ public class PGNToChessDataModelConverterTest
 
     public PGNToChessDataModelConverterTest()
     {
-        PGNToChessDataModelConverter c = new PGNToChessDataModelConverter(null, null);
+        PGNToChessDataModelConverter c = new PGNToChessDataModelConverter("C:/temp/Ashley.pgn", "C:/temp/Ashley.pgn.ttl");
+        c.parse();
+        c.convert();
+        c.write();
     }
 
     /**
