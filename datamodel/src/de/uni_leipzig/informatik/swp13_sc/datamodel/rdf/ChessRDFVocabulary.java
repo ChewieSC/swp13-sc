@@ -176,7 +176,8 @@ public class ChessRDFVocabulary
         moves = model.createProperty(Prefix + "moves");
         
         name = model.createProperty(Prefix + "name");
-        
+        //black = model.createProperty(Prefix + "black");
+        //white = model.createProperty(Prefix + "white");
         event = model.createProperty(Prefix + "event");
         site = model.createProperty(Prefix + "site");
         round = model.createProperty(Prefix + "round");

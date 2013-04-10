@@ -6,6 +6,7 @@ package de.uni_leipzig.informatik.swp13_sc.datamodel;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -380,31 +381,38 @@ public class ChessGame
             // TODO: add if null for iterator() ?
             if (this.event != null)
             {
-                this.meta.put("event", this.event);
+                this.meta.put(ChessPGNVocabulary.Meta_Key_Event.toLowerCase(),
+                        this.event);
             }
             if (this.site != null)
             {
-                this.meta.put("site", this.site);
+                this.meta.put(ChessPGNVocabulary.Meta_Key_Site.toLowerCase(),
+                        this.site);
             }
             if (this.date != null)
             {
-                this.meta.put("date", this.date);
+                this.meta.put(ChessPGNVocabulary.Meta_Key_Date.toLowerCase(),
+                        this.date);
             }
             if (this.result != null)
             {
-                this.meta.put("result", this.result);
+                this.meta.put(ChessPGNVocabulary.Meta_Key_Result.toLowerCase(),
+                        this.result);
             }
             if (this.round != null)
             {
-                this.meta.put("round", this.round);
+                this.meta.put(ChessPGNVocabulary.Meta_Key_Round.toLowerCase(),
+                        this.round);
             }
             if ((this.whitePlayer != null) && (this.whitePlayer.getName() != null))
             {
-                this.meta.put("white", this.whitePlayer.getName());
+                this.meta.put(ChessPGNVocabulary.Meta_Key_White.toLowerCase(),
+                        this.whitePlayer.getName());
             }
             if ((this.blackPlayer != null) && (this.blackPlayer.getName() != null))
             {
-                this.meta.put("black", this.blackPlayer.getName());
+                this.meta.put(ChessPGNVocabulary.Meta_Key_Black.toLowerCase(),
+                        this.blackPlayer.getName());
             }
             return new ChessGame(this);
         }

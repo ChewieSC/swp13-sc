@@ -1,6 +1,7 @@
 /**
  * PGNToChessDataModelConverterTest.java
  */
+
 package de.uni_leipzig.informatik.swp13_sc.converter.test;
 
 import static org.junit.Assert.*;
@@ -13,16 +14,17 @@ import de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter
 
 /**
  * 
- *
+ * 
  * @author Erik
- *
+ * 
  */
 public class PGNToChessDataModelConverterTest
 {
 
     public PGNToChessDataModelConverterTest()
     {
-        PGNToChessDataModelConverter c = new PGNToChessDataModelConverter("C:/temp/Ashley.pgn", "C:/temp/Ashley.pgn.ttl");
+        PGNToChessDataModelConverter c = new PGNToChessDataModelConverter(
+                "C:/temp/Ashley.pgn", "C:/temp/Ashley.pgn.ttl");
         c.parse();
         c.convert();
         c.write();
@@ -45,7 +47,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#PGNToChessDataModelConverter(java.lang.String, java.lang.String)}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#PGNToChessDataModelConverter(java.lang.String, java.lang.String)}
+     * .
      */
     @Test
     public final void testPGNToChessDataModelConverter()
@@ -54,7 +58,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#parse()}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#parse()}
+     * .
      */
     @Test
     public final void testParse()
@@ -63,7 +69,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#convert()}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#convert()}
+     * .
      */
     @Test
     public final void testConvert()
@@ -72,7 +80,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#write()}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#write()}
+     * .
      */
     @Test
     public final void testWrite()
@@ -81,7 +91,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#write(java.lang.String)}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#write(java.lang.String)}
+     * .
      */
     @Test
     public final void testWriteString()
@@ -90,7 +102,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openInputStream(java.lang.String)}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openInputStream(java.lang.String)}
+     * .
      */
     @Test
     public final void testOpenInputStream()
@@ -99,7 +113,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openOutputStream(java.lang.String)}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openOutputStream(java.lang.String)}
+     * .
      */
     @Test
     public final void testOpenOutputStream()
@@ -108,7 +124,9 @@ public class PGNToChessDataModelConverterTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openReader(java.lang.String)}.
+     * Test method for
+     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openReader(java.lang.String)}
+     * .
      */
     @Test
     public final void testOpenReader()

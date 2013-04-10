@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
+
 /**
  * A virtual chess board. Needed for computing FENs.
  *
@@ -89,27 +91,27 @@ public class ChessBoard
     /**
      * CN_PAWN
      */
-    public final static char CN_PAWN = 'P';
+    public final static char CN_PAWN = ChessPGNVocabulary.CN_Pawn;
     /**
      * CN_ROOK
      */
-    public final static char CN_ROOK = 'R';
+    public final static char CN_ROOK = ChessPGNVocabulary.CN_Rook;
     /**
      * CN_KNIGHT
      */
-    public final static char CN_KNIGHT = 'N';
+    public final static char CN_KNIGHT = ChessPGNVocabulary.CN_Knight;
     /**
      * CN_BISHOP
      */
-    public final static char CN_BISHOP = 'B';
+    public final static char CN_BISHOP = ChessPGNVocabulary.CN_Bishop;
     /**
      * CN_QUEEN
      */
-    public final static char CN_QUEEN = 'Q';
+    public final static char CN_QUEEN = ChessPGNVocabulary.CN_Queen;
     /**
      * CN_KING
      */
-    public final static char CN_KING = 'K';
+    public final static char CN_KING = ChessPGNVocabulary.CN_King;
     
     // Player colors
     

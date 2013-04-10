@@ -8,6 +8,7 @@ import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -234,31 +235,31 @@ public class PGNToChessDataModelConverter
                     String value = meta.group(2);
                     
                     // switch(key) only with JRE 1.7 !
-                    if ("White".equals(key))
+                    if (ChessPGNVocabulary.Meta_Key_White.equals(key))
                     {
                         cgb.setWhitePlayer(new ChessPlayer.Builder().setName(value).build());
                     }
-                    else if ("Black".equals(key))
+                    else if (ChessPGNVocabulary.Meta_Key_Black.equals(key))
                     {
                         cgb.setBlackPlayer(new ChessPlayer.Builder().setName(value).build());
                     }
-                    else if ("Date".equals(key))
+                    else if (ChessPGNVocabulary.Meta_Key_Date.equals(key))
                     {
                         cgb.setDate(value);
                     }
-                    else if ("Round".equals(key))
+                    else if (ChessPGNVocabulary.Meta_Key_Round.equals(key))
                     {
                         cgb.setRound(value);
                     }
-                    else if ("Result".equals(key))
+                    else if (ChessPGNVocabulary.Meta_Key_Result.equals(key))
                     {
                         cgb.setResult(value);
                     }
-                    else if ("Site".equals(key))
+                    else if (ChessPGNVocabulary.Meta_Key_Site.equals(key))
                     {
                         cgb.setSite(value);
                     }
-                    else if ("Event".equals(key))
+                    else if (ChessPGNVocabulary.Meta_Key_Event.equals(key))
                     {
                         cgb.setEvent(value);
                     }
