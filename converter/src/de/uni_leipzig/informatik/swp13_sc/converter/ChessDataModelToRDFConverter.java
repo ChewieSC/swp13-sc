@@ -4,7 +4,6 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +14,7 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;

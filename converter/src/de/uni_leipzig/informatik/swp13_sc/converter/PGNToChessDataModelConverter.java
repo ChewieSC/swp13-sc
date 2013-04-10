@@ -4,12 +4,6 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
-import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
-import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
-import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
-import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
-import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
-
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -26,6 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 
 /**
  * 
@@ -134,7 +134,7 @@ public class PGNToChessDataModelConverter
     // Group 9: check (check, checkmate (?))
     // Group 10: comments (-> {...})
     
-    private static Pattern pattern_double_move = Pattern.compile(regex_move_double);
+    //private static Pattern pattern_double_move = Pattern.compile(regex_move_double);
     
     private static Pattern pattern_meta_start_line =
             Pattern.compile(regex_meta_start_line);//, Pattern.MULTILINE);
@@ -172,11 +172,9 @@ public class PGNToChessDataModelConverter
         
         String line = null;
         int nr = 0;
-        boolean inMeta = false;
         boolean inMoves = false;
         boolean outside = true;
         ChessGame.Builder cgb = new ChessGame.Builder();
-        Matcher metaLine;
         
         // start parse
         while (true)
@@ -439,9 +437,9 @@ public class PGNToChessDataModelConverter
         ZipOutputStream zos = new ZipOutputStream(fos);
         zos.setLevel(9); // highest level
         
-        String entryname = (outputFilename.lastIndexOf('/') != -1) ?
-                outputFilename.substring(outputFilename.lastIndexOf('/') + 1) :
-                    outputFilename;
+        File foc = new File(outputFilename);
+        File fop = foc.getParentFile();
+        String entryname = fop.toURI().relativize(foc.toURI()).getPath();
         
         try
         {

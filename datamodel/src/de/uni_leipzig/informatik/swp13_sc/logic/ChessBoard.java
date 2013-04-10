@@ -622,7 +622,7 @@ public class ChessBoard
         
         int i;
         int y;
-        int oldY;
+        //int oldY;
         int x;
         int oldX;
         char charX;
