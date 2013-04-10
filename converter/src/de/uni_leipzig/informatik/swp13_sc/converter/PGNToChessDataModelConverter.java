@@ -605,12 +605,16 @@ public class PGNToChessDataModelConverter
         ZipOutputStream zos = new ZipOutputStream(fos);
         zos.setLevel(9); // highest level
         
-        File foc = new File(outputFilename);
-        File fop = foc.getParentFile();
-        String entryname = fop.toURI().relativize(foc.toURI()).getPath();
-        
         try
         {
+            File foc = new File(outputFilename);
+            File fop = foc.getParentFile();
+            String entryname = outputFilename;
+            if (fop != null)
+            {
+                entryname = fop.toURI().relativize(foc.toURI()).getPath();
+            }            
+            
             ZipEntry ze = new ZipEntry(entryname);
         
             zos.putNextEntry(ze);
