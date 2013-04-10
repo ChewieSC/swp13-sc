@@ -23,7 +23,7 @@ public class PGNToRDFConverterAllAtOnce
         if (args.length < 1)
         {
             System.out.println("Usage:");
-            System.out.println("\tprogram <pgnfile>");
+            System.out.println("\tjava -jar PGNConverter.jar <pgnfile> [<pgnfile> ...]");
             return;
         }
         for (int i = 0; i < args.length; i ++)
