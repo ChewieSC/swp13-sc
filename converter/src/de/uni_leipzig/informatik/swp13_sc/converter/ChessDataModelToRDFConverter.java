@@ -221,7 +221,7 @@ public class ChessDataModelToRDFConverter
             // TODO: differentiate exceptions
             catch (Exception e)
             {
-                // TODO: log
+                e.printStackTrace();
             }
         }
     }
@@ -247,7 +247,6 @@ public class ChessDataModelToRDFConverter
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }*/
         
@@ -316,6 +315,7 @@ public class ChessDataModelToRDFConverter
                 }
                 catch (NumberFormatException nfe)
                 {
+                    //nfe.printStackTrace();
                     // ...
                     nr = (new Random(System.currentTimeMillis()))
                             .nextInt(Integer.MAX_VALUE);
