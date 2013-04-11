@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -44,6 +45,10 @@ public class PGNToChessDataModelConverter
      */
     private String inputFilename;
     /**
+     * The reader used for the input file.
+     */
+    private BufferedReader reader;
+    /**
      * The outputFilename.
      */
     private String outputFilename;
@@ -64,6 +69,10 @@ public class PGNToChessDataModelConverter
      */
     private volatile boolean finishedParsing;
     /**
+     * finishedInput
+     */
+    private volatile boolean finishedInput;
+    /**
      * Converter used to convert ChessDataModel to RDF.
      */
     private ChessDataModelToRDFConverter chessToRDF;
@@ -71,6 +80,10 @@ public class PGNToChessDataModelConverter
      * List of all converted chess games. Internal chess data format.
      */
     private List<ChessGame> games;
+    /**
+     * complete numberOfGames
+     */
+    private AtomicInteger numberOfGames;
     
     // ------------------------------------------------------------------------
     
@@ -78,6 +91,11 @@ public class PGNToChessDataModelConverter
      * Internal. Empty String. Not null.
      */
     private final static String EMPTY = "";
+    
+    /**
+     * ALL_GAMES indicates that all available games should be processed.
+     */
+    public final static int ALL_GAMES = -1;
     
     // regex strings
     /**
@@ -277,57 +295,184 @@ public class PGNToChessDataModelConverter
      */
     public PGNToChessDataModelConverter(String inputFilename, String outputFilename)
     {
+        this();
+        
         // no validation!
         this.inputFilename = inputFilename;
         this.outputFilename = outputFilename;
-        
+    }
+    
+    /**
+     * Standard Constructor.
+     */
+    public PGNToChessDataModelConverter()
+    {
         this.isConverting = false;
         this.isParsing = false;
         this.finishedConverting = false;
         this.finishedParsing = false;
+        this.finishedInput = false;
         
-        this.games = null;
+        this.games = new ArrayList<ChessGame>();
+        this.numberOfGames = new AtomicInteger();
+    }
+    
+    /**
+     * Returns true if the converter parsed the complete input.
+     * 
+     * @return  true if finished else false
+     */
+    public boolean finishedInputFile()
+    {
+        return this.finishedInput;
+    }
+    
+    /**
+     * Return the complete number of actual parsed games.
+     * 
+     * @return  int
+     */
+    public int numberOfParsedGames()
+    {
+        return numberOfGames.get();
+    }
+    
+    /**
+     * Returns the number of unconverted games still in memory.
+     * 
+     * @return  int
+     */
+    public int numberUnconvertedGames()
+    {
+        if (this.games != null)
+        {
+            return this.numberOfParsedGames() - this.games.size();
+        }
+        return numberOfParsedGames();
+    }
+    
+    /**
+     * Sets the input filename.
+     * 
+     * @param   inputFilename   Filename of input file
+     */
+    public void setInputFilename(String inputFilename)
+    {
+        this.inputFilename = inputFilename;
+    }
+    
+    /**
+     * Sets the input reader for this parser.
+     * 
+     * @param   reader  BufferedReader to read from.
+     * @return  true if successful else false (can't read, no outputfilename
+     *          or is already working)
+     */
+    public boolean setInputReader(BufferedReader reader)
+    {
+        // check if working
+        if (this.isParsing)
+        {
+            return false;
+        }
+        
+        // if no outputFilename can be computet return false
+        if (inputFilename == null || outputFilename == null)
+        {
+            return false;
+        }
+        
+        // check if readable
+        try
+        {
+            if (! reader.ready())
+            {
+                this.reader = null;
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        
+        this.reader = reader;
+        return true;
     }
     
     /**
      * Parses the previously given input file to the internal chess data format.
+     * Stops after count games. Can continue an old session if reader still open.
      * 
+     * @param   count   Count chess games to parse or all if set to -1
      * @return  true if successful, false for error
      */
-    public boolean parse()
+    public boolean parse(int count)
     {
+        this.finishedParsing = false;
         this.isParsing = true;
-        this.games = new ArrayList<ChessGame>();        
-        BufferedReader reader = openReader(this.inputFilename);
+        // determine if continuing file or new
+        try
+        {
+            if (reader == null || ! reader.ready())
+            {
+                // new file
+                reader = openReader(this.inputFilename);
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        // check if valid reader
         if (reader == null)
         {
             return false;
         }
         
         String line = null;
-        int nr = 0;
         boolean inMoves = false;
         boolean outside = true;
-        ChessGame.Builder cgb = new ChessGame.Builder();
+        int gameCount = 0;
+        List<String> metaLines = new ArrayList<String>();
+        List<String> moveLines = new ArrayList<String>();
         
         // start parse
         while (true)
         {
+            // get next line
             try
             {
                 line = reader.readLine();
             }
             catch (IOException e)
             {
-                // log
+                e.printStackTrace();
                 // break;
                 return false;
             }
+            // check if end
             if (line == null)
             {
+                this.finishedInput = true;
+                
+                // needed for last game
+                if (inMoves) {
+                    ChessGame cg = parseGame(metaLines, moveLines);
+                    if (cg != null)
+                    {
+                        this.games.add(cg);
+                        this.numberOfGames.incrementAndGet();
+                        gameCount ++;
+                    }
+                    metaLines = new ArrayList<String>();
+                    moveLines = new ArrayList<String>();
+                }
+                
                 break;
             }
             
+            // sort lines and separate games
             if (EMPTY.equals(line))
             {
                 // -- separator lines --
@@ -338,67 +483,188 @@ public class PGNToChessDataModelConverter
                 else
                 {
                     outside = true;
-                    /*inMeta = false;*/
                     
-                    // finish game and add to list
+                    // start actual converting/parsing of meta, moves
                     if (inMoves)
                     {
-                        this.games.add(cgb.build());
-                        cgb = new ChessGame.Builder();
+                        inMoves = false;
+                        
+                        // start thread?
+                        ChessGame cg = parseGame(metaLines, moveLines);
+                        if (cg != null)
+                        {
+                            this.games.add(cg);
+                            this.numberOfGames.incrementAndGet();
+                            gameCount ++;
+                        }
+                        else
+                        {
+                            System.out.println("  --> invalid game ... ?");
+                        }
+                        
+                        // check for end
+                        if ((count != ALL_GAMES) && (gameCount >= count))
+                        {
+                            break;
+                        }
+                        
+                        // fresh new line lists
+                        metaLines = new ArrayList<String>();
+                        moveLines = new ArrayList<String>();
                     }
-                    inMoves = false;
-                    nr = 0;
                 }
             }
-            //else if (line.charAt(0) == '[')
-            else if (pattern_meta_start_line.matcher(line).lookingAt())
+            else if (line.charAt(0) == '[')
+            //else if (pattern_meta_start_line.matcher(line).lookingAt())
             {
-                // -- meta data --
-                Matcher meta = pattern_meta.matcher(line);
-                // get values
-                if (! meta.find())
+                // add meta data lines to list
+                metaLines.add(line);
+            }
+            else
+            {
+                // add moves to list
+                if (outside)
                 {
-                    // log line
-                    continue;
+                    outside = false;
+                    inMoves = true;
                 }
+                moveLines.add(line);
+            }
+            
+        }
+        
+        // end of parsing
+        if (this.finishedInput)
+        {
+            try
+            {
+                reader.close();
+                reader = null;
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        
+        this.isParsing = false;
+        this.finishedParsing = true;
+        return true;
+    }
+    
+    /**
+     * Parses the whole input stream.
+     * 
+     * @return  true if successful
+     */
+    public boolean parse()
+    {
+        return this.parse(ALL_GAMES);
+    }
+    
+    /**
+     * Parses the given lines into a {@link ChessGame}.<br />
+     * Called for each game.
+     * 
+     * @param   metaLines   meta data lines
+     * @param   moveLines   move list lines
+     * @return  ChessGame if successful else null.
+     */
+    protected ChessGame parseGame(List<String> metaLines, List<String> moveLines)
+    {
+        // input validation
+        if (metaLines == null || metaLines.size() < 7)
+        {
+            return null;
+        }
+        if (moveLines == null || moveLines.size() == 0)
+        {
+            return null;
+        }
+        
+        // new chess game
+        ChessGame.Builder cgb = new ChessGame.Builder();
+        
+        // --------------------------------------------------------------------
+        
+        // parse meta data entries
+        for (String line : metaLines)
+        {
+            Matcher meta = pattern_meta.matcher(line);
+            
+            // get values
+            if (! meta.find())
+            {
+                // log line
+                continue;
+            }
+            try
+            {
+                String key = meta.group(1);
+                String value = meta.group(2);
+                
+                // switch(key) only with JRE 1.7 !
+                if (ChessPGNVocabulary.Meta_Key_White.equals(key))
+                {
+                    cgb.setWhitePlayer(new ChessPlayer.Builder().setName(value).build());
+                }
+                else if (ChessPGNVocabulary.Meta_Key_Black.equals(key))
+                {
+                    cgb.setBlackPlayer(new ChessPlayer.Builder().setName(value).build());
+                }
+                else if (ChessPGNVocabulary.Meta_Key_Date.equals(key))
+                {
+                    cgb.setDate(value);
+                }
+                else if (ChessPGNVocabulary.Meta_Key_Round.equals(key))
+                {
+                    cgb.setRound(value);
+                }
+                else if (ChessPGNVocabulary.Meta_Key_Result.equals(key))
+                {
+                    cgb.setResult(value);
+                }
+                else if (ChessPGNVocabulary.Meta_Key_Site.equals(key))
+                {
+                    cgb.setSite(value);
+                }
+                else if (ChessPGNVocabulary.Meta_Key_Event.equals(key))
+                {
+                    cgb.setEvent(value);
+                }
+                else
+                {
+                    cgb.addMetaData(key, value);
+                }         
+            }
+            catch (IllegalStateException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        // --------------------------------------------------------------------
+        
+        // parse moves
+        int nr = 0;
+        for (String line : moveLines)
+        {
+            Matcher move = pattern_single_move.matcher(line);
+            while (move.find())
+            {
+                nr ++;
+                ChessMove.Builder cmb = new ChessMove.Builder();
                 try
                 {
-                    String key = meta.group(1);
-                    String value = meta.group(2);
+                    String m = move.group(1);
+                    String comment = move.group(9);
                     
-                    // switch(key) only with JRE 1.7 !
-                    if (ChessPGNVocabulary.Meta_Key_White.equals(key))
-                    {
-                        cgb.setWhitePlayer(new ChessPlayer.Builder().setName(value).build());
-                    }
-                    else if (ChessPGNVocabulary.Meta_Key_Black.equals(key))
-                    {
-                        cgb.setBlackPlayer(new ChessPlayer.Builder().setName(value).build());
-                    }
-                    else if (ChessPGNVocabulary.Meta_Key_Date.equals(key))
-                    {
-                        cgb.setDate(value);
-                    }
-                    else if (ChessPGNVocabulary.Meta_Key_Round.equals(key))
-                    {
-                        cgb.setRound(value);
-                    }
-                    else if (ChessPGNVocabulary.Meta_Key_Result.equals(key))
-                    {
-                        cgb.setResult(value);
-                    }
-                    else if (ChessPGNVocabulary.Meta_Key_Site.equals(key))
-                    {
-                        cgb.setSite(value);
-                    }
-                    else if (ChessPGNVocabulary.Meta_Key_Event.equals(key))
-                    {
-                        cgb.setEvent(value);
-                    }
-                    else
-                    {
-                        cgb.addMetaData(key, value);
-                    }         
+                    cgb.addMove(cmb.setNr(nr).setMove(m).setComment(comment).build());
                 }
                 catch (IllegalStateException e)
                 {
@@ -408,75 +674,77 @@ public class PGNToChessDataModelConverter
                 {
                     e.printStackTrace();
                 }
-                
             }
-            else
-            {
-                if (outside)
-                {
-                    outside = false;
-                    inMoves = true;
-                }
-                // -- moves --
-                Matcher move = pattern_single_move.matcher(line);
-                while (move.find())
-                {
-                    nr ++;
-                    ChessMove.Builder cmb = new ChessMove.Builder();
-                    try
-                    {
-                        String m = move.group(1);
-                        String comment = move.group(9);
-                        
-                        cgb.addMove(cmb.setNr(nr).setMove(m).setComment(comment).build());
-                    }
-                    catch (IllegalStateException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    catch (IndexOutOfBoundsException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            
-        }
-        // end parse
-        try
-        {
-            reader.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
         }
         
-        this.isParsing = false;
-        this.finishedParsing = true;
+        return cgb.build();
+    }
+    
+    /**
+     * Converts the internal chess data format into RDF tripel/statements.
+     * 
+     * @param   count   number of games to convert, rest is preserved
+     * @return  true if successful, false if error
+     */
+    public boolean convert(int count)
+    {
+        if (this.games == null || this.games.isEmpty())
+        {
+            return false;
+        }
+        this.finishedConverting = false;
+        this.isConverting = true;
+        this.chessToRDF = new ChessDataModelToRDFConverter();
+        
+        // get count list elements
+        List<ChessGame> gms = new ArrayList<ChessGame>();
+        if (count != ALL_GAMES)
+        {
+            if (this.games.size() < count)
+            {
+                count = this.games.size();
+            }
+            try
+            {
+                List<ChessGame> part = this.games.subList(0, count);
+                gms.addAll(part);
+                part.clear();
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                e.printStackTrace();
+            }
+            catch (Exception e)
+            {
+                //IllegalArgumentException
+                //NullPointerException
+                //ClassCastException
+                //UnsupportedOperationException
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            gms.addAll(this.games);
+            this.games.clear();
+        }
+        
+        // convert
+        this.chessToRDF.convert(gms);
+        
+        this.isConverting = false;
+        this.finishedConverting = true;
         return true;
     }
     
     /**
      * Converts the internal chess data format into RDF tripel/statements.
      * 
-     * @return  true if successful, false if error
+     * @return  true if successful
      */
     public boolean convert()
     {
-        this.isConverting = true;
-        if (this.games == null || this.games.size() == 0)
-        {
-            return false;
-        }
-        this.chessToRDF = new ChessDataModelToRDFConverter();
-        
-        //convert
-        this.chessToRDF.convert(games);
-        
-        this.isConverting = false;
-        this.finishedConverting = true;
-        return true;
+        return this.convert(ALL_GAMES);
     }
     
     /**
@@ -491,7 +759,7 @@ public class PGNToChessDataModelConverter
     
     /**
      * Writes the RDF data to the specified outputFilename. Old file data will
-     * be overwritten and therefore lost.
+     * be overwritten and therefore lost. Stream is closed eventually.
      * 
      * @param   outputFilename  File to write into.
      * @return  true if successful else false
@@ -500,18 +768,9 @@ public class PGNToChessDataModelConverter
     {
         //OutputStream os = openOutputStream(outputFilename);
         OutputStream os = openZipOutputStream(outputFilename);
+              
+        write(os);
         
-        if (os == null)
-        {
-            return false;
-        }        
-        if (this.chessToRDF == null)
-        {
-            return false;
-        }
-        
-        // flush all
-        this.chessToRDF.flushToStream(os, OutputFormats.TURTLE);
         try
         {
             os.close();
@@ -522,6 +781,45 @@ public class PGNToChessDataModelConverter
         }
         
         return true;
+    }
+    
+    /**
+     * Writes the RDF data to the specified OutputStream os.<br />
+     * Uses the standard format {@link OutputFormats.TURTLE}
+     * 
+     * @param   os  Stream to write into
+     * @return  true if successful
+     */
+    public boolean write(OutputStream os)
+    {
+        return write(os, OutputFormats.TURTLE);
+    }
+    
+    /**
+     * Writes the converted RDF data to the OutputStream os in the format.
+     * 
+     * @param   os      Stream to write into
+     * @param   format  Outputformat
+     * @return  true if successful, false on error
+     */
+    public boolean write(OutputStream os, OutputFormats format)
+    {
+        // check output stream
+        if (os == null)
+        {
+            return false;
+        }
+        // check if there is something to write
+        if ((! this.finishedConverting) || (this.chessToRDF == null))
+        {
+            return false;
+        }
+        
+        // flush all
+        boolean retVal = this.chessToRDF.flushToStream(os, format);        
+        this.chessToRDF = null;
+        
+        return retVal;
     }
     
     /**

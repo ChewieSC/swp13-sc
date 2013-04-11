@@ -119,6 +119,8 @@ public class ChessDataModelToRDFConverter
      */
     public void convert(ChessGame game)
     {
+        // check for close?
+        
         // check values
         if (game == null)
         {
@@ -211,6 +213,11 @@ public class ChessDataModelToRDFConverter
      */
     public void convert(List<ChessGame> games)
     {
+        if (this.model.isClosed())
+        {
+            return;
+        }
+        
         for (ChessGame g : games)
         {
             // to add all games fail-safe
@@ -227,6 +234,32 @@ public class ChessDataModelToRDFConverter
     }
     
     /**
+     * Converts a subset of the list games.
+     * 
+     * @param   games   List to convert.
+     * @param   count   Number of items to convert before stopping
+     */
+    public void convert(List<ChessGame> games, int count)
+    {
+        if (this.model.isClosed())
+        {
+            return;
+        }
+        
+        for (int i = 0; (i < count) && (! games.isEmpty()); i ++)
+        {
+            try
+            {
+                convert(games.remove(0));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    /**
      * Flushes the model into the OutputStream output with the format.
      * 
      * @param   output  OutputStream used.
@@ -235,20 +268,23 @@ public class ChessDataModelToRDFConverter
      */
     public boolean flushToStream(OutputStream output, OutputFormats format)
     {
+        if (this.model.isClosed())
+        {
+            return false;
+        }
+        
         if (output == null)
         {
             return false;
         }
         
-        model.write(output, format.getFormat(), null);
-        /*try
+        String f = null;
+        if (format != null)
         {
-            output.close();
+            f = format.getFormat();
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }*/
+        
+        model.write(output, f, null).close();
         
         return true;
     }
