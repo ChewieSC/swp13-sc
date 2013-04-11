@@ -85,6 +85,13 @@ public class PGNToChessDataModelConverter
      */
     private AtomicInteger numberOfGames;
     
+    /**
+     * Used to check that the last input file is only opened once.
+     * There occurred an infinite loop if the last line of a PGN-File
+     * was empty (an additional last line!) and the file was reopened.
+     */
+    private String lastInputFilename;
+    
     // ------------------------------------------------------------------------
     
     /**
@@ -411,13 +418,20 @@ public class PGNToChessDataModelConverter
     {
         this.finishedParsing = false;
         this.isParsing = true;
+        
         // determine if continuing file or new
         try
         {
             if (reader == null || ! reader.ready())
             {
-                // new file
-                reader = openReader(this.inputFilename);
+                // new file if not opened before
+                //System.out.println("[DEBUG] Opened new input file.");
+                if ((this.lastInputFilename == null) ||
+                        (! this.lastInputFilename.equalsIgnoreCase(this.inputFilename)))
+                {
+                    this.lastInputFilename = this.inputFilename;
+                    reader = openReader(this.inputFilename);
+                }
             }
         }
         catch (IOException e)
