@@ -5,22 +5,29 @@
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import sun.font.CreatedFontTracker;
 
 import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
@@ -430,7 +437,7 @@ public class PGNToChessDataModelConverter
                         (! this.lastInputFilename.equalsIgnoreCase(this.inputFilename)))
                 {
                     this.lastInputFilename = this.inputFilename;
-                    reader = openReader(this.inputFilename);
+                    reader = openReader(openInputStream(this.inputFilename));
                 }
             }
         }
@@ -708,7 +715,12 @@ public class PGNToChessDataModelConverter
         }
         this.finishedConverting = false;
         this.isConverting = true;
-        this.chessToRDF = new ChessDataModelToRDFConverter();
+        // reuse this object ... needed to check for game names in case they
+        // are the same in a single pgn file ... ?!?
+        if (this.chessToRDF == null)
+        {
+            this.chessToRDF = new ChessDataModelToRDFConverter();
+        }
         
         // get count list elements
         List<ChessGame> gms = new ArrayList<ChessGame>();
@@ -759,6 +771,52 @@ public class PGNToChessDataModelConverter
     public boolean convert()
     {
         return this.convert(ALL_GAMES);
+    }
+    
+    /**
+     * Writes all the converted chess game names into the stream.
+     * 
+     * @param   outputStream    OutputStream to write into
+     * @return  true if successful else false
+     */
+    public boolean writeConvertedGameNames(OutputStream outputStream)
+    {
+        if (this.chessToRDF == null)
+        {
+            return false;
+        }
+        BufferedWriter bw = openWriter(outputStream);
+        if (bw == null)
+        {
+            return false;
+        }
+        
+        for (String key : this.chessToRDF.getConvertedGameNames().keySet())
+        {
+            for (String s : this.chessToRDF.getConvertedGameNames().get(key))
+            {
+                try
+                {
+                    bw.write(s);
+                    bw.newLine();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        try
+        {
+            bw.flush();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        
+        return true;
     }
     
     /**
@@ -831,7 +889,7 @@ public class PGNToChessDataModelConverter
         
         // flush all
         boolean retVal = this.chessToRDF.flushToStream(os, format);        
-        this.chessToRDF = null;
+        //this.chessToRDF = null;
         
         return retVal;
     }
@@ -951,25 +1009,45 @@ public class PGNToChessDataModelConverter
     
 
     /**
-     * Opens a text file reader with the given inputFilename.
+     * Opens a (text file) reader with the given inputStream.
      * 
-     * @param   inputFilename   File to read from.
+     * @param   inputStream     (File)InputStream to read from.
      * @return  BufferedReader or null if error
      */
-    protected BufferedReader openReader(String inputFilename)
+    protected BufferedReader openReader(InputStream inputStream)
     {
-        FileInputStream fis = openInputStream(inputFilename);
-        if (fis == null)
+        if (inputStream == null)
         {
             return null;
         }
         
-        DataInputStream dis = new DataInputStream(fis);
+        DataInputStream dis = new DataInputStream(inputStream);
         // default charset?
         InputStreamReader isr = new InputStreamReader(dis, Charset.defaultCharset());
         BufferedReader br = new BufferedReader(isr);
         
         return br;
+    }
+    
+    /**
+     * Opens a (text file) writer with the given outputStream.
+     * 
+     * @param   outputStream     (File)InputStream to read from.
+     * @return  BufferedWriter or null if error
+     */
+    protected BufferedWriter openWriter(OutputStream outputStream)
+    {
+        if (outputStream == null)
+        {
+            return null;
+        }
+        
+        DataOutputStream dos = new DataOutputStream(outputStream);
+        // default charset?
+        OutputStreamWriter osr = new OutputStreamWriter(dos, Charset.defaultCharset());
+        BufferedWriter bw = new BufferedWriter(osr);
+        
+        return bw;
     }
     
 }

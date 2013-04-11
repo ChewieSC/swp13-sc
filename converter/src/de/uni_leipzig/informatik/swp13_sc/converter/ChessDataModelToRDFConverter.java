@@ -5,8 +5,12 @@
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -91,7 +95,8 @@ public class ChessDataModelToRDFConverter
     /**
      * Internal. List of all game names.
      */
-    private Set<String> convertedGames;
+    //private Set<String> convertedGames;
+    private Map<String, List<String>> convertedGames;
     /**
      * Internal. Seperator char for URI names.
      */
@@ -103,12 +108,26 @@ public class ChessDataModelToRDFConverter
     public ChessDataModelToRDFConverter()
     {
         // create store
-        model = ModelFactory.createDefaultModel();
+        model = ChessDataModelToRDFConverter.createModel();
+        
+        convertedGames = new HashMap<String, List<String>>();
+    }
+    
+    /**
+     * Creates a default Model for storing the RDF Statements.
+     * 
+     * @return  Model
+     */
+    protected static Model createModel()
+    {
+        // create store
+        Model model = ModelFactory.createDefaultModel();
         // add namespace prefixes
         model.setNsPrefix("cont", ChessRDFVocabulary.getURI());
         model.setNsPrefix("cres", ChessRDFVocabulary.getResourceURI());
         model.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
-        convertedGames = new HashSet<String>();
+        
+        return model;
     }
     
     /**
@@ -190,19 +209,16 @@ public class ChessDataModelToRDFConverter
                     .addProperty(ChessRDFVocabulary.move, m.getMove())
                     .addProperty(ChessRDFVocabulary.moveNr, "" + nr,
                             XSDDatatype.XSDnonNegativeInteger);
+            model.add(r_game, ChessRDFVocabulary.moves, r_move);
             if (m.hasComment() && m.getComment() != null)
             {
                 r_move.addProperty(ChessRDFVocabulary.comment, m.getComment());
-            }            
+            }
             if (m.getFEN() != null)
             {
                 r_move.addProperty(ChessRDFVocabulary.fen, m.getFEN());
-            }            
+            }
         }
-        
-        // add converted game name to list
-        this.convertedGames.add(gameName);
-        
         // finished!
     }
     
@@ -286,7 +302,23 @@ public class ChessDataModelToRDFConverter
         
         model.write(output, f, null).close();
         
+        // reuse this class -> need fresh model
+        
+        //System.gc();
+        
+        model = ChessDataModelToRDFConverter.createModel();
+        
         return true;
+    }
+    
+    /**
+     * Returns a Set of all converted game names.
+     * 
+     * @return  unmodifiableSet<String>
+     */
+    public Map<String, List<String>> getConvertedGameNames()
+    {
+        return Collections.unmodifiableMap(this.convertedGames);
     }
     
     /**
@@ -315,16 +347,16 @@ public class ChessDataModelToRDFConverter
                 int number = c;
                 if (number > 0x7a)
                 {
-                    chars[i] = '_';
+                    chars[i] = separator;
                     specialCount ++;
                 }
             }
             else
             {
-                chars[i] = '_';
+                chars[i] = separator;
             }
         }
-        return (new String(chars)) + ((specialCount > 0) ? "_" + specialCount : "");
+        return (new String(chars)) + ((specialCount > 0) ? separator + "" + specialCount : "");
     }
     
     /**
@@ -337,34 +369,25 @@ public class ChessDataModelToRDFConverter
      */
     protected String getUniqueGameName(String black, String white, String date)
     {
-        String gn = getNormalizedString(black) + separator +
-                getNormalizedString(white) + separator + getNormalizedString(date);
-        if (convertedGames.contains(gn))
+        String key = getNormalizedString(black) + separator +
+                getNormalizedString(white) + separator +
+                getNormalizedString(date);
+        String game;
+        if (convertedGames.containsKey(key))
         {
-            int last_sep;
-            if ((last_sep = gn.lastIndexOf(separator)) != -1)
-            {
-                int nr = 1;
-                try
-                {
-                    nr = Integer.valueOf(gn.substring(last_sep+1));
-                }
-                catch (NumberFormatException nfe)
-                {
-                    //nfe.printStackTrace();
-                    // ...
-                    nr = (new Random(System.currentTimeMillis()))
-                            .nextInt(Integer.MAX_VALUE);
-                    last_sep = gn.length() - 1;
-                }
-                gn = gn.substring(0, last_sep+1) + nr;
-            }
+            List<String> games = convertedGames.get(key);
+            
+            game = key + separator + "" + (games.size() + 1);
+            games.add(game);
         }
         else
         {
-            gn = gn + separator + "" + 1;
+            List<String> games = new ArrayList<String>();
+            game = key + separator + "" + (games.size() + 1);
+            games.add(game);
+            this.convertedGames.put(key, games);
         }
         
-        return gn;
+        return game;
     }
 }

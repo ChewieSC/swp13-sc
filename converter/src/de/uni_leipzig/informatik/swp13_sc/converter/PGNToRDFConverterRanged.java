@@ -391,6 +391,20 @@ public class PGNToRDFConverterRanged
             System.out.println(" finished.");
         }
         
+        // write the generate chess game names into a file
+        try
+        {
+            ZipEntry ze = new ZipEntry("generateChessGameName.txt");
+            zos.putNextEntry(ze);
+            converter.writeConvertedGameNames(zos);
+            zos.closeEntry();
+            zos.flush();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
         System.out.println("  Processed " + converter.numberOfParsedGames() +
                 " games in " + ((System.currentTimeMillis() - startFile) / 1000.0) +
                 " seconds. Wrote " + nr + " part(s) to Zip-Archive " + outputZip + ".");
