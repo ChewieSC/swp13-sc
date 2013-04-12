@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.IllegalFormatException;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
-//import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 /**
  * A PGN converter implementation.<br />
@@ -318,7 +316,7 @@ public class PGNToRDFConverterRanged
         {
             return false;
         }
-        ZipOutputStream zos = new ZipOutputStream(fos, Charset.defaultCharset());
+        ZipOutputStream zos = new ZipOutputStream(fos);
         zos.setLevel(compressLevel);
         
         // --------------------------------------------------------------------

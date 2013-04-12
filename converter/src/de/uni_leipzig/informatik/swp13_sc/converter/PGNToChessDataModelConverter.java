@@ -20,14 +20,11 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import sun.font.CreatedFontTracker;
 
 import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
@@ -62,6 +59,7 @@ public class PGNToChessDataModelConverter
     /**
      * isConverting
      */
+    @SuppressWarnings("unused")
     private volatile boolean isConverting;
     /**
      * isParsing
@@ -74,6 +72,7 @@ public class PGNToChessDataModelConverter
     /**
      * finishedParsing
      */
+    @SuppressWarnings("unused")
     private volatile boolean finishedParsing;
     /**
      * finishedInput
@@ -170,10 +169,12 @@ public class PGNToChessDataModelConverter
     /**
      * Regex for queenside castling move. Not used.
      */
+    @SuppressWarnings("unused")
     private final static String regex_move_castling_queen = "O\\-O\\-O";
     /**
      * Regex for queenside castling move. Not used.
      */
+    @SuppressWarnings("unused")
     private final static String regex_move_castling_king = "O\\-O";
     //(O\\-O(\\-O)?)   <->   (O\\-O\\-O)|(O\\-O)   ???
     //O\-O(\-O)?
@@ -215,6 +216,7 @@ public class PGNToChessDataModelConverter
     /**
      * Regex for a round (round number, first move and if present the second move).
      */
+    @SuppressWarnings("unused")
     private final static String regex_move_double =
             "(" + regex_move_number + "\\s*" + ")" + regex_move_single + "(" +
                     regex_move_single + ")?"; // checked !!
@@ -223,6 +225,7 @@ public class PGNToChessDataModelConverter
     /**
      * Regex for pgn move part - the result at the end.
      */
+    @SuppressWarnings("unused")
     private final static String regex_result =
             "\\b" + "(1\\-0)|(0\\-1)|(1\\/2\\-1\\/2)" + "\\b"; // checked!
     
@@ -288,6 +291,7 @@ public class PGNToChessDataModelConverter
     /**
      * Regex Pattern for the start of a meta data entry line.
      */
+    @SuppressWarnings("unused")
     private static Pattern pattern_meta_start_line =
             Pattern.compile(regex_meta_start_line);//, Pattern.MULTILINE);
     
@@ -857,7 +861,7 @@ public class PGNToChessDataModelConverter
     
     /**
      * Writes the RDF data to the specified OutputStream os.<br />
-     * Uses the standard format {@link OutputFormats.TURTLE}
+     * Uses the standard format {@link OutputFormats#TURTLE}
      * 
      * @param   os  Stream to write into
      * @return  true if successful

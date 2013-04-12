@@ -48,8 +48,9 @@ public class ChessRDFVocabulary
     
     // Class Types / Resource Types
     /**
-     * Resource as type for new {@link ChessGame} {@link
-     *  com.hp.hpl.jena.rdf.model.Resource}s.
+     * Resource as type for new {@link
+     * de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}
+     * {@link com.hp.hpl.jena.rdf.model.Resource}s.
      */
     public final static Resource ChessGame;
     /**
@@ -65,15 +66,20 @@ public class ChessRDFVocabulary
     
     // Properties of ChessGame
     /**
-     * blackPlayer property of a {@link ChessGame}. The player is an entity.
+     * blackPlayer property of a {@link
+     * de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}.
+     * The player is an entity.
      */
     public final static Property blackPlayer;
     /**
-     * whitePlayer property of a {@link ChessGame}.
+     * whitePlayer property of a {@link
+     * de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}.
      */
     public final static Property whitePlayer;
     /**
-     * moves property of a {@link ChessGame}. Lists all moves of a chess game.
+     * moves property of a {@link
+     * de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}.
+     * Lists all moves of a chess game.
      */
     public final static Property moves;
     

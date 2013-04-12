@@ -287,6 +287,7 @@ public class ChessBoard
      * @see     http://de.wikipedia.org/wiki/Forsyth-Edwards-Notation
      * @see     http://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
      */
+    @SuppressWarnings("javadoc")
     public String getFEN(String suffix)
     {
         String fen = computeFEN();
@@ -353,6 +354,7 @@ public class ChessBoard
      * @return  String FEN suffix
      * @see     http://de.wikipedia.org/wiki/Forsyth-Edwards-Notation
      */
+    @SuppressWarnings("javadoc")
     public String getFENSuffix()
     {
         // first "" needed to cast playerColor as a String not a int or byte

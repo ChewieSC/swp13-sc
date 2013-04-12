@@ -8,11 +8,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -40,9 +37,21 @@ public class ChessDataModelToRDFConverter
      */
     public static enum OutputFormats
     {
+        /**
+         * TURTLE
+         */
         TURTLE("TURTLE", "ttl"),
+        /**
+         * NTRIPEL
+         */
         NTRIPEL("N-TRIPLE", "nt"),
+        /**
+         * RDF_XML
+         */
         RDF_XML("RDF/XML", "rdf"),
+        /**
+         * RDF_XML_PRETTY
+         */
         RDF_XML_PRETTY("RDF/XML-ABBREV", "rdf");
         
         /**

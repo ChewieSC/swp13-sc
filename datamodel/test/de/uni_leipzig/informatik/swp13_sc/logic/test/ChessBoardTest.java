@@ -17,6 +17,9 @@ import de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard;
  */
 public class ChessBoardTest
 {
+    /**
+     * EMPTY_SQUARE marks an empty square on a chess board
+     */
     public final static char EMPTY_SQUARE = ChessBoard.EMPTY_SQUARE;
     
     /**
@@ -115,6 +118,7 @@ public class ChessBoardTest
     /**
      * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#incrementMoveNr()}.
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testIncrementMoveNr()
     {

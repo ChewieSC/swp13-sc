@@ -3,13 +3,11 @@
  */
 package de.uni_leipzig.informatik.swp13_sc.converter.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter;
 
 /**
  * Test Case for ChessDataModelToRDFConverter.
@@ -68,6 +66,7 @@ public class ChessDataModelToRDFConverterTest
      * Works only if accessor for getNormalizedString() in
      * ChessDataModelToRDFConverter.java is public!
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testGetNormalizedString()
     {
@@ -88,12 +87,13 @@ public class ChessDataModelToRDFConverterTest
                 .getNormalizedString("aBC%de45,tj(=!jk").toCharArray());
         assertArrayEquals("____3".toCharArray(),
                 ChessDataModelToRDFConverter
-                .getNormalizedString("öÜß").toCharArray());*/
+                .getNormalizedString("ï¿½ï¿½ï¿½").toCharArray());*/
     }
 
     /**
      * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter#getUniqueGameName(java.lang.String, java.lang.String, java.lang.String)}.
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testGetUniqueGameName()
     {

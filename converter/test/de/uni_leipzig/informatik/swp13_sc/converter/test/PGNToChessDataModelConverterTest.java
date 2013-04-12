@@ -21,6 +21,9 @@ import de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter
 public class PGNToChessDataModelConverterTest
 {
 
+    /**
+     * Basis constructor
+     */
     public PGNToChessDataModelConverterTest()
     {
         PGNToChessDataModelConverter c = new PGNToChessDataModelConverter(
@@ -106,6 +109,7 @@ public class PGNToChessDataModelConverterTest
      * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openInputStream(java.lang.String)}
      * .
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testOpenInputStream()
     {
@@ -117,6 +121,7 @@ public class PGNToChessDataModelConverterTest
      * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openOutputStream(java.lang.String)}
      * .
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testOpenOutputStream()
     {
@@ -128,6 +133,7 @@ public class PGNToChessDataModelConverterTest
      * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openReader(java.lang.String)}
      * .
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testOpenReader()
     {
