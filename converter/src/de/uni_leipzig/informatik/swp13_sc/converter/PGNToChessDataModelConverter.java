@@ -6,6 +6,7 @@ package de.uni_leipzig.informatik.swp13_sc.converter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,10 +39,6 @@ public class PGNToChessDataModelConverter
      * The reader used for the input file.
      */
     private BufferedReader reader;
-    /**
-     * The outputFilename.
-     */
-    private String outputFilename;
     /**
      * isParsing
      */
@@ -281,15 +278,13 @@ public class PGNToChessDataModelConverter
      * Creates a new Converter. Nothing more.
      * 
      * @param   inputFilename   Input filename used later while parsing.
-     * @param   outputFilename  Output filename used later while writing RDF to a file.
      */
-    public PGNToChessDataModelConverter(String inputFilename, String outputFilename)
+    public PGNToChessDataModelConverter(String inputFilename)
     {
         this();
         
         // no validation!
         this.inputFilename = inputFilename;
-        this.outputFilename = outputFilename;
     }
     
     /**
@@ -362,6 +357,17 @@ public class PGNToChessDataModelConverter
     }
     
     /**
+     * Sets the input reader for this parser. It takes the inputStream and
+     * creates a new reader from it.
+     * 
+     * @param   inputStream     InputStream to read from
+     */
+    public void setInputStream(InputStream inputStream)
+    {
+        this.setInputReader(FileUtils.openReader(inputStream));
+    }
+    
+    /**
      * Sets the input reader for this parser.
      * 
      * @param   reader  BufferedReader to read from.
@@ -372,12 +378,6 @@ public class PGNToChessDataModelConverter
     {
         // check if working
         if (this.isParsing)
-        {
-            return false;
-        }
-        
-        // if no outputFilename can be computet return false
-        if (inputFilename == null || outputFilename == null)
         {
             return false;
         }
@@ -671,7 +671,7 @@ public class PGNToChessDataModelConverter
                 try
                 {
                     String m = move.group(1);
-                    String comment = move.group(9);
+                    String comment = move.group(10);
                     
                     cgb.addMove(cmb.setNr(nr).setMove(m).setComment(comment).build());
                 }
