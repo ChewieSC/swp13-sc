@@ -38,7 +38,7 @@ public class PGNToRDFConverterRanged
     private int count = 1000; // default split rate for outputting
     //private int procCount = count; // default split rate while parsing
     private int compressLevel = 9; // highest compression
-    private boolean compressToZip = false;
+    private boolean compressToZip = true;
     private OutputFormats outFormat = OutputFormats.TURTLE;
     private List<String> files = new ArrayList<String>();
     
@@ -93,7 +93,7 @@ public class PGNToRDFConverterRanged
         if (this.compressLevel <= -1)
         {
             this.compressLevel = -1;
-            this.compressToZip = true;
+            this.compressToZip = false;
         }
     }
     
@@ -229,7 +229,8 @@ public class PGNToRDFConverterRanged
                 ((count == PGNToChessDataModelConverter.ALL_GAMES)?"ALL_GAMES":""));
         System.out.println("  Using compression level of: " + compressLevel);
         System.out.println("  Using compression:          " + compressToZip);
-        System.out.println("  Using output format:        " + outFormat.getFormat());
+        System.out.println("  Using output format:        " + outFormat.getFormat()
+                + "(" + outFormat.getExtension() + ")");
         System.out.println();
     }
     
@@ -416,15 +417,19 @@ public class PGNToRDFConverterRanged
             nr ++;
             System.out.println("  Working on Part: " + nr);
             
+            long start = System.currentTimeMillis();
             // Parse only count games.
             System.out.print("    Parsing data ...");
             pgn2cdm.parse(count);
-            System.out.println(" finished.");
+            System.out.println(" finished. (" +
+                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
             
+            start = System.currentTimeMillis();
             // Convert all the parsed games in memory.
             System.out.print("    Converting data ...");
             cdm2rdf.convert(pgn2cdm.getGames());
-            System.out.println(" finished");
+            System.out.println(" finished. (" +
+                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
             
             // Output all the converted games.
             // compute entry name
@@ -447,6 +452,7 @@ public class PGNToRDFConverterRanged
             }
             entryName = entryName + "." + outFormat.getExtension();
             
+            start = System.currentTimeMillis();
             System.out.print("    Writing Zip-Archive-Entry: " + entryName + " ...");
             
             // generate entry
@@ -470,7 +476,8 @@ public class PGNToRDFConverterRanged
                 e.printStackTrace();
             }
             
-            System.out.println(" finished.");
+            System.out.println(" finished. (" +
+                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
         }
         
         // write the generate chess game names into a file
@@ -531,13 +538,17 @@ public class PGNToRDFConverterRanged
             nr ++;
             System.out.println("  Working on Part: " + nr);
             
+            long start = System.currentTimeMillis();
             System.out.print("    Parsing data ...");
             pgn2cdm.parse(count);
-            System.out.println(" finished.");
+            System.out.println(" finished. (" +
+                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
             
+            start = System.currentTimeMillis();
             System.out.print("    Converting data ...");
             cdm2rdf.convert(pgn2cdm.getGames());
-            System.out.println(" finished");
+            System.out.println(" finished. (" +
+                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
             
             // compute file part name
             // without extension
@@ -561,6 +572,7 @@ public class PGNToRDFConverterRanged
             }
             filePartName = filePartName + "." + outFormat.getExtension();
             
+            start = System.currentTimeMillis();
             System.out.print("    Writing File-Part: " + filePartName + " ...");
             
             // generate new OutputStream
@@ -591,7 +603,8 @@ public class PGNToRDFConverterRanged
                 e.printStackTrace();
             }
             
-            System.out.println(" finished.");
+            System.out.println(" finished. (" +
+                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
         }
         
         System.out.println("  Processed " + pgn2cdm.numberOfParsedGames() +
