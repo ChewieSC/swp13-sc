@@ -4,6 +4,8 @@
 
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +21,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
+import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
 /**
  * Converter class.<br />
@@ -123,6 +126,18 @@ public class ChessDataModelToRDFConverter
     }
     
     /**
+     * Returns a Set of all converted game names.
+     * 
+     * @return  unmodifiableSet<String>
+     */
+    public Map<String, List<String>> getConvertedGameNames()
+    {
+        return Collections.unmodifiableMap(this.convertedGames);
+    }
+    
+    // ------------------------------------------------------------------------
+    
+    /**
      * Creates a default Model for storing the RDF Statements.
      * 
      * @return  Model
@@ -139,32 +154,35 @@ public class ChessDataModelToRDFConverter
         return model;
     }
     
+    // ------------------------------------------------------------------------
+    
     /**
      * Takes a {@link ChessGame} and converts it (and its members) to RDF data.<br />
      * Returns if values are null!
      * 
      * @param   game    {@link ChessGame} to convert
+     * @return  true if successful else false
      */
-    public void convert(ChessGame game)
+    public boolean convert(ChessGame game)
     {
         // check for close?
         
         // check values
         if (game == null)
         {
-            return;
+            return false;
         }
         if (game.getBlackPlayer() == null)
         {
-            return;
+            return false;
         }
         if (game.getWhitePlayer() == null)
         {
-            return;
+            return false;
         }
         if (game.getMoves() == null)
         {
-            return;
+            return false;
         }
         
         // generate normalized player names
@@ -229,18 +247,24 @@ public class ChessDataModelToRDFConverter
             }
         }
         // finished!
+        return true;
     }
     
     /**
      * Converts the whole list of {@link ChessGame}s.
      * 
      * @param   games   List<{@link ChessGame}>
+     * @return  true if successful else false
      */
-    public void convert(List<ChessGame> games)
+    public boolean convert(List<ChessGame> games)
     {
+        if (games == null)
+        {
+            return false;
+        }
         if (this.model.isClosed())
         {
-            return;
+            return false;
         }
         
         for (ChessGame g : games)
@@ -256,6 +280,8 @@ public class ChessDataModelToRDFConverter
                 e.printStackTrace();
             }
         }
+        
+        return true;
     }
     
     /**
@@ -263,12 +289,17 @@ public class ChessDataModelToRDFConverter
      * 
      * @param   games   List to convert.
      * @param   count   Number of items to convert before stopping
+     * @return  true if successful else false
      */
-    public void convert(List<ChessGame> games, int count)
+    public boolean convert(List<ChessGame> games, int count)
     {
+        if (games == null)
+        {
+            return false;
+        }
         if (this.model.isClosed())
         {
-            return;
+            return false;
         }
         
         for (int i = 0; (i < count) && (! games.isEmpty()); i ++)
@@ -282,16 +313,21 @@ public class ChessDataModelToRDFConverter
                 e.printStackTrace();
             }
         }
+        
+        return true;
     }
     
+    // ------------------------------------------------------------------------
+    
     /**
+     * Internal method.<br />
      * Flushes the model into the OutputStream output with the format.
      * 
      * @param   output  OutputStream used.
      * @param   format  Format of Output
      * @return  true if successful else false
      */
-    public boolean flushToStream(OutputStream output, OutputFormats format)
+    protected boolean flushToStream(OutputStream output, OutputFormats format)
     {
         if (this.model.isClosed())
         {
@@ -321,14 +357,108 @@ public class ChessDataModelToRDFConverter
     }
     
     /**
-     * Returns a Set of all converted game names.
+     * Writes the converted RDF data to the OutputStream os in the format.
      * 
-     * @return  unmodifiableSet<String>
+     * @param   os      Stream to write into
+     * @param   format  Outputformat
+     * @return  true if successful, false on error
      */
-    public Map<String, List<String>> getConvertedGameNames()
+    public boolean write(OutputStream os, OutputFormats format)
     {
-        return Collections.unmodifiableMap(this.convertedGames);
+        // check output stream
+        if (os == null)
+        {
+            return false;
+        }
+        
+        // flush all
+        return this.flushToStream(os, format);
     }
+    
+    /**
+     * Writes the RDF data to the specified OutputStream os.<br />
+     * Uses the standard format {@link OutputFormats#TURTLE}
+     * 
+     * @param   os  Stream to write into
+     * @return  true if successful
+     */
+    public boolean write(OutputStream os)
+    {
+        return this.write(os, OutputFormats.TURTLE);
+    }
+    
+    /**
+     * Writes the RDF data to the specified outputFilename. Old file data will
+     * be overwritten and therefore lost. Stream is closed eventually.
+     * 
+     * @param   outputFilename  File to write into.
+     * @return  true if successful else false
+     */
+    public boolean write(String outputFilename)
+    {
+        //OutputStream os = FileUtils.openOutputStream(outputFilename);
+        OutputStream os = FileUtils.openGZIPOutputStream(outputFilename);
+        
+        // write data in default format
+        this.write(os);
+        
+        try
+        {
+            os.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    
+    /**
+     * Writes all the converted chess game names into the stream.
+     * 
+     * @param   outputStream    OutputStream to write into
+     * @return  true if successful else false
+     */
+    public boolean writeConvertedGameNames(OutputStream outputStream)
+    {
+        BufferedWriter bw = FileUtils.openWriter(outputStream);
+        if (bw == null)
+        {
+            return false;
+        }
+        
+        for (String key : this.getConvertedGameNames().keySet())
+        {
+            for (String s : this.getConvertedGameNames().get(key))
+            {
+                try
+                {
+                    bw.write(s);
+                    bw.newLine();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        try
+        {
+            bw.flush();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        
+        return true;
+    }
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Normalizes the String str. For use as URI.<br />

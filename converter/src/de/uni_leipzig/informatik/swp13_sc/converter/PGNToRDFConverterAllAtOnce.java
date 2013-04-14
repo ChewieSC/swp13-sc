@@ -31,23 +31,25 @@ public class PGNToRDFConverterAllAtOnce
             long startTime = System.currentTimeMillis();
             System.out.println("Processing file " + (i+1) + "/" + args.length + ".");
             System.out.println("Converting PGN-File <" + args[i] + "> to RDF (Turtle) <" + args[i] + ".ttl>");
-            PGNToChessDataModelConverter converter = new PGNToChessDataModelConverter(args[i], args[i] + ".ttl");
+            PGNToChessDataModelConverter pgn2cdm = new PGNToChessDataModelConverter();
+            pgn2cdm.setInputFilename(args[i]);
+            ChessDataModelToRDFConverter cdm2rdf = new ChessDataModelToRDFConverter();
             System.out.print("Parsing data ...");
-            if (! converter.parse())
+            if (! pgn2cdm.parse())
             {
                 System.out.println(" aborting!");
                 return;
             }
             System.out.println(" finished.");
             System.out.print("Converting data ...");
-            if (! converter.convert())
+            if (! cdm2rdf.convert(pgn2cdm.getGames()))
             {
                 System.out.println(" aborting!");
                 return;
             }
             System.out.println(" finished.");
             System.out.print("Writing data ...");
-            if (! converter.write())
+            if (! cdm2rdf.write(args[i] + ".ttl"))
             {
                 System.out.println(" aborting!");
                 continue;

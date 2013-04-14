@@ -55,6 +55,7 @@ public class ChessDataModelToRDFConverterTest
     /**
      * Test method for {@link de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter#flushToStream(java.io.OutputStream, de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats)}.
      */
+    @SuppressWarnings("javadoc")
     @Test
     public final void testFlushToStream()
     {

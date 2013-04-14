@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter;
 import de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter;
 
 /**
@@ -26,11 +27,12 @@ public class PGNToChessDataModelConverterTest
      */
     public PGNToChessDataModelConverterTest()
     {
-        PGNToChessDataModelConverter c = new PGNToChessDataModelConverter(
-                "C:/temp/Ashley.pgn", "C:/temp/Ashley.pgn.ttl");
-        c.parse();
-        c.convert();
-        c.write();
+        PGNToChessDataModelConverter pgn2cdm = new PGNToChessDataModelConverter();
+        pgn2cdm.setInputFilename("C:/temp/Ashley.pgn");
+        ChessDataModelToRDFConverter cdm2rdf = new ChessDataModelToRDFConverter();
+        pgn2cdm.parse();
+        cdm2rdf.convert(pgn2cdm.getGames());
+        cdm2rdf.write("C:/temp/Ashley.pgn.ttl");
     }
 
     /**
@@ -67,75 +69,6 @@ public class PGNToChessDataModelConverterTest
      */
     @Test
     public final void testParse()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#convert()}
-     * .
-     */
-    @Test
-    public final void testConvert()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#write()}
-     * .
-     */
-    @Test
-    public final void testWrite()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#write(java.lang.String)}
-     * .
-     */
-    @Test
-    public final void testWriteString()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openInputStream(java.lang.String)}
-     * .
-     */
-    @SuppressWarnings("javadoc")
-    @Test
-    public final void testOpenInputStream()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openOutputStream(java.lang.String)}
-     * .
-     */
-    @SuppressWarnings("javadoc")
-    @Test
-    public final void testOpenOutputStream()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#openReader(java.lang.String)}
-     * .
-     */
-    @SuppressWarnings("javadoc")
-    @Test
-    public final void testOpenReader()
     {
         fail("Not yet implemented"); // TODO
     }

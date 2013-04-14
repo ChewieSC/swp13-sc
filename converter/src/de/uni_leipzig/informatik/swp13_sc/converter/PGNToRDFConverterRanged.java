@@ -4,7 +4,6 @@
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
+import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
 /**
  * A PGN converter implementation.<br />
@@ -26,6 +26,7 @@ import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter
  */
 public class PGNToRDFConverterRanged
 {
+    // Commandline arguments
     private final static String PARAM_SPLIT_NUMBER = "--split";
     //private final static String PARAM_PROCESSING_NUMBER = "--processsplit";
     private final static String PARAM_COMPRESS_LEVEL = "--compresslevel";
@@ -33,23 +34,120 @@ public class PGNToRDFConverterRanged
     private final static String PARAM_OUTPUT_FORMAT = "--format";
     private final static String PARAM_HELP = "--help";
     
+    // Converter standard parameters
     private int count = 1000; // default split rate for outputting
     //private int procCount = count; // default split rate while parsing
     private int compressLevel = 9; // highest compression
-    private boolean dontcompress = false;
+    private boolean compressToZip = false;
     private OutputFormats outFormat = OutputFormats.TURTLE;
     private List<String> files = new ArrayList<String>();
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Base constructor
      */
     public PGNToRDFConverterRanged()
     {
+        // see above
+    }
+    
+    // ------------------------------------------------------------------------
+    // Converter properties
+    
+    /**
+     * Sets the split rate for outputting the rdf chess game data.
+     * 
+     * @param   count   rate for splitting, if less or equal to 0 it will
+     *                  output all together.
+     */
+    public void setSplitRate(int count)
+    {
+        this.count = count;
         
+        // 0 makes no sense
+        // less means all
+        if (this.count <= 0)
+        {
+            this.count = PGNToChessDataModelConverter.ALL_GAMES;
+        }
     }
     
     /**
-     * Entry point. Spins everything off.
+     * Sets the compression level for zip output files. The level can be
+     * an integer value between 0 and 9. 0 meaning no compression at all
+     * and 9 the highest level of compression. If a value less than 0 is
+     * given it will result in no zip file at all - it will be the normal
+     * uncompressed content.
+     * 
+     * @param   level   Value between 0 and 9. Less 0 equals --dontcompress!
+     */
+    public void setCompressionLevel(int level)
+    {
+        this.compressLevel = level;
+        
+        if (this.compressLevel > 9)
+        {
+            this.compressLevel = 9;
+        }
+        if (this.compressLevel <= -1)
+        {
+            this.compressLevel = -1;
+            this.compressToZip = true;
+        }
+    }
+    
+    /**
+     * Enables or Disables the compression of the output file(s) into a
+     * Zip-Archive.
+     * 
+     * @param   enabled Enable Zip or not.
+     */
+    public void setCompressionEnabled(boolean enabled)
+    {
+        this.compressToZip = enabled;
+    }
+    
+    /**
+     * Parses the parameter String and tries to set the output format. If an
+     * error occurs it will take the last value set.
+     * 
+     * @param   format  output format or if wrong it will be set to default
+     */
+    public void setOutputFormat(String format)
+    {
+        for (OutputFormats fo : OutputFormats.values())
+        {
+            if (fo.getFormat().equalsIgnoreCase(format))
+            {
+                this.setOutputFormat(fo);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Sets the output format or the default format if incorrect.
+     * 
+     * @param   format  {@link ChessDataModelToRDFConverter.OutputFormats}
+     */
+    public void setOutputFormat(OutputFormats format)
+    {
+        if (format == null)
+        {
+            this.outFormat = OutputFormats.TURTLE;                    
+        }
+        else
+        {
+            this.outFormat = format;
+        }
+    }
+    
+    // ------------------------------------------------------------------------
+    // Processing files and arguments ...
+    
+    /**
+     * Entry point of this converter. Spins everything off.
      * 
      * @param   args    arguments from command line
      */
@@ -78,17 +176,11 @@ public class PGNToRDFConverterRanged
                     String number = arg.substring(j + 1);
                     try
                     {
-                        this.count = Integer.parseInt(number);
+                        this.setSplitRate(Integer.parseInt(number));
                     }
                     catch (NumberFormatException e)
                     {
                         // ignore
-                    }
-                    // 0 makes no sense
-                    // less means all
-                    if (this.count <= 0)
-                    {
-                        this.count = PGNToChessDataModelConverter.ALL_GAMES;
                     }
                 }
             }
@@ -100,41 +192,24 @@ public class PGNToRDFConverterRanged
                     String number = arg.substring(j + 1);
                     try
                     {
-                        this.compressLevel = Integer.parseInt(number);
+                        this.setCompressionLevel(Integer.parseInt(number));
                     }
                     catch (NumberFormatException e)
                     {
                         // ignore
                     }
-                    if (this.compressLevel > 9)
-                    {
-                        this.compressLevel = 9;
-                    }
-                    if (this.compressLevel <= -1)
-                    {
-                        this.dontcompress = true;
-                    }
                 }
             }
             else if (arg.startsWith(PARAM_DO_NOT_COMPRESS))
             {
-                this.compressLevel = -1;
-                this.dontcompress = true;
+                this.setCompressionEnabled(false);
             }
             else if (arg.startsWith(PARAM_OUTPUT_FORMAT))
             {
                 int j = arg.indexOf('=');
                 if (j != -1)
                 {
-                    String f = arg.substring(j + 1);
-                    for (OutputFormats fo : OutputFormats.values())
-                    {
-                        if (fo.getFormat().equalsIgnoreCase(f))
-                        {
-                            this.outFormat = fo;
-                            break;
-                        }
-                    }
+                    this.setOutputFormat(arg.substring(j + 1));
                 }
             }
             else if (arg.startsWith(PARAM_HELP))
@@ -143,27 +218,29 @@ public class PGNToRDFConverterRanged
             }
             else
             {
+                // possible files starting with --XxX..
                 this.files.add(arg);
             }
         }        
         System.out.println(" finished.");
         
+        // Print the parameters of this parser after parsing (commandline) args        
         System.out.println("  Using split number of:      " + count +
                 ((count == PGNToChessDataModelConverter.ALL_GAMES)?"ALL_GAMES":""));
         System.out.println("  Using compression level of: " + compressLevel);
-        System.out.println("  Using compression:          " + (! dontcompress));
+        System.out.println("  Using compression:          " + compressToZip);
         System.out.println("  Using output format:        " + outFormat.getFormat());
         System.out.println();
     }
     
     /**
-     * Prints the help string and exits the programme after that.
+     * Prints the help string and exits the program after that.
      */
     private void printHelp()
     {
         System.out.println();
-        System.out.println("Help to PGNToRDFConverterRanged");
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Help to PGNToRDFConverter[Ranged]");
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("Usage:");
         System.out.println("\tjava -jar <archiv>.jar [options] <file> [<files> ...]");
         System.out.println();
@@ -193,6 +270,7 @@ public class PGNToRDFConverterRanged
         System.out.println("#> java -jar PGNConverter.jar --split=250 file.pgn");
         System.out.println("#> java -jar PGNConverter.jar --format=RDF/XML file.pgn");
         
+        // try exiting
         try
         {
             System.exit(0);
@@ -202,7 +280,7 @@ public class PGNToRDFConverterRanged
             e.printStackTrace();
         }
     }
-
+    
     /**
      * Processes the input files. Parse & Convert.
      */
@@ -244,11 +322,12 @@ public class PGNToRDFConverterRanged
             System.out.println("Converting PGN-File <" + input
                     + "> to RDF (" + outFormat.getFormat() + ") <" +
                     output + "> ...");
+            
             long startFile = System.currentTimeMillis();
             
             // ----------------------------------------------------------------
                         
-            if (! this.dontcompress)
+            if (this.compressToZip)
             {
                 this.processToZipStream(input, output);
             }
@@ -270,6 +349,9 @@ public class PGNToRDFConverterRanged
         
         System.out.println("Took " + ((System.currentTimeMillis() - startProcessing) / 1000.0) + " seconds total.");
     }
+    
+    // ------------------------------------------------------------------------
+    // Processing single files
     
     /**
      * "OutputHandler" for using Zip files.
@@ -311,7 +393,7 @@ public class PGNToRDFConverterRanged
         // --------------------------------------------------------------------
         
         // open outputfile
-        FileOutputStream fos = openOutputStream(outputZip);
+        FileOutputStream fos = FileUtils.openOutputStream(outputZip);
         if (fos == null)
         {
             return false;
@@ -323,29 +405,31 @@ public class PGNToRDFConverterRanged
         
         // parse & convert
         long startFile = System.currentTimeMillis();
-        PGNToChessDataModelConverter converter = new PGNToChessDataModelConverter();
-        converter.setInputFilename(input);
+        PGNToChessDataModelConverter pgn2cdm = new PGNToChessDataModelConverter();
+        ChessDataModelToRDFConverter cdm2rdf = new ChessDataModelToRDFConverter();
+        
+        pgn2cdm.setInputFilename(input);
         
         int nr = 0;
-        while (! converter.finishedInputFile())
+        while (! pgn2cdm.finishedInputFile())
         {
             nr ++;
             System.out.println("  Working on Part: " + nr);
             
             // Parse only count games.
             System.out.print("    Parsing data ...");
-            converter.parse(count);
+            pgn2cdm.parse(count);
             System.out.println(" finished.");
             
             // Convert all the parsed games in memory.
             System.out.print("    Converting data ...");
-            converter.convert(PGNToChessDataModelConverter.ALL_GAMES);
+            cdm2rdf.convert(pgn2cdm.getGames());
             System.out.println(" finished");
             
             // Output all the converted games.
             // compute entry name
             String entryName = relPath;
-            if ((nr != 1) || (! converter.finishedInputFile()))
+            if ((nr != 1) || (! pgn2cdm.finishedInputFile()))
             {
                 // two or more entries
                 try
@@ -372,7 +456,7 @@ public class PGNToRDFConverterRanged
                 zos.putNextEntry(ze);
                 
                 // write to stream
-                converter.write(zos, outFormat);
+                cdm2rdf.write(zos, outFormat);
                 
                 zos.closeEntry();
                 zos.flush();
@@ -394,7 +478,7 @@ public class PGNToRDFConverterRanged
         {
             ZipEntry ze = new ZipEntry("generateChessGameName.txt");
             zos.putNextEntry(ze);
-            converter.writeConvertedGameNames(zos);
+            cdm2rdf.writeConvertedGameNames(zos);
             zos.closeEntry();
             zos.flush();
         }
@@ -403,7 +487,7 @@ public class PGNToRDFConverterRanged
             e.printStackTrace();
         }
         
-        System.out.println("  Processed " + converter.numberOfParsedGames() +
+        System.out.println("  Processed " + pgn2cdm.numberOfParsedGames() +
                 " games in " + ((System.currentTimeMillis() - startFile) / 1000.0) +
                 " seconds. Wrote " + nr + " part(s) to Zip-Archive " + outputZip + ".");
         
@@ -437,28 +521,29 @@ public class PGNToRDFConverterRanged
     {
         // parse & convert
         long startFile = System.currentTimeMillis();
-        PGNToChessDataModelConverter converter = new PGNToChessDataModelConverter();
-        converter.setInputFilename(input);
+        PGNToChessDataModelConverter pgn2cdm = new PGNToChessDataModelConverter();
+        ChessDataModelToRDFConverter cdm2rdf = new ChessDataModelToRDFConverter();
+        pgn2cdm.setInputFilename(input);
         
         int nr = 0;
-        while (! converter.finishedInputFile())
+        while (! pgn2cdm.finishedInputFile())
         {
             nr ++;
             System.out.println("  Working on Part: " + nr);
             
             System.out.print("    Parsing data ...");
-            converter.parse(count);
+            pgn2cdm.parse(count);
             System.out.println(" finished.");
             
             System.out.print("    Converting data ...");
-            converter.convert(PGNToChessDataModelConverter.ALL_GAMES);
+            cdm2rdf.convert(pgn2cdm.getGames());
             System.out.println(" finished");
             
             // compute file part name
             // without extension
             String filePartName = (output.indexOf('.') != -1) ?
                     output.substring(0, output.lastIndexOf('.')) : output;
-            if ((nr != 1) || (! converter.finishedInputFile()))
+            if ((nr != 1) || (! pgn2cdm.finishedInputFile()))
             {
                 // two or more entries
                 try
@@ -482,7 +567,7 @@ public class PGNToRDFConverterRanged
             try
             {
                 // open outputfile
-                FileOutputStream fos = openOutputStream(output);
+                FileOutputStream fos = FileUtils.openOutputStream(output);
                 if (fos == null)
                 {
                     System.out.println("    Couldn't open output file <" +
@@ -492,7 +577,7 @@ public class PGNToRDFConverterRanged
                 }
                 
                 // write to stream
-                converter.write(fos, outFormat);
+                cdm2rdf.write(fos, outFormat);
                 
                 fos.flush();
                 fos.close();
@@ -509,52 +594,10 @@ public class PGNToRDFConverterRanged
             System.out.println(" finished.");
         }
         
-        System.out.println("  Processed " + converter.numberOfParsedGames() +
+        System.out.println("  Processed " + pgn2cdm.numberOfParsedGames() +
                 " games in " + ((System.currentTimeMillis() - startFile) / 1000.0) +
                 " seconds. Wrote " + nr + " File(-Parts).");
         
         return true;
-    }
-    
-    /**
-     * Opens a new FileOutputStream.
-     * 
-     * @param   outputFilename  File to write into. Old content will be
-     *                          overwritten
-     * @return  FileOutputStream or null if error
-     */
-    protected FileOutputStream openOutputStream(String outputFilename)
-    {
-        if (outputFilename == null)
-        {
-            return null;
-        }
-        // try opening output file
-        try
-        {
-            return new FileOutputStream(outputFilename);
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    
-    
-    /**
-     * Main method.
-     * 
-     * @param   args
-     */
-    public static void main(String[] args)
-    {
-        PGNToRDFConverterRanged converter = new PGNToRDFConverterRanged();
-        converter.start(args);        
     }
 }

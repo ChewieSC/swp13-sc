@@ -5,32 +5,18 @@
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
-import de.uni_leipzig.informatik.swp13_sc.converter.ChessDataModelToRDFConverter.OutputFormats;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
+import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
 /**
  * Converter class.<br />
@@ -57,31 +43,17 @@ public class PGNToChessDataModelConverter
      */
     private String outputFilename;
     /**
-     * isConverting
-     */
-    @SuppressWarnings("unused")
-    private volatile boolean isConverting;
-    /**
      * isParsing
      */
     private volatile boolean isParsing;
     /**
-     * finishedConverting
-     */
-    private volatile boolean finishedConverting;
-    /**
      * finishedParsing
      */
-    @SuppressWarnings("unused")
     private volatile boolean finishedParsing;
     /**
      * finishedInput
      */
     private volatile boolean finishedInput;
-    /**
-     * Converter used to convert ChessDataModel to RDF.
-     */
-    private ChessDataModelToRDFConverter chessToRDF;
     /**
      * List of all converted chess games. Internal chess data format.
      */
@@ -325,9 +297,7 @@ public class PGNToChessDataModelConverter
      */
     public PGNToChessDataModelConverter()
     {
-        this.isConverting = false;
         this.isParsing = false;
-        this.finishedConverting = false;
         this.finishedParsing = false;
         this.finishedInput = false;
         
@@ -343,6 +313,18 @@ public class PGNToChessDataModelConverter
     public boolean finishedInputFile()
     {
         return this.finishedInput;
+    }
+    
+    /**
+     * Returns true if the converter finished parsing its given part.
+     * The input file may be longer and not completely finished - only
+     * the parsing method!
+     * 
+     * @return  true if finished.
+     */
+    public boolean finishedParsing()
+    {
+        return this.finishedParsing;
     }
     
     /**
@@ -418,6 +400,8 @@ public class PGNToChessDataModelConverter
         return true;
     }
     
+    // ------------------------------------------------------------------------
+    
     /**
      * Parses the previously given input file to the internal chess data format.
      * Stops after count games. Can continue an old session if reader still open.
@@ -441,7 +425,7 @@ public class PGNToChessDataModelConverter
                         (! this.lastInputFilename.equalsIgnoreCase(this.inputFilename)))
                 {
                     this.lastInputFilename = this.inputFilename;
-                    reader = openReader(openInputStream(this.inputFilename));
+                    reader = FileUtils.openReader(FileUtils.openInputStream(this.inputFilename));
                 }
             }
         }
@@ -705,25 +689,22 @@ public class PGNToChessDataModelConverter
         return cgb.build();
     }
     
+    // ------------------------------------------------------------------------
+    
     /**
-     * Converts the internal chess data format into RDF tripel/statements.
+     * Returns count parsed games from the internal list and optionally
+     * removes them after returning (to delete all references to them).
      * 
-     * @param   count   number of games to convert, rest is preserved
-     * @return  true if successful, false if error
+     * @param   count   Number of games to return.
+     * @param   remove  true if they should be removed.
+     * @return  List<{@link
+     *          de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}>
      */
-    public boolean convert(int count)
+    public List<ChessGame> getGames(int count, boolean remove)
     {
         if (this.games == null || this.games.isEmpty())
         {
-            return false;
-        }
-        this.finishedConverting = false;
-        this.isConverting = true;
-        // reuse this object ... needed to check for game names in case they
-        // are the same in a single pgn file ... ?!?
-        if (this.chessToRDF == null)
-        {
-            this.chessToRDF = new ChessDataModelToRDFConverter();
+            return null;
         }
         
         // get count list elements
@@ -738,320 +719,54 @@ public class PGNToChessDataModelConverter
             {
                 List<ChessGame> part = this.games.subList(0, count);
                 gms.addAll(part);
-                part.clear();
-            }
-            catch (IndexOutOfBoundsException e)
-            {
-                e.printStackTrace();
+                if (remove)
+                {
+                    part.clear();
+                }
             }
             catch (Exception e)
             {
-                //IllegalArgumentException
-                //NullPointerException
-                //ClassCastException
-                //UnsupportedOperationException
+                // IndexOutOfBoundsException
+                // IllegalArgumentException
+                // NullPointerException
+                // ClassCastException
+                // UnsupportedOperationException
                 e.printStackTrace();
             }
         }
         else
         {
             gms.addAll(this.games);
-            this.games.clear();
-        }
-        
-        // convert
-        this.chessToRDF.convert(gms);
-        
-        this.isConverting = false;
-        this.finishedConverting = true;
-        return true;
-    }
-    
-    /**
-     * Converts the internal chess data format into RDF tripel/statements.
-     * 
-     * @return  true if successful
-     */
-    public boolean convert()
-    {
-        return this.convert(ALL_GAMES);
-    }
-    
-    /**
-     * Writes all the converted chess game names into the stream.
-     * 
-     * @param   outputStream    OutputStream to write into
-     * @return  true if successful else false
-     */
-    public boolean writeConvertedGameNames(OutputStream outputStream)
-    {
-        if (this.chessToRDF == null)
-        {
-            return false;
-        }
-        BufferedWriter bw = openWriter(outputStream);
-        if (bw == null)
-        {
-            return false;
-        }
-        
-        for (String key : this.chessToRDF.getConvertedGameNames().keySet())
-        {
-            for (String s : this.chessToRDF.getConvertedGameNames().get(key))
+            if (remove)
             {
-                try
-                {
-                    bw.write(s);
-                    bw.newLine();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                this.games.clear();
             }
         }
         
-        try
-        {
-            bw.flush();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        
-        return true;
+        return gms;
     }
     
     /**
-     * Writes the RDF data to the previously given output file.
+     * Returns all the parsed games and removes them from the internal list.
      * 
-     * @return  true if successful else false
+     * @return  List<{@link
+     *          de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}>
      */
-    public boolean write()
-    {        
-        return write(this.outputFilename);
-    }
-    
-    /**
-     * Writes the RDF data to the specified outputFilename. Old file data will
-     * be overwritten and therefore lost. Stream is closed eventually.
-     * 
-     * @param   outputFilename  File to write into.
-     * @return  true if successful else false
-     */
-    public boolean write(String outputFilename)
+    public List<ChessGame> getGames()
     {
-        //OutputStream os = openOutputStream(outputFilename);
-        OutputStream os = openZipOutputStream(outputFilename);
-              
-        write(os);
-        
-        try
-        {
-            os.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        
-        return true;
+        return this.getGames(ALL_GAMES, true);
     }
     
     /**
-     * Writes the RDF data to the specified OutputStream os.<br />
-     * Uses the standard format {@link OutputFormats#TURTLE}
+     * Returns all the parsed games and optionally removes them form the list.
      * 
-     * @param   os  Stream to write into
-     * @return  true if successful
+     * @param   remove  If true all the internally saved games are cleared.
+     * @return  List<{@link
+     *          de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame}>
      */
-    public boolean write(OutputStream os)
+    public List<ChessGame> getGames(boolean remove)
     {
-        return write(os, OutputFormats.TURTLE);
+        return this.getGames(ALL_GAMES, remove);
     }
-    
-    /**
-     * Writes the converted RDF data to the OutputStream os in the format.
-     * 
-     * @param   os      Stream to write into
-     * @param   format  Outputformat
-     * @return  true if successful, false on error
-     */
-    public boolean write(OutputStream os, OutputFormats format)
-    {
-        // check output stream
-        if (os == null)
-        {
-            return false;
-        }
-        // check if there is something to write
-        if ((! this.finishedConverting) || (this.chessToRDF == null))
-        {
-            return false;
-        }
         
-        // flush all
-        boolean retVal = this.chessToRDF.flushToStream(os, format);        
-        //this.chessToRDF = null;
-        
-        return retVal;
-    }
-    
-    /**
-     * Opens a new FileInputStream.
-     * 
-     * @param   inputFilename   File to open for reading.
-     * @return  FileInputStream or null if error
-     */
-    protected FileInputStream openInputStream(String inputFilename)
-    {
-        if (inputFilename == null)
-        {
-            return null;
-        }
-        // try opening the input
-        try
-        {
-            return new FileInputStream(inputFilename);
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
-    /**
-     * Opens a new FileOutputStream.
-     * 
-     * @param   outputFilename  File to write into. Old content will be
-     *                          overwritten
-     * @return  FileOutputStream or null if error
-     */
-    protected FileOutputStream openOutputStream(String outputFilename)
-    {
-        if (outputFilename == null)
-        {
-            return null;
-        }
-        // try opening output file
-        try
-        {
-            return new FileOutputStream(outputFilename);
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
-    /**
-     * Opens a new ZipOutputStream for compressed output.
-     * 
-     * @param   outputFilename  File to write into.
-     * @return  ZipOutputStream or null if error.
-     */
-    protected ZipOutputStream openZipOutputStream(String outputFilename)
-    {
-        if (outputFilename == null)
-        {
-            return null;
-        }
-        
-        // zip archive file
-        FileOutputStream fos = openOutputStream(outputFilename + ".zip");
-        if (fos == null)
-        {
-            return null;
-        }
-        
-        // add normal file to zip archive
-        ZipOutputStream zos = new ZipOutputStream(fos);
-        zos.setLevel(9); // highest level
-        
-        try
-        {
-            File foc = new File(outputFilename);
-            File fop = foc.getParentFile();
-            String entryname = outputFilename;
-            if (fop != null)
-            {
-                entryname = fop.toURI().relativize(foc.toURI()).getPath();
-            }            
-            
-            ZipEntry ze = new ZipEntry(entryname);
-        
-            zos.putNextEntry(ze);
-            
-            return zos;
-        }
-        catch (NullPointerException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalArgumentException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        
-        return null;
-    }
-    
-
-    /**
-     * Opens a (text file) reader with the given inputStream.
-     * 
-     * @param   inputStream     (File)InputStream to read from.
-     * @return  BufferedReader or null if error
-     */
-    protected BufferedReader openReader(InputStream inputStream)
-    {
-        if (inputStream == null)
-        {
-            return null;
-        }
-        
-        DataInputStream dis = new DataInputStream(inputStream);
-        // default charset?
-        InputStreamReader isr = new InputStreamReader(dis, Charset.defaultCharset());
-        BufferedReader br = new BufferedReader(isr);
-        
-        return br;
-    }
-    
-    /**
-     * Opens a (text file) writer with the given outputStream.
-     * 
-     * @param   outputStream     (File)InputStream to read from.
-     * @return  BufferedWriter or null if error
-     */
-    protected BufferedWriter openWriter(OutputStream outputStream)
-    {
-        if (outputStream == null)
-        {
-            return null;
-        }
-        
-        DataOutputStream dos = new DataOutputStream(outputStream);
-        // default charset?
-        OutputStreamWriter osr = new OutputStreamWriter(dos, Charset.defaultCharset());
-        BufferedWriter bw = new BufferedWriter(osr);
-        
-        return bw;
-    }
-    
 }
