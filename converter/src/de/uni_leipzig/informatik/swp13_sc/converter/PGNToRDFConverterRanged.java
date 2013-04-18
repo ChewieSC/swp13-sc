@@ -579,7 +579,7 @@ public class PGNToRDFConverterRanged
             try
             {
                 // open outputfile
-                FileOutputStream fos = FileUtils.openOutputStream(output);
+                FileOutputStream fos = FileUtils.openOutputStream(filePartName);
                 if (fos == null)
                 {
                     System.out.println("    Couldn't open output file <" +
