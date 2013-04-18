@@ -143,6 +143,20 @@ public class PGNToRDFConverterRanged
         }
     }
     
+    /**
+     * Adds an input filename to the internal list of files to process.
+     * 
+     * @param   filename    filename (and path) of input file
+     */
+    public void addInputFile(String filename)
+    {
+        if (filename == null)
+        {
+            return;
+        }
+        this.files.add(filename);
+    }
+    
     // ------------------------------------------------------------------------
     // Processing files and arguments ...
     
@@ -361,7 +375,7 @@ public class PGNToRDFConverterRanged
      * @param   output  output filename
      * @return  true if successful else false
      */
-    protected boolean processToZipStream(String input, String output)
+    public boolean processToZipStream(String input, String output)
     {
         String outputZip = output + ".zip";
         
@@ -524,7 +538,7 @@ public class PGNToRDFConverterRanged
      * @param   output  output filenam
      * @return  true if successful else false
      */
-    protected boolean processToStream(String input, String output)
+    public boolean processToStream(String input, String output)
     {
         // parse & convert
         long startFile = System.currentTimeMillis();
