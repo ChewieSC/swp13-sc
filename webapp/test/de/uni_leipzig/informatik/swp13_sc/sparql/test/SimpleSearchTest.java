@@ -165,7 +165,7 @@ public class SimpleSearchTest
         SimpleSearch ss = new SimpleSearch();
         //ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER);
         ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_GAME);
-        ss.setField(SimpleSearch.FIELD_KEY_CG_EVENT, "h d");
+        ss.setField(SimpleSearch.FIELD_KEY_CG_EVENT, "");
         String qu = ss.getSPARQLQuery();
         
         ss.setField(SimpleSearch.FIELD_KEY_CG_EVENT, "");
@@ -180,8 +180,16 @@ public class SimpleSearchTest
         
         ss.setField(SimpleSearch.FIELD_KEY_CP1_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_NOCOLOR);
         ss.setField(SimpleSearch.FIELD_KEY_CP2_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_NOCOLOR);
-        ss.setField(SimpleSearch.FIELD_KEY_CP1_NAME, "SP1");
-        ss.setField(SimpleSearch.FIELD_KEY_CP2_NAME, "SPIELER_ZWEI");
+        ss.setField(SimpleSearch.FIELD_KEY_CP1_NAME, "brown");
+        ss.setField(SimpleSearch.FIELD_KEY_CP2_NAME, "");
+        qu = ss.getSPARQLQuery();
+        
+        
+        ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER2);
+        qu = ss.getSPARQLQuery();
+        
+        ss.setDistinct(true);
+        ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER1);
         qu = ss.getSPARQLQuery();
     }
 
