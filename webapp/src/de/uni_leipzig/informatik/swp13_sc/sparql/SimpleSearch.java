@@ -93,6 +93,21 @@ public class SimpleSearch
     private final static String SPARQL_QUERY_FILTER_REGEX_END = "\", \"i\") )";
     
     
+    /**
+     * SPARQL_QUERY_UNION_START
+     */
+    private final static String SPARQL_QUERY_UNION_START = "{" + SPARQL_QUERY_NEWLINE;
+    /**
+     * SPARQL_QUERY_UNION_MIDDLE
+     */
+    private final static String SPARQL_QUERY_UNION_MIDDLE =
+            "}" + SPARQL_QUERY_NEWLINE + "UNION" + SPARQL_QUERY_NEWLINE + "{" +
+                    SPARQL_QUERY_NEWLINE;
+    /**
+     * SPARQL_QUERY_UNION_END
+     */
+    private final static String SPARQL_QUERY_UNION_END = "}" + SPARQL_QUERY_NEWLINE;
+    
     // ------------------------------------------------------------------------
     // FIELD Constants
     
@@ -142,6 +157,15 @@ public class SimpleSearch
      * FIELD_VALUE_CG_RESULT_DRAW
      */
     public final static String FIELD_VALUE_CG_RESULT_DRAW = "1/2-1/2";
+    
+    
+    public final static String FIELD_KEY_CP1_NAME = "cp-name[1]";
+    public final static String FIELD_KEY_CP2_NAME = "cp-name[2]";
+    public final static String FIELD_KEY_CP1_COLOR = "cp-color[1]";
+    public final static String FIELD_KEY_CP2_COLOR = "cp-color[2]";
+    public final static String FIELD_VALUE_CP_COLOR_BLACK = "black";
+    public final static String FIELD_VALUE_CP_COLOR_WHITE = "white";
+    public final static String FIELD_VALUE_CP_COLOR_NOCOLOR = "nocolor";
     
     // ------------------------------------------------------------------------
     
@@ -212,6 +236,22 @@ public class SimpleSearch
             .append(SPARQL_QUERY_WHERE_START);
         
         // query result is a game
+        sb.append(this.constructSPARQLQueryGamePart());
+        // players
+        sb.append(this.constructSPARQLQueryGamePlayerPart());
+        
+        // query end
+        sb.append(SPARQL_QUERY_WHERE_END);
+        
+        
+        
+        return sb.toString();
+    }
+    
+    protected String constructSPARQLQueryGamePart()
+    {
+        StringBuilder sb = new StringBuilder();
+        
         sb.append('?')
             .append(SPARQL_QUERY_SELECT_GAME_VAR)
             .append(' ')
@@ -334,14 +374,172 @@ public class SimpleSearch
                 .append(SPARQL_QUERY_NEWLINE);
         }
         
-        // query end
-        sb.append(SPARQL_QUERY_WHERE_END);
+        return sb.toString();
+    }
+    
+    protected String constructSPARQLQueryGamePlayerPart()
+    {
+        StringBuilder sb = new StringBuilder();
+        String p1 = SPARQL_QUERY_SELECT_PLAYER_VAR + '1';
+        String p2 = SPARQL_QUERY_SELECT_PLAYER_VAR + '2';
+        
+        if (FIELD_VALUE_CP_COLOR_NOCOLOR.equalsIgnoreCase(this.fields.get(FIELD_KEY_CP1_COLOR)))
+        {
+            sb.append(SPARQL_QUERY_UNION_START)
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.whitePlayer.getLocalName())
+                .append(" ?")
+                .append(p1)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(this.constructSPARQLQueryPlayerPart(p1, 1))
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.blackPlayer.getLocalName())
+                .append(" ?")
+                .append(p2)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(this.constructSPARQLQueryPlayerPart(p2, 2))
+                .append(SPARQL_QUERY_UNION_MIDDLE)
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.blackPlayer.getLocalName())
+                .append(" ?")
+                .append(p1)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(this.constructSPARQLQueryPlayerPart(p1, 1))
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.whitePlayer.getLocalName())
+                .append(" ?")
+                .append(p2)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(this.constructSPARQLQueryPlayerPart(p2, 2))
+                .append(SPARQL_QUERY_UNION_END);
+        }
+        else
+        {
+            String p1c = ChessRDFVocabulary.whitePlayer.getLocalName();
+            String p2c = ChessRDFVocabulary.blackPlayer.getLocalName();
+            if (this.fields.containsKey(FIELD_KEY_CP1_COLOR) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_COLOR)))
+            {
+                if (FIELD_VALUE_CP_COLOR_BLACK.equalsIgnoreCase(this.fields.get(FIELD_KEY_CP1_COLOR)))
+                {
+                    p1c = ChessRDFVocabulary.blackPlayer.getLocalName();
+                    p2c = ChessRDFVocabulary.whitePlayer.getLocalName();
+                }
+            }
+            else if (this.fields.containsKey(FIELD_KEY_CP2_COLOR) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_COLOR)))
+            {
+                if (FIELD_VALUE_CP_COLOR_WHITE.equalsIgnoreCase(this.fields.get(FIELD_KEY_CP2_COLOR)))
+                {
+                    p1c = ChessRDFVocabulary.blackPlayer.getLocalName();
+                    p2c = ChessRDFVocabulary.whitePlayer.getLocalName();
+                }
+            }
+            
+            sb.append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(p1c)
+                .append(" ?")
+                .append(p1)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(this.constructSPARQLQueryPlayerPart(p1, 1))
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(p2c)
+                .append(" ?")
+                .append(p2)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(this.constructSPARQLQueryPlayerPart(p2, 2));
+        }
+        
+        return sb.toString();
+    }
+    
+    protected String constructSPARQLQueryPlayerPart(String var_name, int nr)
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append('?')
+            .append(var_name)
+            .append(' ')
+            .append('a')
+            .append(' ')
+            .append(SPARQL_QUERY_PREFIX_CONT)
+            .append(ChessRDFVocabulary.ChessPlayer.getLocalName())
+            .append('.')
+            .append(SPARQL_QUERY_NEWLINE);
+        
+        // get name
+        String name = null;        
+        if (nr == 1)
+        {
+            if (this.fields.containsKey(FIELD_KEY_CP1_NAME) &&
+                (null != this.fields.get(FIELD_KEY_CP1_NAME)))
+            {
+                name = this.fields.get(FIELD_KEY_CP1_NAME);
+            }
+        }
+        else if (nr == 2)
+        {
+            if (this.fields.containsKey(FIELD_KEY_CP2_NAME) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_NAME)))
+                {
+                    name = this.fields.get(FIELD_KEY_CP2_NAME);
+                }
+        }
+        
+        
+        if (name != null)
+        {
+            String var_name_player = var_name + "-name";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.name.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append(' ')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(name)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
         
         return sb.toString();
     }
     
     protected String constructSPARQLQueryPlayerIRI()
     {
+        
         return null;
     }
     
