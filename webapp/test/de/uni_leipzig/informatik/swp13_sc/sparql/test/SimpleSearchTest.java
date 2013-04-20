@@ -93,6 +93,53 @@ public class SimpleSearchTest
     {
         fail("Not yet implemented"); // TODO
     }
+    
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#constructSPARQLCountWrapper(java.lang.String[])}.
+     */
+    @Test
+    public final void testConstructSPARQLCountWrapper()
+    {
+        /*SimpleSearch ss = new SimpleSearch();
+        
+        String c1 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2", "b"});
+        
+        String c2 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2", null});
+        
+        String c3 = ss.constructSPARQLCountWrapper(new String[] {null});
+        
+        String c4 = ss.constructSPARQLCountWrapper(new String[] {});
+        
+        // only one String[] !
+        //String c5 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2"}, new String[] {"b1", "b2"});
+        
+        // wrong arguments again !
+        //String c6 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2"}, "b");
+        
+        String c7 = ss.constructSPARQLCountWrapper("a1", "a2", "b");
+        
+        String c8 = ss.constructSPARQLCountWrapper("");
+        
+        String c9 = ss.constructSPARQLCountWrapper("*");
+        
+        // no char !
+        //String c10 = ss.constructSPARQLCountWrapper('*');
+        
+        String c11 = ss.constructSPARQLCountWrapper((String) null);
+        
+        ss.setDistinct(true);
+        
+        String c12 = ss.constructSPARQLCountWrapper(" *  ");
+        
+        // no validation for multiple empty or null string below here ...
+        String c13 = ss.constructSPARQLCountWrapper(new String[] {"", ""});
+        
+        String c14 = ss.constructSPARQLCountWrapper(new String[] {"", "a2", ""});
+        
+        String c15 = ss.constructSPARQLCountWrapper(new String[] {null, "a2", "  "});        
+        
+        String c16 = ss.constructSPARQLCountWrapper(new String[] {null, null, null});*/
+    }
 
     /**
      * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#constructSPARQLQueryGameIRI()}.
@@ -188,8 +235,11 @@ public class SimpleSearchTest
         ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER2);
         qu = ss.getSPARQLQuery();
         
-        ss.setDistinct(true);
+        ss.setDistinct(false);
         ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER1);
+        qu = ss.getSPARQLQuery();
+        
+        ss.setCountResults(true);
         qu = ss.getSPARQLQuery();
     }
 

@@ -19,7 +19,7 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 public class SimpleSearch
 {
     /**
-     * fields
+     * The input field values of the web interface.
      */
     private Map<String, String> fields;
     /**
@@ -30,6 +30,10 @@ public class SimpleSearch
      * Selects only distinct values. (default)
      */
     private boolean distinct;
+    /**
+     * Tells the SPARQL Query composer to construct a COUNT query.
+     */
+    private boolean count;
     
     // ------------------------------------------------------------------------
     // Constants
@@ -269,25 +273,45 @@ public class SimpleSearch
      * 
      * @param   key     field name
      * @param   value   input value
+     * @return  SimpleSearch (this) to chain calls
      */
-    public void setField(String key, String value)
+    public SimpleSearch setField(String key, String value)
     {
         if (key == null)
         {
-            return;
+            return this;
         }
         
         this.fields.put(key, value);
+        
+        return this;
     }
     
     /**
      * Sets the 'Distinct-Mode'. Filters duplicate values.
      * 
      * @param   distinct    true if filtering else false
+     * @return  SimpleSearch (this) to chain calls 
      */
-    public void setDistinct(boolean distinct)
+    public SimpleSearch setDistinct(boolean distinct)
     {
         this.distinct = distinct;
+        
+        return this;
+    }
+    
+    /**
+     * Tells the SPARQL Query constructor to construct a COUNT SPARQL query
+     * if set to true.
+     * 
+     * @param   count   construct a COUNT SPARQL query if true
+     * @return  SimpleSearch (this) to chain calls
+     */
+    public SimpleSearch setCountResults(boolean count)
+    {
+        this.count = count;
+        
+        return this;
     }
     
     //setDBConnection()
@@ -304,6 +328,7 @@ public class SimpleSearch
     
     // ------------------------------------------------------------------------
     
+    
     /*
     public Map<String, String> getResult()
     {
@@ -316,6 +341,52 @@ public class SimpleSearch
         return this.hasResult;
     }
     */
+    
+    /**
+     * Constructs a COUNT SPARQL-Wrapper around given variables or a COUNT(*)
+     * for a lot of different cases where the input is wrong ...<br />
+     * Sets DISTINCT depending on class status.
+     * 
+     * @param   variable_names  Open String array to allow a lot of possibilities
+     * @return  COUNT(*) or COUNT( <variables> ) -> SPARQL String
+     */
+    protected String constructSPARQLCountWrapper(String ... variable_names)
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(" COUNT(")
+            .append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "");
+        
+        if (variable_names == null || variable_names.length == 0 ||
+                (variable_names.length == 1 && (variable_names[0] == null ||
+                variable_names[0].trim().equals("*") ||
+                variable_names[0].trim().equals(""))))
+        {
+            sb.append(" *");
+        }
+        else
+        {
+//            int n = 0;
+            for (int nr = 0; nr < variable_names.length; nr ++)
+            {
+//                if (variable_names[nr] != null && ! variable_names[nr].trim().equals(""))
+//                {
+//                    n ++;
+                sb.append(" ?")
+                    .append(variable_names[nr]);
+//                }
+            }
+//            if (n == 0)
+//            {
+//                // no variable added!
+//                sb.append(" *");
+//            }
+        }
+        
+        sb.append(" )");
+        
+        return sb.toString();
+    }
     
     /**
      * Constructs a SPARQL query string for selecting chess game IRIs depending
@@ -331,11 +402,20 @@ public class SimpleSearch
         sb.append(SPARQL_QUERY_PREFIX);
         
         // query select clause
-        sb.append(SPARQL_QUERY_SELECT_START)
-            .append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
-            .append(" ?")
-            .append(SPARQL_QUERY_SELECT_GAME_VAR)
-            .append(SPARQL_QUERY_NEWLINE)
+        sb.append(SPARQL_QUERY_SELECT_START);
+        
+        if (this.count)
+        {
+            sb.append(constructSPARQLCountWrapper(SPARQL_QUERY_SELECT_GAME_VAR));
+        }
+        else
+        {
+            sb.append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
+                .append(" ?")
+                .append(SPARQL_QUERY_SELECT_GAME_VAR);
+        }
+            
+        sb.append(SPARQL_QUERY_NEWLINE)
             .append(SPARQL_QUERY_WHERE_START);
         
         // query result is a game
@@ -669,11 +749,20 @@ public class SimpleSearch
         sb.append(SPARQL_QUERY_PREFIX);
         
         // query select clause
-        sb.append(SPARQL_QUERY_SELECT_START)
-            .append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
-            .append(" ?")
-            .append(var_name_player)
-            .append(SPARQL_QUERY_NEWLINE)
+        sb.append(SPARQL_QUERY_SELECT_START);
+        
+        if (this.count)
+        {
+            sb.append(constructSPARQLCountWrapper(var_name_player));
+        }
+        else
+        {
+            sb.append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
+                .append(" ?")
+                .append(var_name_player);
+        }
+            
+        sb.append(SPARQL_QUERY_NEWLINE)
             .append(SPARQL_QUERY_WHERE_START);
         
         // query result is a game
@@ -707,5 +796,25 @@ public class SimpleSearch
             this.setField(FIELD_KEY_RESULTTYPE, FIELD_VALUE_RESULTTYPE_GAME);
             return this.constructSPARQLQueryGameIRI();
         }
+    }
+    /**
+     * Creates a SPARQL COUNT query string with the values from the web
+     * interface.<br />Can be used to count the result before displaying all.
+     * 
+     * @return  SPARQL-Query String with COUNT (...)
+     */
+    public String getSPARQLCountQuery()
+    {
+        // temporary set count on
+        boolean countOn = this.count;
+        this.count = true;
+        
+        // get query with default mode
+        String query = this.getSPARQLQuery();
+        
+        // set to previous value
+        this.count = countOn;
+        
+        return query;
     }
 }
