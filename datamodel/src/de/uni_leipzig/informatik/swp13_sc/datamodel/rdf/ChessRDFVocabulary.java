@@ -46,6 +46,15 @@ public class ChessRDFVocabulary
      */
     public final static String ResourceURI;
     
+    /**
+     * Possible Ontology Prefix. Can be used to shorten the URI of Ontologies.
+     */
+    public final static String OntologyPrefixName;
+    /**
+     * Possible Resource Prefix. Used to shorten the URI of Resources.
+     */
+    public final static String ResourcePrefixName;
+    
     // Class Types / Resource Types
     /**
      * Resource as type for new {@link
@@ -143,6 +152,27 @@ public class ChessRDFVocabulary
     }
     
     /**
+     * Returns a possible prefix for the ontology URI (or IRI).
+     * 
+     * @return  String with Ontology prefix name
+     */
+    public static String getOntologyPrefixName()
+    {
+        return OntologyPrefixName;
+    }
+    
+    /**
+     * Returns a possible prefix for the resource URI (or IRI) of chess
+     * resources.
+     * 
+     * @return  String with Resource prefix name
+     */
+    public static String getResourcePrefixName()
+    {
+        return ResourcePrefixName;
+    }
+    
+    /**
      * Returns the URI that is used as a standard location for new resources.
      * 
      * @return  String with resource URI
@@ -172,6 +202,9 @@ public class ChessRDFVocabulary
         Prefix = Namespace + Anchor;
         Version = Namespace; // ?
         ResourceURI = Namespace + "/" + "Resources" + "/";
+        
+        OntologyPrefixName = "cont";
+        ResourcePrefixName = "cres";
         
         ChessGame = model.createResource(Prefix + "ChessGame");
         ChessPlayer = model.createResource(Prefix + "ChessPlayer");

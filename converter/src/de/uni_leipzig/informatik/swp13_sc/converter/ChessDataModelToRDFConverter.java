@@ -147,8 +147,10 @@ public class ChessDataModelToRDFConverter
         // create store
         Model model = ModelFactory.createDefaultModel();
         // add namespace prefixes
-        model.setNsPrefix("cont", ChessRDFVocabulary.getURI());
-        model.setNsPrefix("cres", ChessRDFVocabulary.getResourceURI());
+        model.setNsPrefix(ChessRDFVocabulary.getOntologyPrefixName(),
+                ChessRDFVocabulary.getURI());
+        model.setNsPrefix(ChessRDFVocabulary.getResourcePrefixName(),
+                ChessRDFVocabulary.getResourceURI());
         model.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
         
         return model;

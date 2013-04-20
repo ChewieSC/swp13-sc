@@ -46,11 +46,13 @@ public class SimpleSearch
     /**
      * SPARQL_QUERY_PREFIX_CONT
      */
-    private final static String SPARQL_QUERY_PREFIX_CONT = "cont:";
+    private final static String SPARQL_QUERY_PREFIX_CONT =
+            ChessRDFVocabulary.getOntologyPrefixName() + ":";
     /**
      * SPARQL_QUERY_PREFIX_CRES
      */
-    private final static String SPARQL_QUERY_PREFIX_CRES = "cres:";
+    private final static String SPARQL_QUERY_PREFIX_CRES =
+            ChessRDFVocabulary.getResourcePrefixName() + ":";
     /**
      * SPARQL_QUERY_PREFIX
      */
