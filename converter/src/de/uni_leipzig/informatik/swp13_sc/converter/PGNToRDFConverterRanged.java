@@ -244,7 +244,7 @@ public class PGNToRDFConverterRanged
         System.out.println("  Using compression level of: " + compressLevel);
         System.out.println("  Using compression:          " + compressToZip);
         System.out.println("  Using output format:        " + outFormat.getFormat()
-                + "(" + outFormat.getExtension() + ")");
+                + " (." + outFormat.getExtension() + ')');
         System.out.println();
     }
     
@@ -311,7 +311,8 @@ public class PGNToRDFConverterRanged
         
         for (int i = 0; i < files.size(); i ++)
         {
-            System.out.println("Processing input file " + (i+1) + "/" + files.size() + ".");
+            System.out.format("Processing input file %d/%d:%n",
+                    (i+1), files.size());
             
             // ----------------------------------------------------------------
             // get file names
@@ -334,9 +335,8 @@ public class PGNToRDFConverterRanged
             output = output + "." + outFormat.getExtension();
             
             
-            System.out.println("Converting PGN-File <" + input
-                    + "> to RDF (" + outFormat.getFormat() + ") <" +
-                    output + "> ...");
+            System.out.format("Converting PGN-File <%s> to RDF (%s) <%s> ...%n",
+                    input, outFormat.getFormat(), output);
             
             long startFile = System.currentTimeMillis();
             
@@ -353,16 +353,16 @@ public class PGNToRDFConverterRanged
             
             // ----------------------------------------------------------------
             
-            System.out.println("Finished input file. Took " + 
-                    ((System.currentTimeMillis() - startFile) / 1000.0) +
-                    " seconds.");
+            System.out.format("Finished input file. Took %s seconds.%n",
+                    Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f)));
             
             
             // ----------------------------------------------------------------            
             
         }
         
-        System.out.println("Took " + ((System.currentTimeMillis() - startProcessing) / 1000.0) + " seconds total.");
+        System.out.format("Took %s seconds total.%n",
+                Float.toString(((System.currentTimeMillis() - startProcessing) / 1000.0f)));
     }
     
     // ------------------------------------------------------------------------
@@ -386,8 +386,7 @@ public class PGNToRDFConverterRanged
             File inputFile = new File(input);
             if (! inputFile.exists())
             {
-                System.out.println("Input file <" + input + "> doesn't exist!");
-                System.out.println();
+                System.out.format("Input file <%s> doesn't exist!%n", input);
                 return false;
             }
             File parentFile = inputFile.getParentFile();
@@ -420,6 +419,7 @@ public class PGNToRDFConverterRanged
         
         // parse & convert
         long startFile = System.currentTimeMillis();
+        long numberOfTriples = 0;
         PGNToChessDataModelConverter pgn2cdm = new PGNToChessDataModelConverter();
         ChessDataModelToRDFConverter cdm2rdf = new ChessDataModelToRDFConverter();
         
@@ -429,21 +429,25 @@ public class PGNToRDFConverterRanged
         while (! pgn2cdm.finishedInputFile())
         {
             nr ++;
-            System.out.println("  Working on Part: " + nr);
+            System.out.format("  Working on Part: %d%n", nr);
             
             long start = System.currentTimeMillis();
+            long numberOfTriplesInPart = 0;
             // Parse only count games.
             System.out.print("    Parsing data ...");
             pgn2cdm.parse(count);
-            System.out.println(" finished. (" +
-                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
+            System.out.format(" finished. (%s s)%n",
+                    Float.toString(((System.currentTimeMillis() - start) / 1000.0f)));
             
             start = System.currentTimeMillis();
             // Convert all the parsed games in memory.
             System.out.print("    Converting data ...");
             cdm2rdf.convert(pgn2cdm.getGames());
-            System.out.println(" finished. (" +
-                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
+            numberOfTriplesInPart = cdm2rdf.getStatementCount();
+            numberOfTriples += numberOfTriplesInPart;
+            System.out.format(" finished. (%s s for %d triples)%n",
+                    Float.toString(((System.currentTimeMillis() - start) / 1000.0f)),
+                    numberOfTriplesInPart);
             
             // Output all the converted games.
             // compute entry name
@@ -467,7 +471,7 @@ public class PGNToRDFConverterRanged
             entryName = entryName + "." + outFormat.getExtension();
             
             start = System.currentTimeMillis();
-            System.out.print("    Writing Zip-Archive-Entry: " + entryName + " ...");
+            System.out.format("    Writing Zip-Archive-Entry: %s ...", entryName);
             
             // generate entry
             try
@@ -490,8 +494,8 @@ public class PGNToRDFConverterRanged
                 e.printStackTrace();
             }
             
-            System.out.println(" finished. (" +
-                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
+            System.out.format(" finished. (%s s)%n",
+                    Float.toString(((System.currentTimeMillis() - start) / 1000.0f)));
         }
         
         // write the generate chess game names into a file
@@ -508,9 +512,11 @@ public class PGNToRDFConverterRanged
             e.printStackTrace();
         }
         
-        System.out.println("  Processed " + pgn2cdm.numberOfParsedGames() +
-                " games in " + ((System.currentTimeMillis() - startFile) / 1000.0) +
-                " seconds. Wrote " + nr + " part(s) to Zip-Archive " + outputZip + ".");
+        System.out.format(
+                "  Processed %d games to %d triples in %s seconds.%n  Wrote %d part(s) to Zip-Archive %s.%n",
+                pgn2cdm.numberOfParsedGames(), numberOfTriples,
+                Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f)),
+                nr, outputZip); 
         
         // --------------------------------------------------------------------
         // close output file
@@ -542,6 +548,7 @@ public class PGNToRDFConverterRanged
     {
         // parse & convert
         long startFile = System.currentTimeMillis();
+        long numberOfTriples = 0;
         PGNToChessDataModelConverter pgn2cdm = new PGNToChessDataModelConverter();
         ChessDataModelToRDFConverter cdm2rdf = new ChessDataModelToRDFConverter();
         pgn2cdm.setInputFilename(input);
@@ -550,19 +557,23 @@ public class PGNToRDFConverterRanged
         while (! pgn2cdm.finishedInputFile())
         {
             nr ++;
-            System.out.println("  Working on Part: " + nr);
+            System.out.format("  Working on Part: %d%n", nr);
             
             long start = System.currentTimeMillis();
+            long numberOfTriplesInPart = 0;
             System.out.print("    Parsing data ...");
             pgn2cdm.parse(count);
-            System.out.println(" finished. (" +
-                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
+            System.out.format(" finished. (%s s)%n",
+                    Float.toString(((System.currentTimeMillis() - start) / 1000.0f)));
             
             start = System.currentTimeMillis();
             System.out.print("    Converting data ...");
             cdm2rdf.convert(pgn2cdm.getGames());
-            System.out.println(" finished. (" +
-                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
+            numberOfTriplesInPart = cdm2rdf.getStatementCount();
+            numberOfTriples += numberOfTriplesInPart;
+            System.out.format(" finished. (%s s for %d triples)%n",
+                    Float.toString(((System.currentTimeMillis() - start) / 1000.0f)),
+                    numberOfTriplesInPart);
             
             // compute file part name
             // without extension
@@ -587,7 +598,7 @@ public class PGNToRDFConverterRanged
             filePartName = filePartName + "." + outFormat.getExtension();
             
             start = System.currentTimeMillis();
-            System.out.print("    Writing File-Part: " + filePartName + " ...");
+            System.out.format("    Writing File-Part: %s ...", filePartName);
             
             // generate new OutputStream
             try
@@ -596,8 +607,9 @@ public class PGNToRDFConverterRanged
                 FileOutputStream fos = FileUtils.openOutputStream(filePartName);
                 if (fos == null)
                 {
-                    System.out.println("    Couldn't open output file <" +
-                            filePartName + "> ! Skipping outputting data!");
+                    System.out.format(
+                            "    Couldn't open output file <%s> ! Skipping outputting data!%n",
+                            filePartName);
                     continue;
                     //return false;
                 }
@@ -617,13 +629,15 @@ public class PGNToRDFConverterRanged
                 e.printStackTrace();
             }
             
-            System.out.println(" finished. (" +
-                    ((System.currentTimeMillis() - start) / 1000.0) + " s)");
+            System.out.format(" finished. (%s s)%n",
+                    Float.toString(((System.currentTimeMillis() - start) / 1000.0f)));
         }
         
-        System.out.println("  Processed " + pgn2cdm.numberOfParsedGames() +
-                " games in " + ((System.currentTimeMillis() - startFile) / 1000.0) +
-                " seconds. Wrote " + nr + " File(-Parts).");
+        System.out.format(
+                "  Processed %d games to %d triples in %s seconds.%n  Wrote %d File(-Parts).%n",
+                pgn2cdm.numberOfParsedGames(), numberOfTriples,
+                Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f)),
+                nr);
         
         return true;
     }
