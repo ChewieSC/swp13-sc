@@ -78,12 +78,12 @@ public class SimpleSearch
     /**
      * SPARQL_QUERY_SELECT_PLAYER1_VAR
      */
-    private final static String  SPARQL_QUERY_SELECT_PLAYER1_VAR =
+    private final static String SPARQL_QUERY_SELECT_PLAYER1_VAR =
             SPARQL_QUERY_SELECT_PLAYER_VAR + '1';
     /**
      * SPARQL_QUERY_SELECT_PLAYER2_VAR
      */
-    private final static String  SPARQL_QUERY_SELECT_PLAYER2_VAR =
+    private final static String SPARQL_QUERY_SELECT_PLAYER2_VAR =
             SPARQL_QUERY_SELECT_PLAYER_VAR + '2';
     /**
      * SPARQL_QUERY_SELECT_START
@@ -151,7 +151,11 @@ public class SimpleSearch
      * SPARQL query string.
      */
     public final static String PLAYER2_VARIABLE = SPARQL_QUERY_SELECT_PLAYER2_VAR;
-    
+    /**
+     * COUNT_VARIABLE is the variable name of the column/return value variable
+     * when counting is enabled.
+     */
+    public final static String COUNT_VARIABLE = "count";
     
     // ------------------------------------------------------------------------
     // FIELD Constants
@@ -366,24 +370,16 @@ public class SimpleSearch
         }
         else
         {
-//            int n = 0;
-            for (int nr = 0; nr < variable_names.length; nr ++)
-            {
-//                if (variable_names[nr] != null && ! variable_names[nr].trim().equals(""))
-//                {
-//                    n ++;
-                sb.append(" ?")
-                    .append(variable_names[nr]);
-//                }
-            }
-//            if (n == 0)
-//            {
-//                // no variable added!
-//                sb.append(" *");
-//            }
+            // only a single variable works ! -> take the first one
+            // or *
+            sb.append(" ?")
+                .append(variable_names[0]);
         }
         
-        sb.append(" )");
+        // rename as COUNT_VARIABLE
+        // not the default: 'callret-0'
+        sb.append(" ) AS ?")
+            .append(COUNT_VARIABLE);
         
         return sb.toString();
     }
