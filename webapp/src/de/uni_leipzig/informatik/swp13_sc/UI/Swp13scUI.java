@@ -1,4 +1,4 @@
-package de.uni_leipzig.informatik.swp13_sc.UI;
+package de.uni_leipzig.informatik.swp13_sc;
 
 
 import java.io.ByteArrayOutputStream;
@@ -34,30 +34,20 @@ import de.uni_leipzig.informatik.swp13_sc.converter.PGNToRDFConverterStream;
 
 
 /**
- * Main UI class
+ * Hauptklasse der semChess UI
+ * @author LingLong
+ *
  */
 @SuppressWarnings("serial")
 public class Swp13scUI extends UI
 {
 	//---------------Game-Explorer Instanzen---------------//
 	                       //TODO
-	
+
 	//---------------Suchfenster Instanzen-----------------//
-	/**Layout fuer Suchfenster*/
-	private VerticalLayout searchLayout = new VerticalLayout();
-	/**Inneres Layout fuer Suchfenster*/
-	private HorizontalLayout searchLayoutInner = new HorizontalLayout();
-	
-	/**Label mit Ueberschrift */
-	private Label lblSearch = new Label("Suche nach Schachpartien");
-	
-    /**Button fur Suchfunktion*/    
-    private Button btnSearch = new Button("Suche");
-    
-    /**neues Suchfeld*/
-	private TextField tfSearch = new TextField();
-	
-	
+	   
+	private SearchView searchView = new SearchView();  
+
 	//--------------Konverterfenster Instazen-------------//
 	/**Layout fuer Konverterfenster*/
 	private VerticalLayout converterLayout = new VerticalLayout();
@@ -71,7 +61,7 @@ public class Swp13scUI extends UI
 	 * Textfeld Für zu Parsende PGN 
 	 */
 	private TextArea taToPars = new TextArea();
-	
+
 	/**Button fur Konvertierung*/    
     private Button btnDownload = new Button("Download");
     
@@ -135,15 +125,15 @@ public class Swp13scUI extends UI
 	 */
 	@Override
 	protected void init(VaadinRequest request) {
-		
-		initSearch();
+
+		searchView.initFunktion();
 		initConverter();
 		initLayout();
 		initButtons();
 		initUpload();
 	}
 //------------------------------Methodenteil--------------------------//	
-	
+
 /**
  * Methode erstellt das Layout der Website	
  */
@@ -158,17 +148,10 @@ public class Swp13scUI extends UI
       VerticalSplitPanel splitPanelInner = new VerticalSplitPanel();
       splitPanel.addComponent(splitPanelInner);
             
-      splitPanelInner.addComponent(searchLayout); 
+      splitPanelInner.addComponent(searchView); 
       splitPanelInner.addComponent(converterLayout);
       
-      //--------------Aufbau Suchfenster---------------//      
-      searchLayout.addComponent(lblSearch);
-      searchLayout.addComponent(searchLayoutInner);
-      
-      // searchLayout.addComponent(lblSearch);
-      searchLayoutInner.addComponent(tfSearch);
-      searchLayoutInner.addComponent(btnSearch);
-      
+           
       
       
       //--------------Aufbau Konverterfenster---------------//
@@ -185,17 +168,13 @@ public class Swp13scUI extends UI
       //-------------Eigenschaften der GUIkomponenten----------//
         
       //Anpassen Searchfenster
-      searchLayout.setMargin(true);
-      searchLayout.setVisible(true);
+      searchView.setMargin(true);
+      searchView.setVisible(true);
       
-      searchLayoutInner.setSizeFull();
-      searchLayoutInner.setWidth("100%");
-           
-      tfSearch.setWidth("100%");
+     
       taToPars.setWidth("100%");
       
-      searchLayoutInner.setExpandRatio(tfSearch, 1);
-      
+          
       
 //      searchLayoutInner.setMargin(true);
 //      searchLayoutInner.setVisible(true);
@@ -219,23 +198,15 @@ public class Swp13scUI extends UI
    
       
      }
-		
-/**
- * Methode baut das Suchfeld und seine Funktion auf	
- */
-  private void initSearch()
-       {
-		 
-	     tfSearch.setInputPrompt("Suchbegriff");
-	     tfSearch.setTextChangeEventMode(TextChangeEventMode.LAZY);     
 
-	   }
+
   
  @SuppressWarnings("deprecation")
-private void initUpload(){
-	  //final RdfUploader uploader = new RdfUploader(); //TODO
+
+ private void initUpload(){
+  //final RdfUploader uploader = new RdfUploader(); //TODO
      
-	  //upload.setReceiver(uploader);
+  //upload.setReceiver(uploader);
 	  upload.addListener(new Upload.FinishedListener() {
 	    	@Override
 	    	public void uploadFinished(Upload.FinishedEvent finishedEvent) {
@@ -245,7 +216,7 @@ private void initUpload(){
 	    		postPgn(basepath + getFileString(), basepath + "test.rdf");
 	    	}
 	    	});
-	 
+
  }
   
   
@@ -255,19 +226,19 @@ private void initUpload(){
   */
   private void initButtons()
   {
-	  
+
   //------------------Buttons Konverterfenster-------------------//
 
 	  //delete test.rdf every time
 		System.out.println(basepath + getFileString());
-		
+
 		Resource res = new FileResource(new File(basepath + "test.rdf"));
 		FileDownloader fd = new FileDownloader(res);
 		fd.extend(btnDownload);
-		
-	  
 
-	
+
+
+
 //	StreamResource myResource = createResource();
 //    fileDownloader = new FileDownloader(myResource);
 
@@ -275,13 +246,13 @@ private void initUpload(){
 
 	 //------------------Buttons Suchfenster-------------------// 
 
-	 
+
   }
   
   //*------------------Anbindung der Komponenten an das Datenmodell------------//
   
   public boolean postPgn( String pathIn, String pathOut) {
-	  
+
 	  FileInputStream is = FileUtils.openInputStream(pathIn);
 	  FileOutputStream os = FileUtils.openOutputStream(pathOut);
 	  PGNToRDFConverterStream p = new PGNToRDFConverterStream(is, os);
@@ -294,21 +265,21 @@ private void initUpload(){
 		e.printStackTrace();
 	}
 	  lblInfo.setValue("Parsen...Konvertieren...");
-	  
+
 	  if(bValue){
 		  lblInfo.setValue("PGN wurde erfolgreich Konvertiert! Die RDF steht jetzt zum Donwload bereit.");
 	  }
-		  
+
 	  else			
 		  lblInfo.setValue("Fehler beim Parsen/Konvertieren!");
-	  
+
 	return true;  
   }
   
   
   
 public boolean postText( String text) {
-	  
+
 	//Parser parser = new Parser(text, "test.txt" );
 	  //Post text
 	return true;  
@@ -327,8 +298,8 @@ public String getFileString(){
    */
   private void initConverter()
   {
-	  
-	 
+
+
   }
   
 }
