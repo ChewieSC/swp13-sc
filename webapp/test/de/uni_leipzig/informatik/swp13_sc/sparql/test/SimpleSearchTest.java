@@ -5,9 +5,13 @@ package de.uni_leipzig.informatik.swp13_sc.sparql.test;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import virtuoso.jena.driver.VirtGraph;
 
 import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
 
@@ -20,6 +24,9 @@ import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
 public class SimpleSearchTest
 {
 
+    /**
+     * Constructor
+     */
     public SimpleSearchTest()
     {
     }
@@ -82,7 +89,12 @@ public class SimpleSearchTest
     @Test
     public final void testGetResult()
     {
-        fail("Not yet implemented"); // TODO
+        SimpleSearch ss = new SimpleSearch();
+        
+        ss.setDBConnection(new VirtGraph("jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba"));
+        ss.setField(SimpleSearch.FIELD_KEY_CG_RESULT, SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
+        
+        List<String> res = ss.getResult();
     }
 
     /**
@@ -242,5 +254,42 @@ public class SimpleSearchTest
         ss.setCountResults(true);
         qu = ss.getSPARQLQuery();
     }
+    
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#setCountResults(boolean)}.
+     */
+    @Test
+    public final void testSetCountResults()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#setDBConnection(virtuoso.jena.driver.VirtGraph)}.
+     */
+    @Test
+    public final void testSetDBConnection()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#createQueries()}.
+     */
+    @Test
+    public final void testCreateQueries()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#getResultCount()}.
+     */
+    @Test
+    public final void testGetResultCount()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
 
 }
