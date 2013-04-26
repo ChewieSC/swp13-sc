@@ -252,10 +252,14 @@ public class VirtuosoRDFImporter
             {
                 // error when transaction is enabled !
                 // //this.virtuosoGraph.getTransactionHandler().transactionsSupported()
-                //this.virtuosoGraph.getTransactionHandler().begin();
-                //transActionStarted = true;
+                this.virtuosoGraph.getTransactionHandler().begin();
+                transActionStarted = true;
             }
             catch (UnsupportedOperationException e)
+            {
+                e.printStackTrace();
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
