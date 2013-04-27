@@ -79,198 +79,24 @@ public class PGNToChessDataModelConverter
      */
     public final static int ALL_GAMES = -1;
     
-    // regex strings
-    /**
-     * Regex for the figure types (without pawn).
-     */
-    private final static String regex_move_figure = "[RNBQK]";
-    /**
-     * Regex for the row field part notation.
-     */
-    private final static String regex_move_source_row = "[1-8]";
-    /**
-     * Regex for the column field notation.
-     */
-    private final static String regex_move_source_column = "[a-h]";
-    /**
-     * Regex for partial source field notation.
-     */
-    private final static String regex_move_source =
-            regex_move_source_column + "?" + regex_move_source_row + "?";
-    /**
-     * Regex for a capture move.
-     */
-    private final static String regex_move_captured = "x";
-    /**
-     * Regex for the destination field in a move.
-     */
-    private final static String regex_move_destination =
-            regex_move_source_column + regex_move_source_row;
-    
-    /**
-     * Regex for promotion. e. g. a pawn was transformed into a queen -> "=Q"
-     */
-    private final static String regex_move_promotion = "=" + regex_move_figure;
-    
-    /**
-     * Regex for check modifier.
-     */
-    private final static String regex_move_check = "\\+";
-    /**
-     * Regex for checkmate.
-     */
-    private final static String regex_move_checkmate = "#"; // ?
-    /**
-     * Regex for check or checkmate.
-     */
-    private final static String regex_move_checkCheckmate =
-            "(" + regex_move_check + "|" + regex_move_checkmate + ")?";
-    
-    /**
-     * Regex for the round number.
-     */
-    private final static String regex_move_number = "\\b" + "[1-9][0-9]*\\."; // checked!
-    /**
-     * Regex for a comment between moves.
-     */
-    private final static String regex_move_comment = "(" + "\\{[^\\}]*\\}" + ")?"; // ungreedy
-    
-    /**
-     * Regex for queenside castling move. Not used.
-     */
-    @SuppressWarnings("unused")
-    private final static String regex_move_castling_queen = "O\\-O\\-O";
-    /**
-     * Regex for queenside castling move. Not used.
-     */
-    @SuppressWarnings("unused")
-    private final static String regex_move_castling_king = "O\\-O";
-    //(O\\-O(\\-O)?)   <->   (O\\-O\\-O)|(O\\-O)   ???
-    //O\-O(\-O)?
-    /**
-     * Regex for a castling move.
-     */
-    private final static String regex_move_castling =
-            //regex_move_castling_queen + "|" + regex_move_castling_king;
-            // checked!? -> needs greedy
-            "O\\-O(\\-O)?";
-    
-    //([a-h]x)?[a-h][1-8](=[RNBQK])?
-    /**
-     * Regex for a pawn move.
-     */
-    private final static String regex_move_pawn =
-            "(" + regex_move_source_column + regex_move_captured + ")?" + 
-                    regex_move_destination +
-                    "(" + regex_move_promotion + ")?"; // checked!
-    //[RNBQK][a-h]?[1-8]?x?[a-h][1-8]
-    /**
-     * Regex for a move other than pawn.
-     */
-    private final static String regex_move_otherfigure =
-            regex_move_figure + regex_move_source + regex_move_captured
-                    + "?" + regex_move_destination;
-    
-    // castling -> check ? maybe possible ...
-    //\b(((([a-h]x)?[a-h][1-8](=[RNBQK])?)|([RNBQK][a-h]?[1-8]?x?[a-h][1-8])|(O\-O(\-O)?))\b(\+|#)?)\s*(\{.*?\})?
-    /**
-     * Regex for a single move notation. Most important and mostly used.
-     */
-    private final static String regex_move_single =
-            "\\b" + "(((" + regex_move_pawn + ")|(" + regex_move_otherfigure +
-                    ")|(" + regex_move_castling + "))" + "\\b" + regex_move_checkCheckmate +
-                    ")" + "\\s*" + regex_move_comment + "\\s*"; // checked !!
-    
-    //(\b[1-9][0-9]*\.\s*)\b((([a-h]x)?[a-h][1-8](=[RNBQK])?)|([RNBQK][a-h]?[1-8]?x?[a-h][1-8])|(O\-O(\-O)?))\b(\+|#)?\s*(\{.*?\})?(\b((([a-h]x)?[a-h][1-8](=[RNBQK])?)|([RNBQK][a-h]?[1-8]?x?[a-h][1-8])|(O\-O(\-O)?))\b(\+|#)?\s*(\{.*?\})?)?
-    /**
-     * Regex for a round (round number, first move and if present the second move).
-     */
-    @SuppressWarnings("unused")
-    private final static String regex_move_double =
-            "(" + regex_move_number + "\\s*" + ")" + regex_move_single + "(" +
-                    regex_move_single + ")?"; // checked !!
-    
-    //\b(1\-0)|(0\-1)|(1\/2\-1\/2)\b
-    /**
-     * Regex for pgn move part - the result at the end.
-     */
-    @SuppressWarnings("unused")
-    private final static String regex_result =
-            "\\b" + "(1\\-0)|(0\\-1)|(1\\/2\\-1\\/2)" + "\\b"; // checked!
-    
-    
-    /**
-     * Regex for meta key name.
-     */
-    private final static String regex_meta_key = "([A-Z]\\w*)";
-    /**
-     * Regex for meta key value part.
-     */
-    private final static String regex_meta_value = "\\\"([^\\\"]*)\\\"";
-    /**
-     * Regex for separator between key and value.
-     */
-    private final static String regex_meta_separator = "\\s+";
-    /**
-     * Regex for meta data entry start char.
-     */
-    private final static String regex_meta_start = "\\[";
-    /**
-     * Regex for meta data entry end.
-     */
-    private final static String regex_meta_end = "\\]";
-    /**
-     * Regex for meta data entry element.
-     */
-    private final static String regex_meta =
-            regex_meta_start + regex_meta_key + regex_meta_separator +
-                    regex_meta_value + regex_meta_end;
-    // needs multi-line modifier if ^PATTERN$
-    // check for multi-line modifier ... below
-    /**
-     * Regex for meta data entry start. Used to check if there is one.
-     */
-    private final static String regex_meta_start_line =
-            "^" + regex_meta_start;
-    
-    
     // ------------------------------------------------------------------------
     
     /**
      * Regex Pattern for a single chess move in algebraic notation.
      */
-    private static Pattern pattern_single_move = Pattern.compile(regex_move_single);
-    // Group 0: complete (pos, check, comment)
-    // Group 1: move without comment
-    // Group 2: move only (source, dest. pos, NO check!)
-    // Group 3: pawn moves only (source, capture, dest., promo, figure)
-    // Group 4: pawn move (capture + source column)
-    // Group 5: promotion (promo, dest. figure)
-    // Group 6: move of other figures (figure, source, capture, dest.)
-    // Group 7: castlings (king, queen)
-    // Group 8: queen side castlings (queen part ? -O)
-    // Group 9: check (check, checkmate (?))
-    // Group 10: comments (-> {...})
-    
-    ///**
-    // * Regex Pattern for a complete round (-> 2 moves with number).
-    // */
-    //private static Pattern pattern_double_move = Pattern.compile(regex_move_double);
-    
+    private static Pattern pattern_single_move = Pattern.compile(ChessPGNVocabulary.regex_move_single);
+        
     /**
      * Regex Pattern for the start of a meta data entry line.
      */
     @SuppressWarnings("unused")
     private static Pattern pattern_meta_start_line =
-            Pattern.compile(regex_meta_start_line);//, Pattern.MULTILINE);
+            Pattern.compile(ChessPGNVocabulary.regex_meta_start_line);//, Pattern.MULTILINE);
     
     /**
      * Regex Pattern for a single meta data entry line.
      */
-    private static Pattern pattern_meta = Pattern.compile(regex_meta);
-    // Group 0: complete
-    // Group 1: meta key
-    // Group 2: meta value
+    private static Pattern pattern_meta = Pattern.compile(ChessPGNVocabulary.regex_meta);
     
     // ------------------------------------------------------------------------
     

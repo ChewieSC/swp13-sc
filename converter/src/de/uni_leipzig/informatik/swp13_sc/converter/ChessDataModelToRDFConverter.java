@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -120,10 +121,12 @@ public class ChessDataModelToRDFConverter
     public ChessDataModelToRDFConverter()
     {
         // create store
-        model = ChessDataModelToRDFConverter.createModel();
+        model = createModel();
         
         convertedGames = new HashMap<String, List<String>>();
     }
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Returns a Set of all converted game names.
@@ -133,6 +136,40 @@ public class ChessDataModelToRDFConverter
     public Map<String, List<String>> getConvertedGameNames()
     {
         return Collections.unmodifiableMap(this.convertedGames);
+    }
+    
+    /**
+     * Gets the number of created Statements (or Triples - internal).
+     * 
+     * @return  long
+     */
+    public long getStatementCount()
+    {
+        if (! this.model.isClosed())
+        {
+            return this.model.size();
+        }
+        return 0;
+    }
+    
+    /**
+     * Returns the internal Graph for the used Model. A new Model will be
+     * generated, so no changes can result from working with the Graph.
+     * 
+     * @return  Graph (Jena)
+     */
+    public Graph getTripelGraph()
+    {
+        Graph g = null;
+        if (! this.model.isClosed())
+        {
+            g = this.model.getGraph();
+            //this.model.close();
+            // TODO: create new Model necessary?
+            this.model = createModel();
+        }
+        
+        return g;
     }
     
     // ------------------------------------------------------------------------
@@ -147,8 +184,10 @@ public class ChessDataModelToRDFConverter
         // create store
         Model model = ModelFactory.createDefaultModel();
         // add namespace prefixes
-        model.setNsPrefix("cont", ChessRDFVocabulary.getURI());
-        model.setNsPrefix("cres", ChessRDFVocabulary.getResourceURI());
+        model.setNsPrefix(ChessRDFVocabulary.getOntologyPrefixName(),
+                ChessRDFVocabulary.getURI());
+        model.setNsPrefix(ChessRDFVocabulary.getResourcePrefixName(),
+                ChessRDFVocabulary.getResourceURI());
         model.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
         
         return model;

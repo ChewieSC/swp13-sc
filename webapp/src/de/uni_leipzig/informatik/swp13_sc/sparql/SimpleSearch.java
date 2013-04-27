@@ -3,8 +3,23 @@
  */
 package de.uni_leipzig.informatik.swp13_sc.sparql;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import virtuoso.jena.driver.VirtGraph;
+import virtuoso.jena.driver.VirtModel;
+import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
+
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 
@@ -19,7 +34,7 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 public class SimpleSearch
 {
     /**
-     * fields
+     * The input field values of the web interface.
      */
     private Map<String, String> fields;
     /**
@@ -30,6 +45,18 @@ public class SimpleSearch
      * Selects only distinct values. (default)
      */
     private boolean distinct;
+    /**
+     * Tells the SPARQL Query composer to construct a COUNT query.
+     */
+    private boolean count;
+    
+    private VirtGraph virtuosoGraph;
+    private Query countQuery;
+    private Query selectQuery;
+    private boolean recreateQueries;
+    
+    private long resultCount;
+    private List<String> resultList;
     
     // ------------------------------------------------------------------------
     // Constants
@@ -46,11 +73,13 @@ public class SimpleSearch
     /**
      * SPARQL_QUERY_PREFIX_CONT
      */
-    private final static String SPARQL_QUERY_PREFIX_CONT = "cont:";
+    private final static String SPARQL_QUERY_PREFIX_CONT =
+            ChessRDFVocabulary.getOntologyPrefixName() + ":";
     /**
      * SPARQL_QUERY_PREFIX_CRES
      */
-    private final static String SPARQL_QUERY_PREFIX_CRES = "cres:";
+    private final static String SPARQL_QUERY_PREFIX_CRES =
+            ChessRDFVocabulary.getResourcePrefixName() + ":";
     /**
      * SPARQL_QUERY_PREFIX
      */
@@ -72,12 +101,12 @@ public class SimpleSearch
     /**
      * SPARQL_QUERY_SELECT_PLAYER1_VAR
      */
-    private final static String  SPARQL_QUERY_SELECT_PLAYER1_VAR =
+    private final static String SPARQL_QUERY_SELECT_PLAYER1_VAR =
             SPARQL_QUERY_SELECT_PLAYER_VAR + '1';
     /**
      * SPARQL_QUERY_SELECT_PLAYER2_VAR
      */
-    private final static String  SPARQL_QUERY_SELECT_PLAYER2_VAR =
+    private final static String SPARQL_QUERY_SELECT_PLAYER2_VAR =
             SPARQL_QUERY_SELECT_PLAYER_VAR + '2';
     /**
      * SPARQL_QUERY_SELECT_START
@@ -145,7 +174,11 @@ public class SimpleSearch
      * SPARQL query string.
      */
     public final static String PLAYER2_VARIABLE = SPARQL_QUERY_SELECT_PLAYER2_VAR;
-    
+    /**
+     * COUNT_VARIABLE is the variable name of the column/return value variable
+     * when counting is enabled.
+     */
+    public final static String COUNT_VARIABLE = "count";
     
     // ------------------------------------------------------------------------
     // FIELD Constants
@@ -246,6 +279,7 @@ public class SimpleSearch
         this.fields = new HashMap<String, String>();
         this.distinct = true;
         this.hasResult = false;
+        this.recreateQueries = false;
     }
     
     /**
@@ -258,6 +292,7 @@ public class SimpleSearch
     {
         this();
         this.fields = fields;
+        this.recreateQueries = true;
     }
         
     // ------------------------------------------------------------------------
@@ -267,53 +302,264 @@ public class SimpleSearch
      * 
      * @param   key     field name
      * @param   value   input value
+     * @return  SimpleSearch (this) to chain calls
      */
-    public void setField(String key, String value)
+    public SimpleSearch setField(String key, String value)
     {
         if (key == null)
         {
-            return;
+            return this;
         }
         
         this.fields.put(key, value);
+        this.recreateQueries = true;
+        
+        return this;
     }
     
     /**
      * Sets the 'Distinct-Mode'. Filters duplicate values.
      * 
      * @param   distinct    true if filtering else false
+     * @return  SimpleSearch (this) to chain calls 
      */
-    public void setDistinct(boolean distinct)
+    public SimpleSearch setDistinct(boolean distinct)
     {
         this.distinct = distinct;
-    }
-    
-    //setDBConnection()
-    
-    // ------------------------------------------------------------------------
-    
-    /*
-    public boolean query(/ *DBConnection* /)
-    {
-        // TODO: query virtuoso
-        return false;
-    }
-    */
-    
-    // ------------------------------------------------------------------------
-    
-    /*
-    public Map<String, String> getResult()
-    {
+        this.recreateQueries = true;
         
-        return null;
+        return this;
+    }
+    
+    /**
+     * Tells the SPARQL Query constructor to construct a COUNT SPARQL query
+     * if set to true.
+     * 
+     * @param   count   construct a COUNT SPARQL query if true
+     * @return  SimpleSearch (this) to chain calls
+     */
+    public SimpleSearch setCountResults(boolean count)
+    {
+        this.count = count;
+        this.recreateQueries = true;
+        
+        return this;
+    }
+    
+    /**
+     * Sets the connection graph to Virtuoso.
+     * 
+     * @param   virtuosoGraph   VirtGraph
+     */
+    public void setDBConnection(VirtGraph virtuosoGraph)
+    {
+        this.virtuosoGraph = virtuosoGraph;
+    }
+    
+    // ------------------------------------------------------------------------
+    
+    protected void createQueries()
+        throws Exception
+    {
+        if (! this.recreateQueries)
+        {
+            return;
+        }
+        
+        try {
+            System.out.println(this.getSPARQLCountQuery());
+            countQuery = QueryFactory.create(this.getSPARQLCountQuery());
+            System.out.println(this.getSPARQLQuery());
+            selectQuery = QueryFactory.create(this.getSPARQLQuery());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            throw e;
+        }
+        
+        this.recreateQueries = false;
+    }
+    
+    public boolean query()
+    {
+        if (this.virtuosoGraph == null)
+        {
+            return false;
+        }
+        
+        try
+        {
+            this.createQueries();
+        }
+        catch (Exception e)
+        {
+            // e.printStackTrace();
+            this.hasResult = true;
+            this.resultList = new ArrayList<String>();
+            this.resultCount = -1;
+            return false;
+        }
+        
+        this.resultList = new ArrayList<String>();
+        
+        try
+        {
+            QueryExecution vqeS = QueryExecutionFactory.create(this.selectQuery, new VirtModel(virtuosoGraph));
+            
+            if (! this.count)
+            {
+                try {
+                    QueryExecution vqeC = QueryExecutionFactory.create(this.countQuery, new VirtModel(virtuosoGraph));
+                    //QueryExecution vqeC = VirtuosoQueryExecutionFactory.create(this.countQuery, virtuosoGraph);
+                    
+                    ResultSet results = vqeC.execSelect();
+                    
+                    //ResultSetFormatter.out(System.out, results, this.countQuery);
+                    
+                    if (results.hasNext())
+                    {
+                        QuerySolution result = (QuerySolution) results.next();
+                        Literal c = result.getLiteral(COUNT_VARIABLE);
+                        this.resultCount = c.getLong();
+                    }
+                    
+                    vqeC.close();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+                
+                
+                ResultSet results = vqeS.execSelect();
+                
+                String vari = GAME_VARIABLE;
+                if (this.fields.get(FIELD_KEY_RESULTTYPE).equalsIgnoreCase(FIELD_VALUE_RESULTTYPE_PLAYER1))
+                {
+                    vari = PLAYER1_VARIABLE;
+                }
+                else if (this.fields.get(FIELD_KEY_RESULTTYPE).equalsIgnoreCase(FIELD_VALUE_RESULTTYPE_PLAYER2))
+                {
+                    vari = PLAYER2_VARIABLE;
+                }
+                
+                while(results.hasNext())
+                {
+                    QuerySolution result = (QuerySolution) results.next();
+                    RDFNode iri = result.get(vari);
+                    this.resultList.add(iri.toString());
+                }
+                 
+                vqeS.close();
+            }
+            else
+            {
+                ResultSet results = vqeS.execSelect();
+                
+                if (results.hasNext())
+                {
+                    QuerySolution result = (QuerySolution) results.next();
+                    Literal c = result.getLiteral(COUNT_VARIABLE);
+                    this.resultCount = c.getLong();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+
+            this.hasResult = true;
+            this.resultList = new ArrayList<String>();
+            this.resultCount = -1;
+            return false;
+        }
+        
+        
+        
+        return true;
+    }
+    
+    
+    // ------------------------------------------------------------------------
+    
+    
+    
+    public List<String> getResult()
+    {
+        if (! this.hasResult())
+        {
+            if (! this.query())
+            {
+                return null;
+            }
+        }
+        
+        if (this.count)
+        {
+            return null;
+        }
+        
+        return this.resultList;
+    }
+    
+    public long getResultCount()
+    {
+        if (! this.hasResult())
+        {
+            return 0;
+        }
+        return this.resultCount;
     }
     
     public boolean hasResult()
     {
+        if (this.recreateQueries)
+        {
+            return false;
+        }
         return this.hasResult;
     }
-    */
+    
+    
+    /**
+     * Constructs a COUNT SPARQL-Wrapper around given variables or a COUNT(*)
+     * for a lot of different cases where the input is wrong ...<br />
+     * Sets DISTINCT depending on class status.
+     * 
+     * @param   variable_names  Open String array to allow a lot of possibilities
+     * @return  COUNT(*) or COUNT( <variables> ) -> SPARQL String
+     */
+    protected String constructSPARQLCountWrapper(String ... variable_names)
+    {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(" ( COUNT (")
+            .append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "");
+        
+        if (variable_names == null || variable_names.length == 0 ||
+                (variable_names.length == 1 && (variable_names[0] == null ||
+                variable_names[0].trim().equals("*") ||
+                variable_names[0].trim().equals(""))))
+        {
+            sb.append(" *");
+        }
+        else
+        {
+            // only a single variable works ! -> take the first one
+            // or *
+            sb.append(" ?")
+                .append(variable_names[0]);
+        }
+        
+        // rename as COUNT_VARIABLE
+        // not the default: 'callret-0'
+        sb.append(" ) AS ?")
+            .append(COUNT_VARIABLE)
+            .append(" )");
+        
+        return sb.toString();
+    }
     
     /**
      * Constructs a SPARQL query string for selecting chess game IRIs depending
@@ -329,11 +575,20 @@ public class SimpleSearch
         sb.append(SPARQL_QUERY_PREFIX);
         
         // query select clause
-        sb.append(SPARQL_QUERY_SELECT_START)
-            .append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
-            .append(" ?")
-            .append(SPARQL_QUERY_SELECT_GAME_VAR)
-            .append(SPARQL_QUERY_NEWLINE)
+        sb.append(SPARQL_QUERY_SELECT_START);
+        
+        if (this.count)
+        {
+            sb.append(constructSPARQLCountWrapper(SPARQL_QUERY_SELECT_GAME_VAR));
+        }
+        else
+        {
+            sb.append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
+                .append(" ?")
+                .append(SPARQL_QUERY_SELECT_GAME_VAR);
+        }
+            
+        sb.append(SPARQL_QUERY_NEWLINE)
             .append(SPARQL_QUERY_WHERE_START);
         
         // query result is a game
@@ -667,11 +922,20 @@ public class SimpleSearch
         sb.append(SPARQL_QUERY_PREFIX);
         
         // query select clause
-        sb.append(SPARQL_QUERY_SELECT_START)
-            .append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
-            .append(" ?")
-            .append(var_name_player)
-            .append(SPARQL_QUERY_NEWLINE)
+        sb.append(SPARQL_QUERY_SELECT_START);
+        
+        if (this.count)
+        {
+            sb.append(constructSPARQLCountWrapper(var_name_player));
+        }
+        else
+        {
+            sb.append((this.distinct) ? SPARQL_QUERY_SELECT_DISTINCT : "")
+                .append(" ?")
+                .append(var_name_player);
+        }
+            
+        sb.append(SPARQL_QUERY_NEWLINE)
             .append(SPARQL_QUERY_WHERE_START);
         
         // query result is a game
@@ -705,5 +969,25 @@ public class SimpleSearch
             this.setField(FIELD_KEY_RESULTTYPE, FIELD_VALUE_RESULTTYPE_GAME);
             return this.constructSPARQLQueryGameIRI();
         }
+    }
+    /**
+     * Creates a SPARQL COUNT query string with the values from the web
+     * interface.<br />Can be used to count the result before displaying all.
+     * 
+     * @return  SPARQL-Query String with COUNT (...)
+     */
+    public String getSPARQLCountQuery()
+    {
+        // temporary set count on
+        boolean countOn = this.count;
+        this.count = true;
+        
+        // get query with default mode
+        String query = this.getSPARQLQuery();
+        
+        // set to previous value
+        this.count = countOn;
+        
+        return query;
     }
 }

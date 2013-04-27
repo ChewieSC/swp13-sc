@@ -5,9 +5,13 @@ package de.uni_leipzig.informatik.swp13_sc.sparql.test;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import virtuoso.jena.driver.VirtGraph;
 
 import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
 
@@ -20,6 +24,9 @@ import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
 public class SimpleSearchTest
 {
 
+    /**
+     * Constructor
+     */
     public SimpleSearchTest()
     {
     }
@@ -82,7 +89,12 @@ public class SimpleSearchTest
     @Test
     public final void testGetResult()
     {
-        fail("Not yet implemented"); // TODO
+        SimpleSearch ss = new SimpleSearch();
+        
+        ss.setDBConnection(new VirtGraph("jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba"));
+        ss.setField(SimpleSearch.FIELD_KEY_CG_RESULT, SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
+        
+        List<String> res = ss.getResult();
     }
 
     /**
@@ -92,6 +104,53 @@ public class SimpleSearchTest
     public final void testHasResult()
     {
         fail("Not yet implemented"); // TODO
+    }
+    
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#constructSPARQLCountWrapper(java.lang.String[])}.
+     */
+    @Test
+    public final void testConstructSPARQLCountWrapper()
+    {
+        /*SimpleSearch ss = new SimpleSearch();
+        
+        String c1 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2", "b"});
+        
+        String c2 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2", null});
+        
+        String c3 = ss.constructSPARQLCountWrapper(new String[] {null});
+        
+        String c4 = ss.constructSPARQLCountWrapper(new String[] {});
+        
+        // only one String[] !
+        //String c5 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2"}, new String[] {"b1", "b2"});
+        
+        // wrong arguments again !
+        //String c6 = ss.constructSPARQLCountWrapper(new String[] {"a1", "a2"}, "b");
+        
+        String c7 = ss.constructSPARQLCountWrapper("a1", "a2", "b");
+        
+        String c8 = ss.constructSPARQLCountWrapper("");
+        
+        String c9 = ss.constructSPARQLCountWrapper("*");
+        
+        // no char !
+        //String c10 = ss.constructSPARQLCountWrapper('*');
+        
+        String c11 = ss.constructSPARQLCountWrapper((String) null);
+        
+        ss.setDistinct(true);
+        
+        String c12 = ss.constructSPARQLCountWrapper(" *  ");
+        
+        // no validation for multiple empty or null string below here ...
+        String c13 = ss.constructSPARQLCountWrapper(new String[] {"", ""});
+        
+        String c14 = ss.constructSPARQLCountWrapper(new String[] {"", "a2", ""});
+        
+        String c15 = ss.constructSPARQLCountWrapper(new String[] {null, "a2", "  "});        
+        
+        String c16 = ss.constructSPARQLCountWrapper(new String[] {null, null, null});*/
     }
 
     /**
@@ -188,9 +247,49 @@ public class SimpleSearchTest
         ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER2);
         qu = ss.getSPARQLQuery();
         
-        ss.setDistinct(true);
+        ss.setDistinct(false);
         ss.setField(SimpleSearch.FIELD_KEY_RESULTTYPE, SimpleSearch.FIELD_VALUE_RESULTTYPE_PLAYER1);
         qu = ss.getSPARQLQuery();
+        
+        ss.setCountResults(true);
+        qu = ss.getSPARQLQuery();
     }
+    
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#setCountResults(boolean)}.
+     */
+    @Test
+    public final void testSetCountResults()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#setDBConnection(virtuoso.jena.driver.VirtGraph)}.
+     */
+    @Test
+    public final void testSetDBConnection()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#createQueries()}.
+     */
+    @Test
+    public final void testCreateQueries()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch#getResultCount()}.
+     */
+    @Test
+    public final void testGetResultCount()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
 
 }
