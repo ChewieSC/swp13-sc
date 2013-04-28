@@ -367,8 +367,8 @@ public class SimpleSearch
         }
         
         try {
-            System.out.println(this.getSPARQLCountQuery());
-            countQuery = QueryFactory.create(this.getSPARQLCountQuery());
+            //System.out.println(this.getSPARQLCountQuery());
+            //countQuery = QueryFactory.create(this.getSPARQLCountQuery());
             System.out.println(this.getSPARQLQuery());
             selectQuery = QueryFactory.create(this.getSPARQLQuery());
         }
@@ -450,8 +450,6 @@ public class SimpleSearch
                     RDFNode iri = result.get(vari);
                     this.resultList.add(iri.toString());
                 }
-                 
-                vqeS.close();
             }
             else
             {
@@ -464,6 +462,8 @@ public class SimpleSearch
                     this.resultCount = c.getLong();
                 }
             }
+            
+            vqeS.close();
         }
         catch (Exception e)
         {
@@ -475,7 +475,8 @@ public class SimpleSearch
             return false;
         }
         
-        
+        this.hasResult = true;
+        //this.resultCount = this.resultList.size();
         
         return true;
     }

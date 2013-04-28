@@ -91,10 +91,15 @@ public class SimpleSearchTest
     {
         SimpleSearch ss = new SimpleSearch();
         
-        ss.setDBConnection(new VirtGraph("jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba"));
+        ss.setDBConnection(new VirtGraph("http://localhost:1358/millionbase",
+                "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba"));
         ss.setField(SimpleSearch.FIELD_KEY_CG_RESULT, SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
         
         List<String> res = ss.getResult();
+        for (String s : res)
+        {
+            System.out.println(s);
+        }
     }
 
     /**
