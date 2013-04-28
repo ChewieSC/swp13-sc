@@ -1,7 +1,9 @@
-package de.uni_leipzig.informatik.swp13_sc;
+package de.uni_leipzig.informatik.swp13_sc.ui;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Button.ClickEvent;
@@ -13,6 +15,10 @@ import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+
+
+import de.uni_leipzig.informatik.swp13_sc.sparql.QuerySearch;
+
 /**
  * Kapselt das Layout und die Funktionalitäten des Suchfensters und dessen Komponenten
  * @author LingLong
@@ -20,138 +26,107 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class SearchView extends VerticalLayout {
 
-	//---------------Suchfenster Instanzen-----------------//
-	
 	/**Inneres Layout fuer Suchfenster*/
 	private HorizontalLayout searchLayoutInner;
-
+	
 	/**Label mit Ueberschrift */
 	private Label lblSearch;
+	
+	/**Button zum oeffnen der Suchfunktion*/    
+	private Button btnOpenSearch;
 
-    /**Button fur Suchfunktion*/    
-    private Button btnSearch;
-    
-    /**Button für Erweiterte Suche*/
-	private Button btnEx;
-	
-	/**Button zum staten der Qureysuche */
-	private Button btnQuerySearch;
-	
-    /**neues Suchfeld*/
-	private TextField tfSearch ;
+	/**Button zum oeffnen der sparql-Querysuche*/
+	private Button btnOpenQuerySearch;
 	
 	
+	private boolean simpleSearchActive = false;
+	private boolean querySearchActive = false;
 	
-	//--------------Instanzen des erwiterten Suchfensters------------//
+	//----- simpleSearch Instanzen -----//
 	
-	/**inneres Layout*/
-	HorizontalLayout exSearchInner;
+	private HorizontalLayout simpleSearchLayoutInner;
 	
-	/**InfoLabel erweiterte Suche*/
-	 Label lblExSearch ;
-		
-	/**Button fuer aufruf der erweiterten Suche*/
-	 Button btnExSearch ;
-	 
-	 /**Back*/
-	 Button btnEndExSearch;
-		
+	/**Suchbutton*/
+	private Button btnSearch;
+	
 	/**Layout für erweiterte Suche	 */
-     FormLayout exSearchLayout ;
+    private FormLayout exSearchLayout ;
 		
 	/**Suchfelder für erweiterte Suche	 */
-	 FieldGroup exSearchFields ;
+	private FieldGroup exSearchFields ;
 	
 	/**Beschreibungen der einzelnen Suchfelder*/
 	private static final String[] searchFieldNames = new String[] {
 		"Name","Vorname", "Elo-Rang", "Jahr", "Test", "Dings", "Bums"
 		};
-	//---------------------Instanzen Querysuche-----------------------//	
 	
-	private HorizontalLayout qLayoutInner;
+	/**beendet simpleSearch*/
+	private Button btnEndSearch;
 	
-	private Label lblQSearch ;
 	
-	private Button btnQSearch ;	
+	//----- Instanzen Querysuche -----//	
+	
+	    private QuerySearch querySearch;
+	
+		private HorizontalLayout qLayoutInner;
+		
+		private Label lblQSearch ;
+		
+		private Button btnQSearch ;	
+				
+		/**Textfeld zum einfügen bzw. schreiben von Queries*/
+		private TextArea taQuery = new TextArea();
 			
-	/**Textfeld zum einfügen bzw. schreiben von Queries*/
-	private TextArea taQuery = new TextArea();
-	
-	private Button btnEndQ ;
-	
-	//-----------------------------------------------------//
-	
-    /**
-     * extended search abfrage ja/nein */
-	boolean exSearch = false;
-	
-	
-	
-	//Konstruktor
-	/**
-	 * Hier wird ein Objekt erzeugt welches das Layout des Suchefensters und seine Funktion aufbaut	 */
-	public SearchView()
-	{				
-		searchLayoutInner = new HorizontalLayout();
-		searchLayoutInner.setSizeFull();
-	    searchLayoutInner.setWidth("100%");
-	
-	  
-		
-		lblSearch = new Label("Suche nach Schachpartien");		
+	    /**beendet Querysuche*/
+        private	Button btnEndQSearch;
+
+    
+  //Konstruktor
+ /**
+  * Hier wird ein Objekt erzeugt welches das Layout des Suchefensters und seine Funktion aufbaut */   
+ public SearchView()
+ {
+	    searchLayoutInner = new HorizontalLayout(); 
+	    searchLayoutInner.setSizeFull();
+	    searchLayoutInner.setWidth("100%");		
+	    
+	    lblSearch = new Label("Suche nach Schachpartien");		
 		addComponent(lblSearch);
-		
-		btnSearch = new Button("Suche");
-		btnEx = new Button("Erweierte Suche");
-		btnQuerySearch = new Button("QuerySuche");
-		
-		tfSearch = new TextField();		
-		tfSearch.setInputPrompt("Suchbegriff");
-	    tfSearch.setTextChangeEventMode(TextChangeEventMode.LAZY);   	      
-	   
-	             
-	      tfSearch.setWidth("100%");
-	      //setExpandRatio(tfSearch, 1);
-             
-	      searchLayoutInner.addComponent(tfSearch);
-	      searchLayoutInner.addComponent(btnSearch);
-	      searchLayoutInner.addComponent(btnEx);
-	      searchLayoutInner.addComponent(btnQuerySearch);
-	      
-	    addComponent(searchLayoutInner);
-	}
-	
-	
-	
-	/** Baut View fuer die erweiterte Suche auf*/
-	public void initExSearch()
-	{
-	 exSearchInner = new HorizontalLayout();
-	 exSearchInner.setSizeFull();
-	 exSearchInner.setWidth("100%");
-		
-	 lblExSearch = new Label("Suchmaske für Erweiterte Suche");
-					
-	 btnExSearch = new Button("Suchen");
-	 btnEndExSearch = new Button("Zurück");
 	 
-	  btnEndExSearch.addListener(new ClickListener()
+	    btnOpenSearch = new Button("Suche");		
+		btnOpenQuerySearch = new Button("QuerySuche");
+		
+	
+	    searchLayoutInner.addComponent(btnOpenSearch);	     
+	    searchLayoutInner.addComponent(btnOpenQuerySearch);	      
+	    addComponent(searchLayoutInner);
+ }
+ 
+ 
+ public void initSearch()
+ {	 		
+	 simpleSearchLayoutInner = new HorizontalLayout();
+	 simpleSearchLayoutInner.setSizeFull();
+	 simpleSearchLayoutInner.setWidth("100%");	
+					
+	 btnSearch = new Button("Suche Starten");
+	 btnEndSearch = new Button("Zurück"); 	
+	 
+	 btnEndSearch.addListener(new ClickListener()
 	   {
 	    	@Override
 		   public void buttonClick(ClickEvent event)
 	   	  {   		
-	        removeComponent(lblExSearch);
-	        removeComponent( exSearchInner);
-	        removeComponent( exSearchLayout);
-	    	btnSearch.setEnabled(true);
+	    	removeComponent(exSearchLayout);
+	    	removeComponent(simpleSearchLayoutInner);
+	    	btnOpenSearch.setEnabled(true);
 		
 		  }
 			
 	   });
 	 
-	 exSearchInner.addComponent(btnExSearch);
-	 exSearchInner.addComponent(btnEndExSearch);
-					
+	 simpleSearchLayoutInner.addComponent(btnSearch);
+	 simpleSearchLayoutInner.addComponent(btnEndSearch);					
 	
 	 exSearchLayout = new FormLayout();					
 	 exSearchFields = new FieldGroup();	 
@@ -164,20 +139,17 @@ public class SearchView extends VerticalLayout {
 
                   exSearchFields.bind(field, fieldName);
       }
-         exSearchLayout.addComponent(btnExSearch );
-         exSearchFields.setBuffered(false);
-				 
-				 addComponent(lblExSearch);			 
+         exSearchLayout.addComponent(btnSearch );
+         exSearchFields.setBuffered(false);				 
+				
 				 addComponent(exSearchLayout);
-				 addComponent(exSearchInner);	
-			
-	}
-	
-	
-	
-	/**Baut View fuer die Querysuche auf*/
-	public void initQSearch()
-	{
+				 addComponent(simpleSearchLayoutInner);				 
+ }
+ 
+ 
+ 
+ public void initQuerySearch()
+ {
 		qLayoutInner = new HorizontalLayout();
 		qLayoutInner.setSizeFull();
 		qLayoutInner.setWidth("100%");
@@ -188,9 +160,10 @@ public class SearchView extends VerticalLayout {
 		taQuery = new TextArea();
 		taQuery.setWidth("100%");
 		
-		btnEndQ = new Button("Zurück");
 		
-		btnEndQ.addListener(new ClickListener()
+		
+		btnEndQSearch = new Button("Zurück");		
+		btnEndQSearch.addListener(new ClickListener()
 		   {
 		    	@Override
 			   public void buttonClick(ClickEvent event)
@@ -198,54 +171,103 @@ public class SearchView extends VerticalLayout {
 		    	removeComponent(lblQSearch);
 		    	removeComponent(taQuery);
 		    	removeComponent(qLayoutInner);
-		    	btnSearch.setEnabled(true);
+		    	btnOpenSearch.setEnabled(true);
+		    	btnOpenQuerySearch.setEnabled(true);
+		    	querySearchActive = false;
 			
 			  }
 				
 		   });
 		
 		
-		btnQSearch = new Button("Absenden");
+		btnQSearch = new Button("Absenden");		
+		btnQSearch.addListener(new ClickListener()
+		{
+			@Override
+			public void buttonClick(ClickEvent event)
+			{	
+			 System.out.println("hier ist was passiert");	
+			 querySearch = new QuerySearch(taQuery.getValue());				
+			}
+			
+		});
 		
-    	qLayoutInner.addComponent(btnEndQ);
+ 	    qLayoutInner.addComponent(btnEndQSearch);
 		qLayoutInner.addComponent(btnQSearch);
 		
 		addComponent(lblQSearch);
 		addComponent(taQuery);
 		addComponent(qLayoutInner);
-		
-		
-	}
-	
-	public void initFunktion()
-	{
-	  //------------------Buttons Suchfenster-------------------// 
-	  btnEx.addListener(new ClickListener()
-		   {
-		    	@Override
-			   public void buttonClick(ClickEvent event)
-		   	  {   		
-		    	initExSearch(); 
-		    	btnSearch.setEnabled(false);
-			
-			  }
-				
-		   });
-	  
-	  
-	  btnQuerySearch.addListener(new ClickListener()
+ }
+ 
+ 
+ /**erzeugt uebergeordnette Suchfensterfunktionen*/
+ public void initFunktion()
+ {
+	 //oeffne simpleSearchView
+	 btnOpenSearch.addListener(new ClickListener()
 	   {
 	    	@Override
 		   public void buttonClick(ClickEvent event)
-	   	  {   		
-	    	initQSearch();    	
-	    	btnSearch.setEnabled(false);
+	   	  {  
+	    	if(querySearchActive == true)
+	    	{
+	    		removeComponent(lblQSearch);
+		    	removeComponent(taQuery);
+		    	removeComponent(qLayoutInner);
+		    	simpleSearchActive = true;
+		    	querySearchActive = false;
+		    	
+		    	initSearch(); 
+		    	
+		    	btnOpenSearch.setEnabled(false);
+		    	btnOpenQuerySearch.setEnabled(true);
+		    	
+	    	}
+	    	else{
+	    		simpleSearchActive = true;
+	    		initSearch(); 
+		    	btnOpenSearch.setEnabled(false);
+	    	}
+	    	
+		
 		  }
 			
 	   });
+	 
+	 //oeffne QuerySearchView
+	 btnOpenQuerySearch.addListener(new ClickListener()
+	   {
+	    	@Override
+		   public void buttonClick(ClickEvent event)
+	   	  {  
+	    	if(simpleSearchActive == true)
+	    	{
+	    		removeComponent(exSearchLayout);
+		    	removeComponent(simpleSearchLayoutInner);
+		    	btnOpenSearch.setEnabled(true);
+		    	btnOpenQuerySearch.setEnabled(false);
+		    	
+	    		initQuerySearch();
+	    		
+	    		simpleSearchActive = false;
+	    		querySearchActive = true;
+	    	}
+	    	else{
+	    		
+	    		 initQuerySearch(); 
+		    	 btnOpenQuerySearch.setEnabled(false);
+		    	 querySearchActive = true;
+		    	 
+	    	    }
+	    	
 		
-	}
-	
+		  }
+			
+	   });
+	 
+	 
+ }
 	
 	
 }
