@@ -18,7 +18,7 @@ website/   ...beinhaltet alle statischen Inhalte der Website (htlm, docs, etc.)
 Ticketmodell
 =====
 Die Benutzung von Tickets zur Auflistung von noch zu erledigenden Aufgaben und Bugs ist ab sofort ausdrücklich erwünscht.
-Die benutzbaren labels sind ziemlich selbst-erklärend. Als kurzer Hinweis daher nur die Unterscheidung von Enhancement/Feature:
+Die benutzbaren Labels sind ziemlich selbst-erklärend. Als kurzer Hinweis daher nur die Unterscheidung von Enhancement/Feature:
 - ein 'Feature' ist eine noch zu implementierende (komplett neue) Aufgabe
-- ein 'enhancement' ist eine existierende (laufende) Funktion, welche jedoch verändert werden soll.
+- ein 'Enhancement' ist eine existierende (laufende) Funktion, welche jedoch verändert werden soll.
 
