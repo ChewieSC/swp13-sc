@@ -6,9 +6,13 @@ Semantic Chess Project des SW-Praktikums an der Universität Leipzig.
 Allgemeine Hinweise zur Ordnerstruktur:
 ========
 converter/ ...beinhaltet den pgn->rdf-Converter
+
 datamodel/ ...beinhaltet die unterliegenden Modelle für den Converter
+
 ontology/  ...beinhaltet die Ontologie auf welche der Converter basiert
+
 webapp/    ...beinhaltet alle java/vaadin-Dateien für die Website
+
 website/   ...beinhaltet alle statischen Inhalte der Website (htlm, docs, etc.)
 
 Ticketmodell
