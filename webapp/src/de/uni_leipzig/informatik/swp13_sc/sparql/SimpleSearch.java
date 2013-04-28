@@ -892,7 +892,7 @@ public class SimpleSearch
                 .append(ChessRDFVocabulary.name.getLocalName())
                 .append(" ?")
                 .append(var_name_player)
-                .append(' ')
+                .append('.')
                 .append(SPARQL_QUERY_NEWLINE);
             
             sb.append(SPARQL_QUERY_FILTER_REGEX_START)
