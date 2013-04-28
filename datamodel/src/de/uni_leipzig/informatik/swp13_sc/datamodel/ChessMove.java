@@ -73,7 +73,7 @@ public class ChessMove
         if (this.fen == null)
         {
             // TODO: or generate?
-            return "";
+            return null;
         }
         
         if (complete)

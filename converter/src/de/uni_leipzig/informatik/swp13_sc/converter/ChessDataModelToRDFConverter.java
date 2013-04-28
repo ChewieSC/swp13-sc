@@ -114,7 +114,11 @@ public class ChessDataModelToRDFConverter
      * Internal. Seperator char for URI names.
      */
     private static char separator = '_';
-
+    /**
+     * Internal. Empty String. Not null.
+     */
+    private final static String EMPTY = "";
+    
     /**
      * Basic Constructor
      */
@@ -259,6 +263,12 @@ public class ChessDataModelToRDFConverter
         for (String metaKey : game.getMetaData().keySet())
         {
             String metaValue = game.getMetaValue(metaKey);
+            
+            // skip invalid or empty values to reduce size of output
+            if (metaValue == null || EMPTY.equals(metaValue))
+            {
+                continue;
+            }
             // TODO: Think of a better way!
             r_game.addProperty(model.createProperty(ChessRDFVocabulary.getURI()
                     + metaKey), metaValue);

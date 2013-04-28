@@ -69,13 +69,17 @@ public class ChessPGNVocabulary
      * The ECO code of the chess game. (the opening)
      */
     public final static String Meta_Key_ECO = "ECO";
+    /**
+     * The FEN position code of the last move.
+     */
+    public final static String Meta_Key_FEN = "FEN";
     
     /**
      * Additional meta keys used in PGNs. Not the complete list!
      */
     public final static String[] Additional_Meta_Keys =
         {
-            Meta_Key_WhiteElo, Meta_Key_BlackElo, Meta_Key_ECO
+            Meta_Key_WhiteElo, Meta_Key_BlackElo, Meta_Key_ECO, Meta_Key_FEN
         };
     
     // ------------------------------------------------------------------------
