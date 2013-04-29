@@ -9,13 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import virtuoso.jena.driver.VirtGraph;
-import virtuoso.jena.driver.VirtModel;
+import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -50,12 +46,18 @@ public class SimpleSearch
      */
     private boolean count;
     
+    /**
+     * The virtuosoGraph from which the results are fetched from.
+     */
     private VirtGraph virtuosoGraph;
-    private Query countQuery;
-    private Query selectQuery;
-    private boolean recreateQueries;
     
+    /**
+     * The result count. Will always be executed and available.
+     */
     private long resultCount;
+    /**
+     * The list with results. String URI/IRIs from players or games.
+     */
     private List<String> resultList;
     
     // ------------------------------------------------------------------------
@@ -279,7 +281,7 @@ public class SimpleSearch
         this.fields = new HashMap<String, String>();
         this.distinct = true;
         this.hasResult = false;
-        this.recreateQueries = false;
+        this.resultCount = -1;
     }
     
     /**
@@ -292,7 +294,6 @@ public class SimpleSearch
     {
         this();
         this.fields = fields;
-        this.recreateQueries = true;
     }
         
     // ------------------------------------------------------------------------
@@ -312,7 +313,6 @@ public class SimpleSearch
         }
         
         this.fields.put(key, value);
-        this.recreateQueries = true;
         
         return this;
     }
@@ -326,7 +326,6 @@ public class SimpleSearch
     public SimpleSearch setDistinct(boolean distinct)
     {
         this.distinct = distinct;
-        this.recreateQueries = true;
         
         return this;
     }
@@ -341,7 +340,6 @@ public class SimpleSearch
     public SimpleSearch setCountResults(boolean count)
     {
         this.count = count;
-        this.recreateQueries = true;
         
         return this;
     }
@@ -358,29 +356,13 @@ public class SimpleSearch
     
     // ------------------------------------------------------------------------
     
-    protected void createQueries()
-        throws Exception
-    {
-        if (! this.recreateQueries)
-        {
-            return;
-        }
-        
-        try {
-            //System.out.println(this.getSPARQLCountQuery());
-            //countQuery = QueryFactory.create(this.getSPARQLCountQuery());
-            System.out.println(this.getSPARQLQuery());
-            selectQuery = QueryFactory.create(this.getSPARQLQuery());
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            throw e;
-        }
-        
-        this.recreateQueries = false;
-    }
-    
+    /**
+     * Queries the Virtuoso Triple-(Quad-)Store and saves the list with
+     * player or game URI/IRIs internally.<br />
+     * The queries are sent to Virtuoso - no preprocessing with Jena required.
+     * 
+     * @return  true on success else false
+     */
     public boolean query()
     {
         if (this.virtuosoGraph == null)
@@ -388,34 +370,22 @@ public class SimpleSearch
             return false;
         }
         
-        try
-        {
-            this.createQueries();
-        }
-        catch (Exception e)
-        {
-            // e.printStackTrace();
-            this.hasResult = true;
-            this.resultList = new ArrayList<String>();
-            this.resultCount = -1;
-            return false;
-        }
-        
         this.resultList = new ArrayList<String>();
         
         try
         {
-            QueryExecution vqeS = QueryExecutionFactory.create(this.selectQuery, new VirtModel(virtuosoGraph));
+            //QueryExecution vqeS = QueryExecutionFactory.create(this.selectQuery, new VirtModel(virtuosoGraph));
+            VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(this.getSPARQLQuery(), virtuosoGraph);
             
             if (! this.count)
             {
                 try {
-                    QueryExecution vqeC = QueryExecutionFactory.create(this.countQuery, new VirtModel(virtuosoGraph));
+                    //QueryExecution vqeC = QueryExecutionFactory.create(this.countQuery, new VirtModel(virtuosoGraph));
                     //QueryExecution vqeC = VirtuosoQueryExecutionFactory.create(this.countQuery, virtuosoGraph);
+                    // using only virtuoso !
+                    VirtuosoQueryExecution vqeC = VirtuosoQueryExecutionFactory.create(this.getSPARQLCountQuery(), virtuosoGraph);
                     
                     ResultSet results = vqeC.execSelect();
-                    
-                    //ResultSetFormatter.out(System.out, results, this.countQuery);
                     
                     if (results.hasNext())
                     {
@@ -430,7 +400,6 @@ public class SimpleSearch
                 {
                     e.printStackTrace();
                 }
-                
                 
                 ResultSet results = vqeS.execSelect();
                 
@@ -476,16 +445,17 @@ public class SimpleSearch
         }
         
         this.hasResult = true;
-        //this.resultCount = this.resultList.size();
         
         return true;
     }
     
-    
     // ------------------------------------------------------------------------
     
-    
-    
+    /**
+     * Returns the (cached) list of results of player or game URI/IRIs.
+     * 
+     * @return  List<String> with URI/IRIs or null on error!
+     */
     public List<String> getResult()
     {
         if (! this.hasResult())
@@ -496,29 +466,32 @@ public class SimpleSearch
             }
         }
         
-        if (this.count)
-        {
-            return null;
-        }
-        
         return this.resultList;
     }
     
+    /**
+     * Returns the number of results without database limit.
+     * 
+     * @return  Number (long) of results or -1 on error.
+     */
     public long getResultCount()
     {
         if (! this.hasResult())
         {
-            return 0;
+            return -1;
         }
+        
         return this.resultCount;
     }
     
+    /**
+     * Returns whether the search has results (even if they are zero) or false
+     * if there was an error or no execution.
+     * 
+     * @return  true if the search was executed.
+     */
     public boolean hasResult()
     {
-        if (this.recreateQueries)
-        {
-            return false;
-        }
         return this.hasResult;
     }
     

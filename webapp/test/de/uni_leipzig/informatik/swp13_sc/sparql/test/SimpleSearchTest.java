@@ -100,6 +100,7 @@ public class SimpleSearchTest
         {
             System.out.println(s);
         }
+        System.out.println("Number of results: " + ss.getResultCount());
     }
 
     /**
