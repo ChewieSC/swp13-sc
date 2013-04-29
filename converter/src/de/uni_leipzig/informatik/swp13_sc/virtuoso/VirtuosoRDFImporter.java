@@ -169,7 +169,7 @@ public class VirtuosoRDFImporter
             }
         }
         
-        GraphUtil.addInto(g, m.getGraph());
+        //GraphUtil.addInto(g, m.getGraph());
         
         // better way to add all statements?
         //StmtIterator stmtIter = m.listStatements();
@@ -266,7 +266,7 @@ public class VirtuosoRDFImporter
             try
             {
                 System.out.println(this.virtuosoGraph.size());
-                GraphUtil.addInto(this.virtuosoGraph, dataGraph);
+                //GraphUtil.addInto(this.virtuosoGraph, dataGraph);
                 System.out.println(this.virtuosoGraph.size());
             }
             catch (Exception e)
