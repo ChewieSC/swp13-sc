@@ -1,5 +1,6 @@
 package de.uni_leipzig.informatik.swp13_sc.ui;
 
+import com.hp.hpl.jena.query.ResultSet;
 import com.vaadin.data.Container;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -79,7 +80,17 @@ public class SearchView extends VerticalLayout {
 			
 	    /**beendet Querysuche*/
         private	Button btnEndQSearch;
-
+        
+   //--------Ausgabe--------//
+        
+        private boolean activeResults = false;
+        
+        private ResultTable resultTable;
+        
+        private ResultSet results;
+        
+        tableTest t; //test
+        
     
   //Konstruktor
  /**
@@ -167,16 +178,22 @@ public class SearchView extends VerticalLayout {
 		   {
 		    	@Override
 			   public void buttonClick(ClickEvent event)
-		   	  {   		
-		    	removeComponent(lblQSearch);
-		    	removeComponent(taQuery);
-		    	removeComponent(qLayoutInner);
-		    	btnOpenSearch.setEnabled(true);
-		    	btnOpenQuerySearch.setEnabled(true);
-		    	querySearchActive = false;
-			
-			  }
-				
+		   	  {   
+		    	if(activeResults == true)
+		    	{		    		
+		    		removeComponent(t);            //resultTable
+		    		btnQSearch.setEnabled(true);
+		    		activeResults = false;
+		    	}
+		    	else{
+		    		removeComponent(lblQSearch);
+			    	removeComponent(taQuery);
+			    	removeComponent(qLayoutInner);
+			    	btnOpenSearch.setEnabled(true);
+			    	btnOpenQuerySearch.setEnabled(true);
+			    	querySearchActive = false;		    		
+    		    	}		
+			  }				
 		   });
 		
 		
@@ -187,7 +204,20 @@ public class SearchView extends VerticalLayout {
 			public void buttonClick(ClickEvent event)
 			{	
 			 System.out.println("hier ist was passiert");	
-			 querySearch = new QuerySearch(taQuery.getValue());				
+			 querySearch = new QuerySearch(taQuery.getValue());	
+			 
+//			 results = querySearch.getResultSet();			 
+//			 resultTable = new ResultTable(results);
+//			 
+//			 searchLayoutInner.addComponent(resultTable);
+			 
+			 t = new tableTest();
+			 addComponent(t);
+			 
+			 
+			 activeResults = true;
+			 btnQSearch.setEnabled(false);
+			 
 			}
 			
 		});
@@ -212,9 +242,15 @@ public class SearchView extends VerticalLayout {
 	   	  {  
 	    	if(querySearchActive == true)
 	    	{
+	    		if(activeResults == true)
+	    		{
+	    			removeComponent(t); //resultTable 
+	    		}
+	    		
 	    		removeComponent(lblQSearch);
 		    	removeComponent(taQuery);
 		    	removeComponent(qLayoutInner);
+		    	
 		    	simpleSearchActive = true;
 		    	querySearchActive = false;
 		    	
