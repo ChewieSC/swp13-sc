@@ -62,6 +62,8 @@ public class SearchView extends VerticalLayout
 
     private TextField tf_Name_1; // name player 1
     private TextField tf_Name_2; // name player 2
+    private Select sl_Color_1; // color of player 1
+    private Select sl_Color_2; // color of player 2
     private Select sl_ResultType; // player or game
 
     private TextField tf_Date; // date of game
@@ -73,6 +75,9 @@ public class SearchView extends VerticalLayout
     private final static String SL_GAME = "Game";
     private final static String SL_PLAYER1 = "Player 1";
     private final static String SL_PLAYER2 = "Player 2";
+    private final static String SL_NOCOLOR = "black or white";
+    private final static String SL_WHITE = "white";
+    private final static String SL_BLACK = "black";
 
     /** beendet simpleSearch */
     private Button btnEndSearch;
@@ -175,6 +180,37 @@ public class SearchView extends VerticalLayout
                 {
                     ss.setField(SimpleSearch.FIELD_KEY_CP2_NAME, s);
                 }
+                s = sl_Color_1.getValue();
+                if (s != null && !"".equals(s))
+                {
+                    if (SL_BLACK.equals(s))
+                    {
+                        ss.setField(SimpleSearch.FIELD_KEY_CP1_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_BLACK);
+                    }
+                    else if (SL_WHITE.equals(s))
+                    {
+                        ss.setField(SimpleSearch.FIELD_KEY_CP1_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_WHITE);
+                    }
+                    else
+                    {
+                        ss.setField(SimpleSearch.FIELD_KEY_CP1_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_NOCOLOR);
+                    }
+                }
+                s = sl_Color_2.getValue();
+                {
+                    if (SL_BLACK.equals(s))
+                    {
+                        ss.setField(SimpleSearch.FIELD_KEY_CP2_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_BLACK);
+                    }
+                    else if (SL_WHITE.equals(s))
+                    {
+                        ss.setField(SimpleSearch.FIELD_KEY_CP2_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_WHITE);
+                    }
+                    else
+                    {
+                        ss.setField(SimpleSearch.FIELD_KEY_CP2_COLOR, SimpleSearch.FIELD_VALUE_CP_COLOR_NOCOLOR);
+                    }
+                }
 
                 s = sl_Result.getValue();
                 if (s != null && !"".equals(s))
@@ -248,6 +284,16 @@ public class SearchView extends VerticalLayout
         sl_ResultType.addItem(SL_GAME); // default
         sl_ResultType.addItem(SL_PLAYER1);
         sl_ResultType.addItem(SL_PLAYER2);
+        
+        sl_Color_1 = new Select("Color of Player 1");
+        sl_Color_1.addItem(SL_NOCOLOR);
+        sl_Color_1.addItem(SL_WHITE);
+        sl_Color_1.addItem(SL_BLACK);
+        
+        sl_Color_2 = new Select("Color of Player 2");
+        sl_Color_2.addItem(SL_NOCOLOR);
+        sl_Color_2.addItem(SL_WHITE);
+        sl_Color_2.addItem(SL_BLACK);
 
         exSearchLayout.addComponent(tf_Date);
         exSearchLayout.addComponent(tf_Event);
@@ -256,7 +302,9 @@ public class SearchView extends VerticalLayout
         exSearchLayout.addComponent(sl_Result);
 
         exSearchLayout.addComponent(tf_Name_1);
+        exSearchLayout.addComponent(sl_Color_1);
         exSearchLayout.addComponent(tf_Name_2);
+        exSearchLayout.addComponent(sl_Color_2);
 
         exSearchLayout.addComponent(sl_ResultType);
 
