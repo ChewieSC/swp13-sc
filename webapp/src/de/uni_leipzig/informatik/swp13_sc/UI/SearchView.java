@@ -11,6 +11,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -54,10 +55,10 @@ public class SearchView extends VerticalLayout {
 	/** Suchbutton */
 	private Button btnSearch;
 
-	/** Layout fï¿½r erweiterte Suche */
+	/** Layout für erweiterte Suche */
 	private FormLayout exSearchLayout;
 
-	/** Suchfelder fï¿½r erweiterte Suche */
+	/** Suchfelder für erweiterte Suche */
 	private FieldGroup exSearchFields;
 
 	private TextField tf_Name_1; // name player 1
@@ -93,7 +94,7 @@ public class SearchView extends VerticalLayout {
 
 	private Button btnQSearch;
 
-	/** Textfeld zum einfï¿½gen bzw. schreiben von Queries */
+	/** Textfeld zum einfügen bzw. schreiben von Queries */
 	private TextArea taQuery = new TextArea();
 
 	/** beendet Querysuche */
@@ -129,16 +130,15 @@ public class SearchView extends VerticalLayout {
 		addComponent(searchLayoutInner);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void initSearch() {
 		simpleSearchLayoutInner = new HorizontalLayout();
 		simpleSearchLayoutInner.setSizeFull();
 		simpleSearchLayoutInner.setWidth("100%");
 
 		btnSearch = new Button("Suche Starten");
-		btnEndSearch = new Button("ZurÃ¼ck");
+		btnEndSearch = new Button("Zurück");
 
-		btnSearch.addListener(new ClickListener() {
+		btnSearch.addClickListener(new ClickListener() {
 			/**
 			 * 
 			 */
@@ -224,13 +224,13 @@ public class SearchView extends VerticalLayout {
 				}
 
 				resultTable = new ResultTable(ss.getResult());
-				System.out.println("Number of results: " + ss.getResultCount());
+				Notification.show("Number of results", "Total: " + ss.getResultCount(), Notification.Type.TRAY_NOTIFICATION);
 				addComponent(resultTable);
 				activeResults = true;
 			}
 		});
 
-		btnEndSearch.addListener(new ClickListener() {
+		btnEndSearch.addClickListener(new ClickListener() {
 			/**
 			 * 
 			 */
@@ -263,25 +263,33 @@ public class SearchView extends VerticalLayout {
 		tf_Site = new TextField("Site");
 
 		cb_Result = new ComboBox("Result of Game");
-		cb_Result.addItem("- choose -"); // default
+		cb_Result.setNullSelectionAllowed(true);
+		cb_Result.setNullSelectionItemId("- choose -"); // default
 		cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_BLACK);
 		cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
 		cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_WHITE);
 
 		cb_ResultType = new ComboBox("Search for");
-		cb_ResultType.addItem(SL_GAME); // default
+		cb_ResultType.setNullSelectionAllowed(false); // nothing will not be displayed ... still not working
+		Object obj = cb_ResultType.addItem(SL_GAME); // default
+		//Notification.show("Debug obj ret", (obj == null)? "null" : obj.getClass().toString(), Notification.Type.TRAY_NOTIFICATION);	
 		cb_ResultType.addItem(SL_PLAYER1);
 		cb_ResultType.addItem(SL_PLAYER2);
+		cb_ResultType.setValue(obj);
 
 		cb_Color_1 = new ComboBox("Color of Player 1");
-		cb_Color_1.addItem(SL_NOCOLOR);
+		cb_Color_1.setNullSelectionAllowed(false);
+		obj = cb_Color_1.addItem(SL_NOCOLOR);
 		cb_Color_1.addItem(SL_WHITE);
 		cb_Color_1.addItem(SL_BLACK);
+		cb_Color_1.select(obj); // ? want to select the first ... :(
 
 		cb_Color_2 = new ComboBox("Color of Player 2");
-		cb_Color_2.addItem(SL_NOCOLOR);
+		cb_Color_2.setNullSelectionAllowed(false);
+		obj = cb_Color_2.addItem(SL_NOCOLOR);
 		cb_Color_2.addItem(SL_WHITE);
 		cb_Color_2.addItem(SL_BLACK);
+		cb_Color_2.setValue(obj); // ?
 
 		exSearchLayout.addComponent(tf_Date);
 		exSearchLayout.addComponent(tf_Event);
@@ -303,19 +311,18 @@ public class SearchView extends VerticalLayout {
 		addComponent(simpleSearchLayoutInner);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void initQuerySearch() {
 		qLayoutInner = new HorizontalLayout();
 		qLayoutInner.setSizeFull();
 		qLayoutInner.setWidth("100%");
 
-		lblQSearch = new Label("sparql Abfrage fï¿½r Fortgeschrittene Benutzer");
+		lblQSearch = new Label("sparql Abfrage für Fortgeschrittene Benutzer");
 
 		taQuery = new TextArea();
 		taQuery.setWidth("100%");
 
 		btnEndQSearch = new Button("Zurück");
-		btnEndQSearch.addListener(new ClickListener() {
+		btnEndQSearch.addClickListener(new ClickListener() {
 			/**
 			 * 
 			 */
@@ -339,7 +346,7 @@ public class SearchView extends VerticalLayout {
 		});
 
 		btnQSearch = new Button("Absenden");
-		btnQSearch.addListener(new ClickListener() {
+		btnQSearch.addClickListener(new ClickListener() {
 			/**
 			 * 
 			 */
@@ -371,10 +378,9 @@ public class SearchView extends VerticalLayout {
 	}
 
 	/** erzeugt uebergeordnette Suchfensterfunktionen */
-	@SuppressWarnings("deprecation")
 	public void initFunktion() {
 		// oeffne simpleSearchView
-		btnOpenSearch.addListener(new ClickListener() {
+		btnOpenSearch.addClickListener(new ClickListener() {
 			/**
 			 * 
 			 */
@@ -410,7 +416,7 @@ public class SearchView extends VerticalLayout {
 		});
 
 		// oeffne QuerySearchView
-		btnOpenQuerySearch.addListener(new ClickListener() {
+		btnOpenQuerySearch.addClickListener(new ClickListener() {
 			/**
 			 * 
 			 */

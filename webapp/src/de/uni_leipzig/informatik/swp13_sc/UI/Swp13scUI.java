@@ -1,15 +1,11 @@
 package de.uni_leipzig.informatik.swp13_sc.ui;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-
-import de.uni_leipzig.informatik.swp13_sc.util.*;
 
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.FileResource;
@@ -17,19 +13,18 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.TextArea;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalSplitPanel;
 
 import de.uni_leipzig.informatik.swp13_sc.converter.PGNToRDFConverterStream;
+import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
 
 
@@ -71,14 +66,11 @@ public class Swp13scUI extends UI
     
     private String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath(); //TODO: zu verwenden
     
-    private String folder = "C:\\tmp\\";
-    
     //private FileDownloader fileDownloader; 
     /**Button zum Suchen von Uploads*/  
 	 //TODO: Upload checken
     Upload upload = new Upload("Upload RDF-File Here.", new Upload.Receiver() {
-    	@SuppressWarnings("deprecation")
-		@Override
+    	@Override
     	public OutputStream receiveUpload(String filename, String mimeType) {
     		
 	    	/* Here, we'll stored the uploaded file as a temporary file. No doubt there's
@@ -101,7 +93,7 @@ public class Swp13scUI extends UI
             } catch (final java.io.FileNotFoundException e) {
                 Notification.show(
                         "Could not open file", e.getMessage(),
-                        Notification.TYPE_ERROR_MESSAGE);
+                        Notification.Type.ERROR_MESSAGE);
                 return null;
             } 
             return fos; // Return the output stream to write to
@@ -199,15 +191,12 @@ public class Swp13scUI extends UI
       
      }
 
-
   
- @SuppressWarnings("deprecation")
-
  private void initUpload(){
   //final RdfUploader uploader = new RdfUploader(); //TODO
      
   //upload.setReceiver(uploader);
-	  upload.addListener(new Upload.FinishedListener() {
+	  upload.addFinishedListener(new Upload.FinishedListener() {
 	    	@Override
 	    	public void uploadFinished(Upload.FinishedEvent finishedEvent) {
 	    		File fileTemp = new File(basepath + "test.rdf");
