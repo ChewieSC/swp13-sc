@@ -1,4 +1,4 @@
-package de.uni_leipzig.informatik.swp13_sc;
+package de.uni_leipzig.informatik.swp13_sc.ui;
 
 
 import java.io.ByteArrayOutputStream;
