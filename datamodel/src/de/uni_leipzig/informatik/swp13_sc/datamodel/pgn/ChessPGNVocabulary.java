@@ -142,8 +142,11 @@ public class ChessPGNVocabulary
      */
     public final static String regex_move_source =
             regex_move_source_column + "?" + regex_move_source_row + "?";
+
+    // TODO: have to check ':', too?
     /**
      * Regex for a capture move.
+     * 
      */
     public final static String regex_move_captured = "x";
     /**
@@ -232,6 +235,41 @@ public class ChessPGNVocabulary
             "\\b" + "(((" + regex_move_pawn + ")|(" + regex_move_otherfigure +
                     ")|(" + regex_move_castling + "))" + "\\b" + regex_move_checkCheckmate +
                     ")" + "\\s*" + regex_move_comment + "\\s*"; // checked !!
+    
+    /**
+     * <p>Regex for a single move notation. Most important for chess engine to
+     * retrace moves. Really extensive ...</p>
+     * 
+     * <p>
+     *  * Group 0: complete (pos, check, comment)<br />
+     *  * Group 1: move without comment<br />
+     *  * Group 2: move only (source, dest. pos, NO check!)<br />
+     *  * Group 3: pawn moves only (source, capture, dest., promo, figure)<br />
+     *  * Group 4: pawn move (capture + source column)<br />
+     *  * Group 5: pawn move (source column of capture)<br />
+     *  * Group 6: pawn move (destination square)<br />
+     *  * Group 7: promotion (promo, dest. figure)<br />
+     *  * Group 8: promotion (dest. figure)<br />
+     *  * Group 9: move of other figures (figure, source, capture, dest.)<br />
+     *  * Group 10: move of other figures (figure)<br />
+     *  * Group 11: move of other figures (source column)<br />
+     *  * Group 12: move of other figures (source row)<br />
+     *  * Group 13: move of other figures (capture)<br />
+     *  * Group 14: move of other figures (dest.)<br />
+     *  * Group 15: castlings (king, queen)<br />
+     *  * Group 16: queen side castlings (queen part ? -O)<br />
+     *  * Group 17: check (check, checkmate (?))
+     * </p>
+     * 
+     * @author Erik
+     */
+    public final static String regex_move_single_for_engine =
+            "\\b(((((" + regex_move_source_column + ")" + regex_move_captured + ")?(" +
+                    regex_move_destination + ")(=(" + regex_move_figure + "))?" + ")|((" +
+                    regex_move_figure + ")(" + regex_move_source_column + ")?(" +
+                    regex_move_source_row + ")?(" + regex_move_captured + ")?(" +
+                    regex_move_destination + "))|(" + regex_move_castling + "))\\b" +
+                    regex_move_checkCheckmate + ")";
     
     /**
      * Regex for a round (round number, first move and if present the second move).

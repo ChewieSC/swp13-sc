@@ -17,6 +17,7 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
+import de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard;
 import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
 /**
@@ -485,6 +486,8 @@ public class PGNToChessDataModelConverter
         
         // --------------------------------------------------------------------
         
+        ChessBoard cb = new ChessBoard();
+        
         // parse moves
         int nr = 0;
         for (String line : moveLines)
@@ -499,7 +502,9 @@ public class PGNToChessDataModelConverter
                     String m = move.group(1);
                     String comment = move.group(10);
                     
-                    cgb.addMove(cmb.setNr(nr).setMove(m).setComment(comment).build());
+                    cb.move(move.group(1));
+                    
+                    cgb.addMove(cmb.setNr(nr).setMove(m).setFEN(cb.getFEN(null)).setComment(comment).build());
                 }
                 catch (IllegalStateException e)
                 {

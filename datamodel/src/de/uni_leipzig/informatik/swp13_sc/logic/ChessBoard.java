@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 
@@ -25,6 +27,10 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 public class ChessBoard
 {
     // TODO: how to initialize? Or better way?
+    /**
+     * The chess field. From y=0..7, x=0..7.<br />
+     * The white figures  at the bottom have the y index of 0, 1.<br />
+     */
     private char[][] field = getCharChessField();
     /**
      * EMPTY_SQUARE<br />
@@ -134,7 +140,22 @@ public class ChessBoard
                 CN_QUEEN, CN_KING
             };
     
+    /**
+     * All moves of the game.
+     */
     private List<String> moves = new ArrayList<String>();
+    
+    /**
+     * Regex for parsing move.
+     */
+    private final static Pattern REGEX_MOVE = Pattern.compile(ChessPGNVocabulary.regex_move_single_for_engine);
+    
+    /**
+     * INVALID_INDEX is used to determine if a index computation went havoc.
+     */
+    private final static int INVALID_INDEX = -1;
+    
+    
     // initial fen values
     private int moveNr = 1;
     private int halfMoveNr = 0;
@@ -303,6 +324,17 @@ public class ChessBoard
     }
     
     /**
+     * Generates the complete FEN.
+     * 
+     * @return  String with FEN
+     * @see     ChessBoard#getFEN(String)
+     */
+    public String getFEN()
+    {
+        return this.getFEN(null);
+    }
+    
+    /**
      * Computes the FEN.
      * 
      * @return  String with fen. Only the figure's positions.
@@ -318,7 +350,7 @@ public class ChessBoard
             for (int x = 0; x < 8; x ++)
             {
                 // check for empty squares
-                if (this.field[y][y] == EMPTY_SQUARE)
+                if (this.field[y][x] == EMPTY_SQUARE)
                 {
                     emptyRow ++;
                 }
@@ -361,19 +393,6 @@ public class ChessBoard
         // when returning it
         return "" + this.playerColor + ' ' + this.possibleCastlings + ' '
                 + this.enPassant + ' ' + this.halfMoveNr + ' ' + this.moveNr;
-    }
-    
-    
-    /**
-     * Returns the possible castlings for this positioning.
-     * 
-     * @return  String
-     */
-    public String getPossibleCastlings()
-    {
-        // TODO: see how to check
-        //       or compute in move()
-        return this.possibleCastlingsForMove;
     }
     
     /**
@@ -500,11 +519,11 @@ public class ChessBoard
      * Converts a char in chess to a index.
      * 
      * @param   c   Char to convert.
-     * @return  int
+     * @return  int or {@link #INVALID_INDEX} if something went wrong.
      */
     private int chessCharToInt(char c)
     {
-        int x = -1;
+        int x = INVALID_INDEX;
         switch (c)
         {
             case 'h':
@@ -525,6 +544,8 @@ public class ChessBoard
                 x ++;
                 break;
             default:
+                System.out.println("Why a default clause in chessCharToInt <"
+                        + c + "-" + x + ">?");
                 break;
         }
         return x;
@@ -535,40 +556,33 @@ public class ChessBoard
      * Moves the figures on the board with the information contained in move.
      * 
      * @param   move    A chess move.
+     * @return  true if successful parsed and moved
      * @throws NumberFormatException
      */
-    public synchronized void move(String move)
+    public synchronized boolean move(String move)
         throws NumberFormatException
-    {
+    {        
         if ((move == null) || (move.length() <= 1))
         {
-            return;
+            System.out.println("Got invalid move! (too short)");
+            return false;
+        }
+        
+        Matcher m = REGEX_MOVE.matcher(move);
+        if (! m.find())
+        {
+            System.out.println("No match found for move \"" + move + "\"!");
+            return false;
         }
         
         boolean isWhite = this.playerColor == WHITE;
         boolean kingSideCastling = false;
         boolean queenSideCastling = false;
         
+        // --------------------------------------------------------------------
+        
         // Check Castling first and return if happend
-        if (move.equalsIgnoreCase("O-O"))
-        {
-            kingSideCastling = true;
-            if (isWhite)
-            {
-                field[0][4] = EMPTY_SQUARE;
-                field[0][5] = WHITE_ROOK;
-                field[0][6] = WHITE_KING;
-                field[0][7] = EMPTY_SQUARE;
-            }
-            else
-            {
-                field[7][4] = EMPTY_SQUARE;
-                field[7][5] = BLACK_ROOK;
-                field[7][6] = BLACK_KING;
-                field[7][7] = EMPTY_SQUARE;
-            }            
-        }
-        else if (move.equalsIgnoreCase("O-O-O"))
+        if (m.group(16) != null)
         {
             queenSideCastling = true;
             if (isWhite)
@@ -586,192 +600,674 @@ public class ChessBoard
                 field[7][4] = EMPTY_SQUARE;
             }
         }
+        else if (m.group(15) != null)
+        {
+            kingSideCastling = true;
+            if (isWhite)
+            {
+                field[0][4] = EMPTY_SQUARE;
+                field[0][5] = WHITE_ROOK;
+                field[0][6] = WHITE_KING;
+                field[0][7] = EMPTY_SQUARE;
+            }
+            else
+            {
+                field[7][4] = EMPTY_SQUARE;
+                field[7][5] = BLACK_ROOK;
+                field[7][6] = BLACK_KING;
+                field[7][7] = EMPTY_SQUARE;
+            }            
+        }
         if (queenSideCastling || kingSideCastling)
         {
             // set remaining castlings
             if (isWhite)
             {
-                if (this.possibleCastlings.length() == 4)
-                {
-                    this.possibleCastlings = "kq";
-                }
-                else // (this.possibleCastlings.length() == 2)
-                {
-                    this.possibleCastlings = "";
-                }
+                this.possibleCastlings = this.possibleCastlings.replace("K", "").replace("Q", "");
             }
             else
             {
-                if (this.possibleCastlings.length() == 4)
-                {
-                    this.possibleCastlings = "KQ";
-                }
-                else // (this.possibleCastlings.length() == 2)
-                {
-                    this.possibleCastlings = "";
-                }
+                this.possibleCastlings = this.possibleCastlings.replace("k", "").replace("q", "");
             }
             
             // add move to list and finish
             this.moves.add(move);
             this.incrementMoveNr();
-            return; // finish
+            return true; // finish
         }
         
         this.enPassant = "-";
         
         // --------------------------------------------------------------------
         
-        int i;
-        int y;
-        //int oldY;
         int x;
+        int y;
         int oldX;
+        int oldY;
         char charX;
         char oldCharX;
         String pos;
-        char curFigure = move.charAt(0);
         
-        // get the figure
-        if (Character.isUpperCase(curFigure))
-        {
-            // remove first
-            move = move.substring(1);
-        }
-        else
-        {
-            // implicit pawn
-            curFigure = CN_PAWN;
-        }
+        char curFigure = CN_PAWN;
         
         // --------------------------------------------------------------------
-        
         // move the figures
-        switch (curFigure)
+        
+        // pawn move
+        if (m.group(3) != null)
         {
-            case CN_PAWN:
+            // check capture
+            if (m.group(4) != null)
             {
-                // TODO: have to check ':', too?
-                if ((i = move.indexOf('x')) != -1)
+             // hit and run ...
+                // => 'captured' ?
+                // moved diagonal
+                pos = m.group(6); // new pos - destination square
+                charX = pos.charAt(0);
+                oldCharX = m.group(5).charAt(0); // old x pos, column, index=0?
+                
+                x = chessCharToInt(charX);
+                oldX = chessCharToInt(oldCharX);
+                y = Integer.parseInt(pos.substring(1));
+                y --;
+                
+                // move, no validation...
+                if (isWhite)
                 {
-                    // hit and run ...
-                    // => 'captured' ?
-                    // moved diagonal
-                    pos = move.substring(i+1, i+2+1); // new pos
-                    charX = pos.charAt(0);
-                    oldCharX = move.charAt(i-1); // old x pos, column, index=0?
-                    x = chessCharToInt(charX);
-                    oldX = chessCharToInt(oldCharX);
-                    y = Integer.parseInt(pos.substring(1));
-                    
-                    // move, no validation...
-                    if (isWhite)
+                    field[y-1][oldX] = EMPTY_SQUARE;
+                    field[y][x] = WHITE_PAWN;
+                }
+                else
+                {
+                    field[y+1][oldX] = EMPTY_SQUARE;
+                    field[y][x] = BLACK_PAWN;
+                }
+            }
+            else
+            {
+                // check if moved two fields -> en passant
+                pos = m.group(6);
+                charX = pos.charAt(0);
+                x = chessCharToInt(charX);
+                y = Integer.parseInt(pos.substring(1));
+                y --; // need index
+                // on error, abort - shouldn't occur
+                                    
+                // get source field
+                if (isWhite)
+                {
+                    if (field[y-1][x] == WHITE_PAWN)
                     {
-                        field[y-1][oldX] = EMPTY_SQUARE;
+                        field[y-1][x] = EMPTY_SQUARE;
                         field[y][x] = WHITE_PAWN;
+                        this.enPassant = "-";
                     }
                     else
                     {
-                        field[y+1][oldX] = EMPTY_SQUARE;
-                        field[y][x] = BLACK_PAWN;
+                        field[y-2][x] = EMPTY_SQUARE;
+                        field[y][x] = WHITE_PAWN;
+                        this.enPassant = "" + charX + y;
                     }
                 }
                 else
                 {
-                    // moved vertical / or implicitly has moved diagonal??
-                    // TODO: check diagonal movement?
-                    // check if moved two fields -> en passant
-                    pos = move.substring(0, 2);
-                    charX = pos.charAt(0);
-                    x = chessCharToInt(charX);
-                    y = Integer.parseInt(pos.substring(1)); // on error, abort
-                                        
-                    // get source field
-                    if (isWhite)
+                    if (field[y+1][x] == BLACK_PAWN)
                     {
-                        if (field[y-1][x] == WHITE_PAWN)
+                        field[y+1][x] = EMPTY_SQUARE;
+                        field[y][x] = BLACK_PAWN;
+                        this.enPassant = "-";
+                    }
+                    else
+                    {
+                        field[y+2][x] = EMPTY_SQUARE;
+                        field[y][x] = BLACK_PAWN;
+                        this.enPassant = "" + charX + (y + 2);
+                    }
+                }
+            }
+            
+            // check promotion and overwrite destination field if needed
+            if (m.group(7) != null)
+            {
+                // was transformed
+                // 'promoted' ?
+                field[y][x] = m.group(8).charAt(0); // no check so far
+            }
+        }
+        // --------------------------------------------------------------------
+        // move of other figures
+        else if (m.group(9) != null)
+        {
+            // get figure
+            curFigure = m.group(10).charAt(0);
+            char figure = (isWhite) ? curFigure : Character.toLowerCase(curFigure);
+            
+            // get destination position
+            pos = m.group(14);
+            charX = pos.charAt(0);
+            x = chessCharToInt(charX);
+            y = Integer.parseInt(pos.substring(1));
+            y --;
+            
+            // get source position - hopefully safe ...
+            try
+            {
+                pos = m.group(11); // column -> x
+                oldX = (pos == null) ? INVALID_INDEX : chessCharToInt(pos.charAt(0));
+                pos = m.group(12); // row -> y
+                oldY = (pos == null) ? INVALID_INDEX : Integer.parseInt(pos) - 1;
+            }
+            catch (Exception e)
+            {
+                System.out.println("Error while parsing source field of move \""
+                        + move + "\"!");
+                e.printStackTrace();
+                oldX = INVALID_INDEX;
+                oldY = INVALID_INDEX;
+            }
+            
+            // ----------------------------------------------------------------
+            // compute figure moves ...
+            
+            // common to all -> set figure to destination square
+            field[y][x] = figure;
+            
+            switch (curFigure)
+            {
+                case CN_ROOK:
+                {
+                    if (oldX != INVALID_INDEX)
+                    {
+                        field[y][oldX] = EMPTY_SQUARE;
+                    }
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        field[oldY][x] = EMPTY_SQUARE;
+                    }
+                    // have to search manually ... :(
+                    else
+                    {
+                        boolean found = false;
+                        // search left
+                        for (int i = x - 1; ! found && i >= 0; i --)
                         {
-                            field[y-1][x] = EMPTY_SQUARE;
-                            field[y][x] = WHITE_PAWN;
-                            this.enPassant = "-";
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = y;
+                                oldX = i;
+                                break;
+                            }
+                        }
+                        // search right
+                        for (int i = x + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = y;
+                                oldX = i;
+                                break;
+                            }
+                        }
+                        // search top
+                        for (int i = y + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = i;
+                                oldX = x;
+                                break;
+                            }
+                        }
+                        // search bottom
+                        for (int i = y - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = i;
+                                oldX = x;
+                                break;
+                            }
+                        }
+                        if (! found)
+                        {
+                            System.out.println("Don't tell me you couldn't " +
+                                    "find a single chess piece ... I'm dis" +
+                                    "appointed ... \"" + move + "\"");
                         }
                         else
                         {
-                            // ((field[y-1][x] == EMPTY_SQUARE) &&
-                            // (field[y-2][x] == WHITE_PAWN))
-                            field[y-2][x] = EMPTY_SQUARE;
-                            field[y][x] = WHITE_PAWN;
-                            this.enPassant = "" + charX + "" + (y-1);
+                         // set castlings
+                            if (isWhite)
+                            {
+                                // kingside ?
+                                if (oldX == 7)
+                                {
+                                    this.possibleCastlings = this.possibleCastlings.replace("K", "");
+                                }
+                                // queenside ?
+                                else if (oldX == 0)
+                                {
+                                    this.possibleCastlings = this.possibleCastlings.replace("Q", "");
+                                }
+                            }
+                            else
+                            {
+                                // kingside ?
+                                if (oldX == 7)
+                                {
+                                    this.possibleCastlings = this.possibleCastlings.replace("k", "");
+                                }
+                                // queenside ?
+                                else if (oldX == 0)
+                                {
+                                    this.possibleCastlings = this.possibleCastlings.replace("q", "");
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                // ------------------------------------------------------------
+                case CN_KNIGHT:
+                {
+                    int diff;
+                    
+                    // x is given -> only two possibilities for y
+                    if (oldX != INVALID_INDEX)
+                    {
+                        diff = (oldX > x) ? oldX - x : x - oldX;
+                        
+                        // moved one in the x direction (left or right)
+                        if (diff == 1)
+                        {
+                            // -> has to move 2 in y direction
+                            if ((y + 2 < 8) && (field[y+2][oldX] == figure))
+                            {
+                                field[y+2][oldX] = EMPTY_SQUARE;
+                            }
+                            else if ((y - 2 >= 0) && (field[y-2][oldX] == figure))
+                            {
+                                field[y-2][oldX] = EMPTY_SQUARE;
+                            }
+                            else
+                            {
+                                System.out.println("Can't reach here ... \"" +
+                                        move + "\"!");
+                            }
+                        }
+                        // moved two in the x direction
+                        else if (diff == 2)
+                        {
+                            // has to move 1 in the y direction
+                            if ((y + 1 < 8) && (field[y+1][oldX] == figure))
+                            {
+                                field[y+1][oldX] = EMPTY_SQUARE;
+                            }
+                            else if ((y - 1 >= 0) && (field[y-1][oldX] == figure))
+                            {
+                                field[y-1][oldX] = EMPTY_SQUARE;
+                            }
+                            else
+                            {
+                                System.out.println("Can't reach here ... \"" +
+                                        move + "\"!");
+                            }
+                        }
+                        // more than two difference is not possible
+                        else
+                        {
+                            System.out.println("Can't reach here ... \"" +
+                                    move + "\"!");
+                        }
+                    }
+                    // y is given -> only two possibilities for x
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        diff = (oldY > y) ? oldY - x : y - oldY;
+                        
+                        // moved one in the y direction (left or right)
+                        if (diff == 1)
+                        {
+                            // -> has to move 2 in x direction
+                            if ((x + 2 < 8) && (field[oldY][x+2] == figure))
+                            {
+                                field[oldY][x+2] = EMPTY_SQUARE;
+                            }
+                            else if ((x - 2 >= 0) && (field[oldY][x-2] == figure))
+                            {
+                                field[oldY][x-2] = EMPTY_SQUARE;
+                            }
+                            else
+                            {
+                                System.out.println("Can't reach here ... \"" +
+                                        move + "\"!");
+                            }
+                        }
+                        // moved two in the y direction
+                        else if (diff == 2)
+                        {
+                            // has to move 1 in the x direction
+                            if ((x + 1 < 8) && (field[oldY][x+1] == figure))
+                            {
+                                field[oldY][x+1] = EMPTY_SQUARE;
+                            }
+                            else if ((x - 1 >= 0) && (field[oldY][x-1] == figure))
+                            {
+                                field[oldY][x-1] = EMPTY_SQUARE;
+                            }
+                            else
+                            {
+                                System.out.println("Can't reach here ... \"" +
+                                        move + "\"!");
+                            }
+                        }
+                        // more than two difference is not possible
+                        else
+                        {
+                            System.out.println("Can't reach here ... \"" +
+                                    move + "\"!");
                         }
                     }
                     else
                     {
-                        if (field[y+1][x] == BLACK_PAWN)
+                        // have to check all movement possibilities
+                        if ((x + 2 < 8) && (y + 1 < 8) && (field[y+1][x+2] == figure))
                         {
-                            field[y+1][x] = EMPTY_SQUARE;
-                            field[y][x] = BLACK_PAWN;
-                            this.enPassant = "-";
+                            field[y+1][x+2] = EMPTY_SQUARE;
+                        }
+                        else if ((x - 2 >= 0) && (y + 1 < 8) && (field[y+1][x-2] == figure))
+                        {
+                            field[y+1][x-2] = EMPTY_SQUARE;
+                        }
+                        else if ((x + 2 < 8) && (y - 1 >= 0) && (field[y-1][x+2] == figure))
+                        {
+                            field[y-1][x+2] = EMPTY_SQUARE;
+                        }
+                        else if ((x - 2 >= 0) && (y - 1 >= 0) && (field[y-1][x-2] == figure))
+                        {
+                            field[y-1][x-2] = EMPTY_SQUARE;
+                        }
+                        else if ((y + 2 < 8) && (x + 1 < 8) && (field[y+2][x+1] == figure))
+                        {
+                            field[y+2][x+1] = EMPTY_SQUARE;
+                        }
+                        else if ((y - 2 >= 0) && (x + 1 < 8) && (field[y-2][x+1] == figure))
+                        {
+                            field[y-2][x+1] = EMPTY_SQUARE;
+                        }
+                        else if ((y + 2 < 8) && (x - 1 >= 0) && (field[y+2][x-1] == figure))
+                        {
+                            field[y+2][x-1] = EMPTY_SQUARE;
+                        }
+                        else if ((y - 2 >= 0) && (x - 1 >= 0) && (field[y-2][x-1] == figure))
+                        {
+                            field[y-2][x-1] = EMPTY_SQUARE;
                         }
                         else
                         {
-                            // ((field[y+1][x] == EMPTY_SQUARE) &&
-                            // (field[y+2][x] == BLACK_PAWN))
-                            field[y+2][x] = EMPTY_SQUARE;
-                            field[y][x] = BLACK_PAWN;
-                            this.enPassant = "" + charX + "" + (y+1);
+                            System.out.println("Can't reach here ... \"" +
+                                    move + "\"! ... Super Knight ;)");
                         }
                     }
+                    break;
                 }
-                if ((i = move.indexOf('=')) != -1)
+                // ------------------------------------------------------------
+                case CN_BISHOP:
                 {
-                    // was transformed
-                    // 'promoted' ?
-                    field[y][x] = move.charAt(i+1); // no check so far
+                    if (oldX != INVALID_INDEX)
+                    {
+                        System.out.println("BISHOP MOVE POSSIBLE ?? \"" + move + "\"");
+                    }
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        System.out.println("BISHOP MOVE POSSIBLE ?? \"" + move + "\"");
+                    }
+                    else
+                    {
+                        boolean found = false;
+                        
+                        // search diagonal
+                        // search bottom left
+                        for (int i = x - 1, j = y - 1; ! found && i >= 0 && j >= 0; i --, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search top left
+                        for (int i = x - 1, j = y + 1; ! found && i >= 0 && j < 8; i --, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search bottom right
+                        for (int i = x + 1, j = y - 1; ! found && i < 8 && j >= 0; i ++, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search top right
+                        for (int i = x + 1, j = y + 1; ! found && i < 8 && j < 8; i ++, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        
+                        if (! found)
+                        {
+                            System.out.println("OMG ... I can't find anything" +
+                                    " ... again : \"" + move + "\"");
+                        }
+                    }
+                    break;
                 }
-                break;
+                // ------------------------------------------------------------
+                case CN_QUEEN:
+                {
+                    if (oldX != INVALID_INDEX)
+                    {
+                        field[y][oldX] = EMPTY_SQUARE;
+                    }
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        field[oldY][x] = EMPTY_SQUARE;
+                    }
+                    // check all directions
+                    else
+                    {
+                        boolean found = false;
+                        
+                        // search vertical and horizontal
+                        // search left
+                        for (int i = x - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search right
+                        for (int i = x + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search top
+                        for (int i = y + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search bottom
+                        for (int i = y - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        
+                        // ----------------------------------------------------
+                        // search diagonal
+                        
+                        // search bottom left
+                        for (int i = x - 1, j = y - 1; ! found && i >= 0 && j >= 0; i --, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search top left
+                        for (int i = x - 1, j = y + 1; ! found && i >= 0 && j < 8; i --, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search bottom right
+                        for (int i = x + 1, j = y - 1; ! found && i < 8 && j >= 0; i ++, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        // search top right
+                        for (int i = x + 1, j = y + 1; ! found && i < 8 && j < 8; i ++, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                break;
+                            }
+                        }
+                        
+                        if (! found)
+                        {
+                            System.out.println("Don't tell me you couldn't " +
+                                    "find a single chess piece ... I'm dis" +
+                                    "appointed ... again : \"" + move + "\"");
+                        }
+                    }
+                    break;
+                }
+                // ------------------------------------------------------------
+                case CN_KING:
+                {
+                    // set old field to empty square ...
+                    // from left
+                    if ((x - 1 >= 0) && (field[y][x-1] == figure))
+                    {
+                        field[y][x-1] = EMPTY_SQUARE;
+                    }
+                    // from left bottom
+                    else if ((y - 1 >= 0) && (x - 1 >= 0) && (field[y-1][x-1] == figure))
+                    {
+                        field[y-1][x-1] = EMPTY_SQUARE;
+                    }
+                    // from bottom
+                    else if ((y - 1 >= 0) && (field[y-1][x] == figure))
+                    {
+                        field[y-1][x] = EMPTY_SQUARE;
+                    }
+                    // from right
+                    else if ((x + 1 < 8) && (field[y][x+1] == figure))
+                    {
+                        field[y][x+1] = EMPTY_SQUARE;
+                    }
+                    // from right top
+                    else if ((y + 1 < 8) && (x + 1 < 8) && (field[y+1][x+1] == figure))
+                    {
+                        field[y+1][x+1] = EMPTY_SQUARE;
+                    }
+                    // from top
+                    else if ((y + 1 < 8) && (field[y+1][x] == figure))
+                    {
+                        field[y+1][x] = EMPTY_SQUARE;
+                    }
+                    // from top left
+                    else if ((y + 1 < 8) && (x - 1 >= 0) && (field[y+1][x-1] == figure))
+                    {
+                        field[y+1][x-1] = EMPTY_SQUARE;
+                    }
+                    // from bottom right
+                    else if ((y - 1 >= 0) && (x + 1 < 8) && (field[y-1][x+1] == figure))
+                    {
+                        field[y-1][x+1] = EMPTY_SQUARE;
+                    }
+                    else
+                    {
+                        System.out.println("Huh? Where came I from? \"" +
+                                move + "\"");
+                    }
+                    break;
+                }
+                // error case, abort
+                default:
+                {
+                    System.out.println("Unrecognized figure \"" + curFigure +
+                            "\" in move \"" + move + "\"!");
+                   return false; 
+                }   
             }
-            case CN_ROOK:
-            {
-                
-            }
-            case CN_KNIGHT:
-            {
-                
-            }
-            case CN_BISHOP:
-            {
-                
-            }
-            case CN_QUEEN:
-            {
-                
-            }
-            case CN_KING:
-            {
-                
-            }
-            // error case, abort
-            default:
-            {
-               return; 
-            }   
         }
         
         // --------------------------------------------------------------------
         
         // not used yet
-        if (move.indexOf('+') != -1)
+        if (m.group(17) != null)
         {
-            // check
-        }
-        else if (move.indexOf('#') != -1)
-        {
-            // check mate
-            // last move
+            // '+' check
+            // '#' check mate, last move
         }
         
         this.moves.add(move);
         this.incrementMoveNr();
+        return true;
     }
     
     /**
