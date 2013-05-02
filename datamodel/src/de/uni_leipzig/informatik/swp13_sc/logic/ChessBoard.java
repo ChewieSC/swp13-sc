@@ -799,6 +799,10 @@ public class ChessBoard
                                 oldX = i;
                                 break;
                             }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search right
                         for (int i = x + 1; ! found && i < 8; i ++)
@@ -809,6 +813,10 @@ public class ChessBoard
                                 found = true;
                                 oldY = y;
                                 oldX = i;
+                                break;
+                            }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -823,6 +831,10 @@ public class ChessBoard
                                 oldX = x;
                                 break;
                             }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search bottom
                         for (int i = y - 1; ! found && i >= 0; i --)
@@ -833,6 +845,10 @@ public class ChessBoard
                                 found = true;
                                 oldY = i;
                                 oldX = x;
+                                break;
+                            }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -1044,6 +1060,10 @@ public class ChessBoard
                                 found = true;
                                 break;
                             }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search top left
                         for (int i = x - 1, j = y + 1; ! found && i >= 0 && j < 8; i --, j ++ )
@@ -1052,6 +1072,10 @@ public class ChessBoard
                             {
                                 field[j][i] = EMPTY_SQUARE;
                                 found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -1064,6 +1088,10 @@ public class ChessBoard
                                 found = true;
                                 break;
                             }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search top right
                         for (int i = x + 1, j = y + 1; ! found && i < 8 && j < 8; i ++, j ++ )
@@ -1072,6 +1100,10 @@ public class ChessBoard
                             {
                                 field[j][i] = EMPTY_SQUARE;
                                 found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -1110,6 +1142,10 @@ public class ChessBoard
                                 found = true;
                                 break;
                             }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search right
                         for (int i = x + 1; ! found && i < 8; i ++)
@@ -1118,6 +1154,10 @@ public class ChessBoard
                             {
                                 field[y][i] = EMPTY_SQUARE;
                                 found = true;
+                                break;
+                            }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -1130,6 +1170,10 @@ public class ChessBoard
                                 found = true;
                                 break;
                             }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search bottom
                         for (int i = y - 1; ! found && i >= 0; i --)
@@ -1138,6 +1182,10 @@ public class ChessBoard
                             {
                                 field[i][x] = EMPTY_SQUARE;
                                 found = true;
+                                break;
+                            }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -1154,6 +1202,10 @@ public class ChessBoard
                                 found = true;
                                 break;
                             }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search top left
                         for (int i = x - 1, j = y + 1; ! found && i >= 0 && j < 8; i --, j ++ )
@@ -1162,6 +1214,10 @@ public class ChessBoard
                             {
                                 field[j][i] = EMPTY_SQUARE;
                                 found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
@@ -1174,6 +1230,10 @@ public class ChessBoard
                                 found = true;
                                 break;
                             }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
                         }
                         // search top right
                         for (int i = x + 1, j = y + 1; ! found && i < 8 && j < 8; i ++, j ++ )
@@ -1182,6 +1242,10 @@ public class ChessBoard
                             {
                                 field[j][i] = EMPTY_SQUARE;
                                 found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
                                 break;
                             }
                         }
