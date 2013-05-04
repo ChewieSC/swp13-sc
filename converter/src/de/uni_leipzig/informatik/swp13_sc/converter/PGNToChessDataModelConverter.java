@@ -497,26 +497,48 @@ public class PGNToChessDataModelConverter
             {
                 nr ++;
                 ChessMove.Builder cmb = new ChessMove.Builder();
+                
+                String m = move.group(1);
+                String comment = move.group(10);
+                
+                cmb.setNr(nr).setMove(m).setComment(comment);
+                
                 try
                 {
-                    String m = move.group(1);
-                    String comment = move.group(10);
+                    if (! cb.move(m))
+                    {
+                        System.out.println("WARN: move (\"" + m + "\")! {" +
+                                cb.getLastMoveSource() + "->" +
+                                cb.getLastMoveDestination() + ", " +
+                                cb.getLastMoveFigure() + "}-{" + cb.getFEN() +
+                                "} <Game " + numberOfGames.get() + ">");
+                        
+                        //cg.getWhitePlayer().getName() + "_" +
+                        //cg.getBlackPlayer().getName() + "_" +
+                        //cg.getDate() + "_" + cg.getEvent()
+                    }
                     
-                    cb.move(move.group(1));
+                    cmb.setFEN(cb.getFEN(null));
+                    
                     // DEBUG:
                     //System.out.println("{" + cb.getLastMoveSource() + "->" + cb.getLastMoveDestination()
-                    //        + ", " + cb.getLastMoveFigure() + "}{" + cb.getFEN() + "}");
-                    
-                    cgb.addMove(cmb.setNr(nr).setMove(m).setFEN(cb.getFEN(null)).setComment(comment).build());
-                }
-                catch (IllegalStateException e)
-                {
-                    e.printStackTrace();
+                    //      + ", " + cb.getLastMoveFigure() + "}{" + cb.getFEN() + "}");
                 }
                 catch (IndexOutOfBoundsException e)
                 {
+                    System.out.println("ERROR in Game " + numberOfGames.get() +
+                            ". (Indizes -> prob. wrong color + pawn move)");
                     e.printStackTrace();
                 }
+                catch (Exception e)
+                {
+                    // IllegalStateException
+                    // IndexOutOfBoundsException
+                    System.out.println("ERROR in Game " + numberOfGames.get() + ".");
+                    e.printStackTrace();
+                }
+                
+                cgb.addMove(cmb.build());
             }
         }
         

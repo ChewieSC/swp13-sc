@@ -26,7 +26,6 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
  */
 public class ChessBoard
 {
-    // TODO: how to initialize? Or better way?
     /**
      * The chess field. From y=0..7, x=0..7.<br />
      * The white figures  at the bottom have the y index of 0, 1.<br />
@@ -176,7 +175,6 @@ public class ChessBoard
      * possibleCastlings
      */
     private String possibleCastlings = "KQkq";
-    private String possibleCastlingsForMove = "KQkq";
     /**
      * enPassant
      */
@@ -290,7 +288,6 @@ public class ChessBoard
                         break;
                     }
                     // add figure
-                    // TODO: need figure count?
                     case WHITE_PAWN:
                     case BLACK_PAWN:
                     case WHITE_ROOK:
@@ -325,8 +322,7 @@ public class ChessBoard
             }
         }
         this.playerColor              = parts.nextToken().charAt(0); // Color
-        this.possibleCastlingsForMove = parts.nextToken();     // Castlings
-        this.possibleCastlings        = this.possibleCastlingsForMove; // (?)
+        this.possibleCastlings = parts.nextToken();     // Castlings
         this.enPassant                = parts.nextToken();     // enPassant
         this.halfMoveNr = Integer.parseInt(parts.nextToken()); // half move 
         this.moveNr     = Integer.parseInt(parts.nextToken()); // move count
@@ -571,8 +567,9 @@ public class ChessBoard
      * 
      * @param   c   Char to convert.
      * @return  int or {@link #INVALID_INDEX} if something went wrong.
+     * @throws  Exception 
      */
-    private int chessCharToInt(char c)
+    private int chessCharToInt(char c) throws Exception
     {
         int x = INVALID_INDEX;
         switch (c)
@@ -595,9 +592,8 @@ public class ChessBoard
                 x ++;
                 break;
             default:
-                System.out.println("Why a default clause in chessCharToInt <"
+                throw new Exception("Why a default clause in chessCharToInt <"
                         + c + "-" + x + ">?");
-                break;
         }
         return x;
     }
@@ -652,10 +648,10 @@ public class ChessBoard
      * 
      * @param   move    A chess move.
      * @return  true if successful parsed and moved
-     * @throws NumberFormatException
+     * @throws  Exception, {@link NumberFormatException}
      */
     public synchronized boolean move(String move)
-        throws NumberFormatException
+        throws  Exception
     {        
         if ((move == null) || (move.length() <= 1))
         {
@@ -687,8 +683,8 @@ public class ChessBoard
                 field[0][3] = WHITE_ROOK;
                 field[0][4] = EMPTY_SQUARE;
 
-                lastPositionDestination = "a1e1";
-                lastPositionSource = "d1c1";
+                lastPositionDestination = "d1c1";
+                lastPositionSource = "a1e1";
                 lastMovedFigure = "O-O-O";
             }
             else
@@ -698,8 +694,8 @@ public class ChessBoard
                 field[7][3] = BLACK_ROOK;
                 field[7][4] = EMPTY_SQUARE;
 
-                lastPositionDestination = "a8e8";
-                lastPositionSource = "d8c8";
+                lastPositionDestination = "d8c8";
+                lastPositionSource = "a8e8";
                 lastMovedFigure = "o-o-o";
             }
         }
@@ -713,8 +709,8 @@ public class ChessBoard
                 field[0][6] = WHITE_KING;
                 field[0][7] = EMPTY_SQUARE;
 
-                lastPositionDestination = "e8h8";
-                lastPositionSource = "g8f8";
+                lastPositionDestination = "g1f1";
+                lastPositionSource = "e1h1";
                 lastMovedFigure = "O-O";
             }
             else
@@ -724,8 +720,8 @@ public class ChessBoard
                 field[7][6] = BLACK_KING;
                 field[7][7] = EMPTY_SQUARE;
 
-                lastPositionDestination = "e8h8";
-                lastPositionSource = "g8f8";
+                lastPositionDestination = "g8f8";
+                lastPositionSource = "e8h8";
                 lastMovedFigure = "o-o";
             }            
         }
@@ -756,6 +752,7 @@ public class ChessBoard
         char charX;
         char oldCharX;
         String pos;
+        int diff;
         
         char curFigure = CN_PAWN;
         
@@ -883,9 +880,12 @@ public class ChessBoard
         {
             // set enPassant empty - only for pawns
             this.enPassant = "-";
+            // for loops needed where each field has to be checked in a specific direction
+            boolean found = false;
             
             // get figure
             curFigure = m.group(10).charAt(0);
+            // piece (figure with color, lowercase black, uppercase white)
             char figure = (isWhite) ? curFigure : Character.toLowerCase(curFigure);
             
             // get destination position
@@ -893,28 +893,17 @@ public class ChessBoard
             charX = pos.charAt(0);
             x = chessCharToInt(charX);
             y = Integer.parseInt(pos.substring(1));
-            y --;
+            y --; // decrement for use as index
             
             // analysis purpose
             lastMovedFigure = "" + figure;
             lastPositionDestination = pos;
             
-            // get source position - hopefully safe ...
-            try
-            {
-                pos = m.group(11); // column -> x
-                oldX = (pos == null) ? INVALID_INDEX : chessCharToInt(pos.charAt(0));
-                pos = m.group(12); // row -> y
-                oldY = (pos == null) ? INVALID_INDEX : Integer.parseInt(pos) - 1;
-            }
-            catch (Exception e)
-            {
-                System.out.println("Error while parsing source field of move \""
-                        + move + "\"!");
-                e.printStackTrace();
-                oldX = INVALID_INDEX;
-                oldY = INVALID_INDEX;
-            }
+            // get source position
+            pos = m.group(11); // column -> x
+            oldX = (pos == null) ? INVALID_INDEX : chessCharToInt(pos.charAt(0));
+            pos = m.group(12); // row -> y
+            oldY = (pos == null) ? INVALID_INDEX : Integer.parseInt(pos) - 1;
             
             // ----------------------------------------------------------------
             // compute figure moves ...
@@ -926,8 +915,6 @@ public class ChessBoard
             {
                 case CN_ROOK:
                 {
-                    boolean found = false;
-                    
                     if (oldX != INVALID_INDEX)
                     {
                         // on the same row
@@ -1088,11 +1075,8 @@ public class ChessBoard
                     // get positions and check castlings
                     if (! found)
                     {
-                        System.out.println("Don't tell me you couldn't " +
-                                "find a single chess piece ... I'm dis" +
-                                "appointed ... \"" + move + "\"");
-                        
                         lastPositionSource = "??";
+                        return false;
                     }
                     else
                     {
@@ -1131,7 +1115,7 @@ public class ChessBoard
                 // ------------------------------------------------------------
                 case CN_KNIGHT:
                 {
-                    int diff;
+                    // include case oldX != INVALID_INDEX && oldY != INVALID_INDEX ?
                     
                     // x is given -> only two possibilities for y
                     if (oldX != INVALID_INDEX)
@@ -1156,10 +1140,8 @@ public class ChessBoard
                             }
                             else
                             {
-                                System.out.println("Can't reach here ... \"" +
-                                        move + "\"!");
-                                
                                 lastPositionSource = "??";
+                                return false;
                             }
                         }
                         // moved two in the x direction
@@ -1180,19 +1162,15 @@ public class ChessBoard
                             }
                             else
                             {
-                                System.out.println("Can't reach here ... \"" +
-                                        move + "\"!");
-                                
                                 lastPositionSource = "??";
+                                return false;
                             }
                         }
                         // more than two difference is not possible
                         else
                         {
-                            System.out.println("Can't reach here ... \"" +
-                                    move + "\"!");
-                            
                             lastPositionSource = "??";
+                            return false;
                         }
                     }
                     // y is given -> only two possibilities for x
@@ -1218,10 +1196,8 @@ public class ChessBoard
                             }
                             else
                             {
-                                System.out.println("Can't reach here ... \"" +
-                                        move + "\"!");
-                                
                                 lastPositionSource = "??";
+                                return false;
                             }
                         }
                         // moved two in the y direction
@@ -1242,19 +1218,15 @@ public class ChessBoard
                             }
                             else
                             {
-                                System.out.println("Can't reach here ... \"" +
-                                        move + "\"!");
-                                
                                 lastPositionSource = "??";
+                                return false;
                             }
                         }
                         // more than two difference is not possible
                         else
                         {
-                            System.out.println("Can't reach here ... \"" +
-                                    move + "\"!");
-                            
                             lastPositionSource = "??";
+                            return false;
                         }
                     }
                     else
@@ -1310,10 +1282,8 @@ public class ChessBoard
                         }
                         else
                         {
-                            System.out.println("Can't reach here ... \"" +
-                                    move + "\"! ... Super Knight ;)");
-                            
                             lastPositionSource = "??";
+                            return false;
                         }
                     }
                     break;
@@ -1326,17 +1296,17 @@ public class ChessBoard
                         System.out.println("BISHOP MOVE POSSIBLE ?? \"" + move + "\"");
                         
                         lastPositionSource = "??";
+                        return false;
                     }
                     else if (oldY != INVALID_INDEX)
                     {
                         System.out.println("BISHOP MOVE POSSIBLE ?? \"" + move + "\"");
                         
                         lastPositionSource = "??";
+                        return false;
                     }
                     else
                     {
-                        boolean found = false;
-                        
                         // search diagonal
                         // search bottom left
                         for (int i = x - 1, j = y - 1; ! found && i >= 0 && j >= 0; i --, j -- )
@@ -1405,10 +1375,8 @@ public class ChessBoard
                         
                         if (! found)
                         {
-                            System.out.println("OMG ... I can't find anything" +
-                                    " ... again : \"" + move + "\"");
-                            
                             lastPositionSource = "??";
+                            return false;
                         }
                     }
                     break;
@@ -1416,19 +1384,133 @@ public class ChessBoard
                 // ------------------------------------------------------------
                 case CN_QUEEN:
                 {
-                    boolean found = false;
-                    
                     if (oldX != INVALID_INDEX)
                     {
-                        field[y][oldX] = EMPTY_SQUARE;
-                        
-                        lastPositionSource = "" + chessIntToChar(oldX) + (y + 1);
+                        // queen move in same column
+                        if (oldX == x)
+                        {
+                            // search up
+                            for (int i = y + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    oldY = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search down
+                            for (int i = y - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    oldY = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // different column -> 3 fields to check
+                        else
+                        {
+                            diff = (oldX > x) ? oldX - x : x - oldX;
+                            
+                            // same row
+                            if (field[y][oldX] == figure)
+                            {
+                                field[y][oldX] = EMPTY_SQUARE;
+                                oldY = y;
+                                found = true;
+                            }
+                            // up
+                            else if ((y + diff < 8) && (field[y+diff][oldX] == figure))
+                            {
+                                field[y+diff][oldX] = EMPTY_SQUARE;
+                                oldY = y + diff;
+                                found = true; 
+                            }
+                            // down
+                            else if ((y - diff >= 0) && (field[y-diff][oldX] == figure))
+                            {
+                                field[y-diff][oldX] = EMPTY_SQUARE;
+                                oldY = y - diff;
+                                found = true;
+                            }
+                        }
                     }
                     else if (oldY != INVALID_INDEX)
                     {
-                        field[oldY][x] = EMPTY_SQUARE;
-                        
-                        lastPositionSource = "" + chessIntToChar(x) + (oldY + 1);
+                        // queen move in same row
+                        if (oldY == y)
+                        {
+                            // search right
+                            for (int i = x + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    oldX = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search left
+                            for (int i = x - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    oldX = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // different row -> 3 fields to check
+                        else
+                        {
+                            diff = (oldY > y) ? oldY - y : y - oldY;
+                            
+                            // same column
+                            if (field[oldY][x] == figure)
+                            {
+                                field[oldY][x] = EMPTY_SQUARE;
+                                oldX = x;
+                                found = true;
+                            }
+                            // right
+                            else if ((x + diff < 8) && (field[oldY][x+diff] == figure))
+                            {
+                                field[oldY][x+diff] = EMPTY_SQUARE;
+                                oldX = x + diff;
+                                found = true; 
+                            }
+                            // left
+                            else if ((x - diff >= 0) && (field[oldY][x-diff] == figure))
+                            {
+                                field[oldY][x-diff] = EMPTY_SQUARE;
+                                oldX = x - diff;
+                                found = true;
+                            }
+                        }
                     }
                     // check all directions
                     else
@@ -1570,11 +1652,8 @@ public class ChessBoard
                     
                     if (! found)
                     {
-                        System.out.println("Don't tell me you couldn't " +
-                                "find a single chess piece ... I'm dis" +
-                                "appointed ... again : \"" + move + "\"");
-                        
                         lastPositionSource = "??";
+                        return false;
                     }
                     else
                     {
@@ -1644,10 +1723,8 @@ public class ChessBoard
                     }
                     else
                     {
-                        System.out.println("Huh? Where came I from? \"" +
-                                move + "\"");
-                        
                         lastPositionSource = "??";
+                        return false;
                     }
                     
                     // set castlings or remove them ;-)
@@ -1664,11 +1741,7 @@ public class ChessBoard
                 // error case, abort
                 default:
                 {
-                    System.out.println("Unrecognized figure \"" + curFigure +
-                            "\" in move \"" + move + "\"!");
-                    
                     lastMovedFigure = "??";
-                    
                     return false; 
                 }   
             }
@@ -1694,10 +1767,11 @@ public class ChessBoard
      * 
      * @param   move    Move to do.
      * @return  String with FEN
-     * @throws  NumberFormatException
+     * @throws  Exception   if there went something wrong like conversion etc.
+     * @throws  NumberFormatException   Integer.parse()
      */
     public String moveAndGetFEN(String move)
-        throws NumberFormatException
+        throws Exception, NumberFormatException
     {
         this.move(move);
         return this.getFEN(null);
@@ -1717,12 +1791,11 @@ public class ChessBoard
                 .append(moveNr).append(", halfMoveNr=").append(halfMoveNr)
                 .append(", playerColor=").append(playerColor)
                 .append(", possibleCastlings=").append(possibleCastlings)
-                .append(", possibleCastlingsForMove=")
-                .append(possibleCastlingsForMove).append(", enPassant=")
-                .append(enPassant).append(", computeFEN()=")
-                .append(computeFEN()).append(", getFENSuffix()=")
-                .append(getFENSuffix()).append(", getMoveCount()=")
-                .append(getMoveCount()).append("]");
+                .append(", enPassant=").append(enPassant)
+                .append(", computeFEN()=").append(computeFEN())
+                .append(", getFENSuffix()=").append(getFENSuffix())
+                .append(", getMoveCount()=").append(getMoveCount())
+                .append("]");
         return builder.toString();
     }
     
