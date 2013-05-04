@@ -747,8 +747,6 @@ public class ChessBoard
             return true; // finish
         }
         
-        this.enPassant = "-";
-        
         // --------------------------------------------------------------------
         
         int x;
@@ -796,6 +794,21 @@ public class ChessBoard
                     field[y][x] = BLACK_PAWN;
                     
                     lastPositionSource = "" + oldCharX + (y + 2);
+                }
+                
+                // enPassant
+                if (pos.equalsIgnoreCase(enPassant))
+                {
+                    if (isWhite)
+                    {
+                        // square below
+                        field[y-1][x] = EMPTY_SQUARE;
+                    }
+                    else
+                    {
+                        // square above
+                        field[y+1][x] = EMPTY_SQUARE;
+                    }
                 }
             }
             else
@@ -868,6 +881,9 @@ public class ChessBoard
         // move of other figures
         else if (m.group(9) != null)
         {
+            // set enPassant empty - only for pawns
+            this.enPassant = "-";
+            
             // get figure
             curFigure = m.group(10).charAt(0);
             char figure = (isWhite) ? curFigure : Character.toLowerCase(curFigure);
@@ -914,15 +930,91 @@ public class ChessBoard
                     
                     if (oldX != INVALID_INDEX)
                     {
-                        field[y][oldX] = EMPTY_SQUARE;
-                        found = true;
-                        oldY = y;
+                        // on the same row
+                        if (oldX != x)
+                        {
+                            field[y][oldX] = EMPTY_SQUARE;
+                            found = true;
+                            oldY = y;
+                        }
+                        // search in row because column is the same
+                        else
+                        {
+                            // search top
+                            for (int i = y + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldY = i;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search bottom
+                            for (int i = y - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldY = i;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
                     }
                     else if (oldY != INVALID_INDEX)
                     {
-                        field[oldY][x] = EMPTY_SQUARE;
-                        found = true;
-                        oldX = x;
+                        // same column
+                        if (oldY != y)
+                        {
+                            field[oldY][x] = EMPTY_SQUARE;
+                            found = true;
+                            oldX = x;
+                        }
+                        // search in column because row is different
+                        else
+                        {
+                            // search left
+                            for (int i = x - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldX = i;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search right
+                            for (int i = x + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldX = i;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
                     }
                     // have to search manually ... :(
                     else
@@ -1106,7 +1198,7 @@ public class ChessBoard
                     // y is given -> only two possibilities for x
                     else if (oldY != INVALID_INDEX)
                     {
-                        diff = (oldY > y) ? oldY - x : y - oldY;
+                        diff = (oldY > y) ? oldY - y : y - oldY;
                         
                         // moved one in the y direction (left or right)
                         if (diff == 1)
@@ -1324,6 +1416,8 @@ public class ChessBoard
                 // ------------------------------------------------------------
                 case CN_QUEEN:
                 {
+                    boolean found = false;
+                    
                     if (oldX != INVALID_INDEX)
                     {
                         field[y][oldX] = EMPTY_SQUARE;
@@ -1339,8 +1433,6 @@ public class ChessBoard
                     // check all directions
                     else
                     {
-                        boolean found = false;
-                        
                         // search vertical and horizontal
                         // search left
                         for (int i = x - 1; ! found && i >= 0; i --)
@@ -1348,9 +1440,9 @@ public class ChessBoard
                             if (field[y][i] == figure)
                             {
                                 field[y][i] = EMPTY_SQUARE;
+                                oldY = y;
+                                oldX = i;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(i) + (y + 1);
                                 break;
                             }
                             else if (field[y][i] != EMPTY_SQUARE)
@@ -1364,9 +1456,9 @@ public class ChessBoard
                             if (field[y][i] == figure)
                             {
                                 field[y][i] = EMPTY_SQUARE;
+                                oldY = y;
+                                oldX = i;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(i) + (y + 1);
                                 break;
                             }
                             else if (field[y][i] != EMPTY_SQUARE)
@@ -1380,9 +1472,9 @@ public class ChessBoard
                             if (field[i][x] == figure)
                             {
                                 field[i][x] = EMPTY_SQUARE;
+                                oldY = i;
+                                oldX = x;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(x) + (i + 1);
                                 break;
                             }
                             else if (field[i][x] != EMPTY_SQUARE)
@@ -1396,9 +1488,9 @@ public class ChessBoard
                             if (field[i][x] == figure)
                             {
                                 field[i][x] = EMPTY_SQUARE;
+                                oldY = i;
+                                oldX = x;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(x) + (i + 1);
                                 break;
                             }
                             else if (field[i][x] != EMPTY_SQUARE)
@@ -1416,9 +1508,9 @@ public class ChessBoard
                             if (field[j][i] == figure)
                             {
                                 field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
                                 break;
                             }
                             else if (field[j][i] != EMPTY_SQUARE)
@@ -1432,9 +1524,9 @@ public class ChessBoard
                             if (field[j][i] == figure)
                             {
                                 field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
                                 break;
                             }
                             else if (field[j][i] != EMPTY_SQUARE)
@@ -1448,9 +1540,9 @@ public class ChessBoard
                             if (field[j][i] == figure)
                             {
                                 field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
                                 break;
                             }
                             else if (field[j][i] != EMPTY_SQUARE)
@@ -1464,9 +1556,9 @@ public class ChessBoard
                             if (field[j][i] == figure)
                             {
                                 field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
                                 found = true;
-                                
-                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
                                 break;
                             }
                             else if (field[j][i] != EMPTY_SQUARE)
@@ -1474,15 +1566,19 @@ public class ChessBoard
                                 break;
                             }
                         }
+                    }
+                    
+                    if (! found)
+                    {
+                        System.out.println("Don't tell me you couldn't " +
+                                "find a single chess piece ... I'm dis" +
+                                "appointed ... again : \"" + move + "\"");
                         
-                        if (! found)
-                        {
-                            System.out.println("Don't tell me you couldn't " +
-                                    "find a single chess piece ... I'm dis" +
-                                    "appointed ... again : \"" + move + "\"");
-                            
-                            lastPositionSource = "??";
-                        }
+                        lastPositionSource = "??";
+                    }
+                    else
+                    {
+                        lastPositionSource = "" + chessIntToChar(oldX) + (oldY + 1);
                     }
                     break;
                 }
@@ -1552,6 +1648,16 @@ public class ChessBoard
                                 move + "\"");
                         
                         lastPositionSource = "??";
+                    }
+                    
+                    // set castlings or remove them ;-)
+                    if (isWhite)
+                    {
+                        this.possibleCastlings = this.possibleCastlings.replace("K", "").replace("Q", "");
+                    }
+                    else
+                    {
+                        this.possibleCastlings = this.possibleCastlings.replace("k", "").replace("q", "");
                     }
                     break;
                 }
