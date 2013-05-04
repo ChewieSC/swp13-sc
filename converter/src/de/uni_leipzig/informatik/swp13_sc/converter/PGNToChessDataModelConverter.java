@@ -503,6 +503,9 @@ public class PGNToChessDataModelConverter
                     String comment = move.group(10);
                     
                     cb.move(move.group(1));
+                    // DEBUG:
+                    //System.out.println("{" + cb.getLastMoveSource() + "->" + cb.getLastMoveDestination()
+                    //        + ", " + cb.getLastMoveFigure() + "}{" + cb.getFEN() + "}");
                     
                     cgb.addMove(cmb.setNr(nr).setMove(m).setFEN(cb.getFEN(null)).setComment(comment).build());
                 }
