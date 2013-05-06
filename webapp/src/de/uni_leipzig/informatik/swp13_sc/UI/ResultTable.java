@@ -29,16 +29,22 @@ public class ResultTable extends Table
 		List<String> resultVars = resultSet.getResultVars();
 		Object resultObject[] = new Object[resultVars.size()];
 		
+		for (int i = 0; i < resultVars.size(); i++)
+		{
+			this.addContainerProperty(resultVars.get(i), String.class, null);
+		}
+		
+		long nr = 0;
 		while (resultSet.hasNext())
 		{
 			QuerySolution result = resultSet.nextSolution();
 			
 			for (int i = 0; i < resultVars.size(); i++)
 			{
-				resultObject[i] = result.get(resultVars.get(i));
+				resultObject[i] = result.get(resultVars.get(i)).toString();
 			}
-			
-			this.addItem(resultObject, new Integer(1));
+
+			this.addItem(resultObject, new Long(nr ++));
 		}
 	}
 }

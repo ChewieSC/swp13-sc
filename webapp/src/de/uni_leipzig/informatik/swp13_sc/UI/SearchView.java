@@ -354,17 +354,23 @@ public class SearchView extends VerticalLayout {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				System.out.println("hier ist was passiert");
-				querySearch = new QuerySearch(taQuery.getValue());
+				try
+				{
+					querySearch = new QuerySearch(taQuery.getValue());
 
-				// results = querySearch.getResultSet();
-				// resultTable = new ResultTable(results);
-				//
-				// searchLayoutInner.addComponent(resultTable);
+					results = querySearch.getResultSet();
+					resultTable = new ResultTable(results);
 
-				activeResults = true;
-				btnQSearch.setEnabled(false);
+					addComponent(resultTable);
 
+					activeResults = true;
+					btnQSearch.setEnabled(false);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					Notification.show("Error!", e.getLocalizedMessage(), Notification.Type.ERROR_MESSAGE);
+				}
 			}
 
 		});
