@@ -57,18 +57,38 @@ public class QuerySearch {
 		    System.out.println();
 		}
 	}
-	
-//	
-//	public ResultSet getResultSset()
-//	{
-//		if(results == null)
-//		{
-//			System.out.println("<No Results>");
-//			return null;
-//		}
-//		else{
-//		return results;
-//		   }
-//	}
+	/*
+SELECT count(?a) count(?b) count(?c)
+where
+{
+{
+?a a cont:ChessGame.
+?a cont:moves ?d.
+?d a cont:ChessMove.
+?d cont:fen ?fen.
+FILTER (REGEX (?fen, "")).
+?a cont:result "1-0"
+} union
+{
+?b cont:result "0-1"
+} union
+{
+?c cont:result "1/2-1/2"
+}
+}
+
+	 */
+
+	public ResultSet getResultSet()
+	{
+		if(results == null)
+		{
+			System.out.println("<No Results>");
+			return null;
+		}
+		else{
+		return results;
+		   }
+	}
 
 }
