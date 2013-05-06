@@ -487,6 +487,7 @@ public class PGNToChessDataModelConverter
         // --------------------------------------------------------------------
         
         ChessBoard cb = new ChessBoard();
+        boolean validFEN = true;
         
         // parse moves
         int nr = 0;
@@ -507,11 +508,13 @@ public class PGNToChessDataModelConverter
                 {
                     if (! cb.move(m))
                     {
-                        System.out.println("WARN: move (\"" + m + "\")! {" +
-                                cb.getLastMoveSource() + "->" +
+                        System.out.println("WARN: move " + nr + " (\"" + m +
+                                "\")! {" + cb.getLastMoveSource() + "->" +
                                 cb.getLastMoveDestination() + ", " +
                                 cb.getLastMoveFigure() + "}-{" + cb.getFEN() +
                                 "} <Game " + numberOfGames.get() + ">");
+                        
+                        validFEN = false;
                         
                         //cg.getWhitePlayer().getName() + "_" +
                         //cg.getBlackPlayer().getName() + "_" +
@@ -529,6 +532,7 @@ public class PGNToChessDataModelConverter
                     System.out.println("ERROR in Game " + numberOfGames.get() +
                             ". (Indizes -> prob. wrong color + pawn move)");
                     e.printStackTrace();
+                    validFEN = false;
                 }
                 catch (Exception e)
                 {
@@ -536,10 +540,17 @@ public class PGNToChessDataModelConverter
                     // IndexOutOfBoundsException
                     System.out.println("ERROR in Game " + numberOfGames.get() + ".");
                     e.printStackTrace();
+                    validFEN = false;
                 }
                 
                 cgb.addMove(cmb.build());
             }
+        }
+        
+        // Set the correctness of the game's moves' FEN.
+        if (! validFEN)
+        {
+            cgb.invalidateFEN();
         }
         
         return cgb.build();
