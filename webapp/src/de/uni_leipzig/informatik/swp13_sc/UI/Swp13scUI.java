@@ -1,4 +1,4 @@
-package de.uni_leipzig.informatik.swp13_sc.ui;
+package de.uni_leipzig.informatik.swp13_sc.UI;
 
 
 import java.io.File;
@@ -50,10 +50,10 @@ public class Swp13scUI extends UI
 	private HorizontalLayout converterLayoutInner = new HorizontalLayout();
 	/**Label Ueberschrift*/
 	private Label lbConverter = new Label("Konvertierung PGN - RDF");
-	/**Textfeld für pgn-upload*/
+	/**Textfeld fï¿½r pgn-upload*/
 	//private TextField tfToPars = new TextField();
 	/**
-	 * Textfeld Für zu Parsende PGN 
+	 * Textfeld Fï¿½r zu Parsende PGN 
 	 */
 	private TextArea taToPars = new TextArea();
 
@@ -290,5 +290,10 @@ public String getFileString(){
 
 
   }
-  
+
+  private void initEngine()
+  {
+      //splitPanel.addcomp
+  }
+
 }

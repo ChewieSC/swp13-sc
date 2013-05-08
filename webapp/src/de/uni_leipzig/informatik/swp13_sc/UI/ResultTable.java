@@ -1,4 +1,4 @@
-package de.uni_leipzig.informatik.swp13_sc.ui;
+package de.uni_leipzig.informatik.swp13_sc.UI;
 
 import java.util.List;
 

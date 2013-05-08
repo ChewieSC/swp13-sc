@@ -21,9 +21,9 @@ public class WinCalculator {
     private double winRateWhite;
     private double winRateBlack;
     private double drawRate;
-    private double totalWWin=0;
-    private double totalBWin=0;
-    private double totalDraw=0;
+    private int totalWWin=0;
+    private int totalBWin=0;
+    private int totalDraw=0;
     private int totalGames = 0;
      /*
      QUERY: ?
@@ -34,6 +34,27 @@ GRAPH ?gr{
 ?g cont:moves ?m.
 ?m cont:fen ?fen.
 }}
+
+
+//NEW
+SELECT
+distinct ?w ?fen
+WHERE{ GRAPH <http://localhost:1358/millionbase_fen>{
+?w a cont:ChessGame.
+?w cont:result "0-1".
+?w cont:moves ?m.
+?m cont:fen ?fen
+}}
+
+SELECT ?w ?fen
+WHERE{ GRAPH <http://localhost:1358/millionbase_fen>{
+?w a cont:ChessGame.
+?w cont:result "1-0".
+?w cont:moves ?m.
+?m cont:fen ?fen
+}
+FILTER(regex ( ?fen,"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K"))
+}
       */
     QuerySearch qs;
 
@@ -49,12 +70,12 @@ GRAPH ?gr{
         totalWWin = Integer.parseInt(querySolution.get("whiteWin").toString());
         totalBWin = Integer.parseInt(querySolution.get("blackWin").toString());
         totalDraw = Integer.parseInt(querySolution.get("draw").toString());
-        winRateBlack = totalBWin / totalGames;
-        winRateWhite = totalWWin / totalGames;
-        drawRate = totalDraw / totalGames;
+        winRateBlack = (double) totalBWin / totalGames;
+        winRateWhite = (double) totalWWin / totalGames;
+        drawRate = (double) totalDraw / totalGames;
         return true;
     }
-    public double calculateChances(String fen)
+    public void calculateChances(String fen)
     {
         setFen(fen);
         calculateChances();
@@ -82,5 +103,22 @@ GRAPH ?gr{
     {
         return drawRate;
     }
+    public int getTotalGames()
+    {
+        return totalGames;
+    }
+    public int getTotalWWin()
+    {
+        return totalWWin;
+    }
+    public int getTotalBWin()
+    {
+        return  totalBWin;
+    }
+    public  int getTotalDraw()
+    {
+        return totalDraw;
+    }
+
 
 }

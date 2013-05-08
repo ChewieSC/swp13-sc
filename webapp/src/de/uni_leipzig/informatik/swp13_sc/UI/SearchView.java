@@ -1,4 +1,4 @@
-package de.uni_leipzig.informatik.swp13_sc.ui;
+package de.uni_leipzig.informatik.swp13_sc.UI;
 
 import virtuoso.jena.driver.VirtGraph;
 
@@ -55,10 +55,10 @@ public class SearchView extends VerticalLayout {
 	/** Suchbutton */
 	private Button btnSearch;
 
-	/** Layout für erweiterte Suche */
+	/** Layout fï¿½r erweiterte Suche */
 	private FormLayout exSearchLayout;
 
-	/** Suchfelder für erweiterte Suche */
+	/** Suchfelder fï¿½r erweiterte Suche */
 	private FieldGroup exSearchFields;
 
 	private TextField tf_Name_1; // name player 1
@@ -94,7 +94,7 @@ public class SearchView extends VerticalLayout {
 
 	private Button btnQSearch;
 
-	/** Textfeld zum einfügen bzw. schreiben von Queries */
+	/** Textfeld zum einfï¿½gen bzw. schreiben von Queries */
 	private TextArea taQuery = new TextArea();
 
 	/** beendet Querysuche */
@@ -136,7 +136,7 @@ public class SearchView extends VerticalLayout {
 		simpleSearchLayoutInner.setWidth("100%");
 
 		btnSearch = new Button("Suche Starten");
-		btnEndSearch = new Button("Zurück");
+		btnEndSearch = new Button("Zurï¿½ck");
 
 		btnSearch.addClickListener(new ClickListener() {
 			/**
@@ -316,12 +316,12 @@ public class SearchView extends VerticalLayout {
 		qLayoutInner.setSizeFull();
 		qLayoutInner.setWidth("100%");
 
-		lblQSearch = new Label("sparql Abfrage für Fortgeschrittene Benutzer");
+		lblQSearch = new Label("sparql Abfrage fï¿½r Fortgeschrittene Benutzer");
 
 		taQuery = new TextArea();
 		taQuery.setWidth("100%");
 
-		btnEndQSearch = new Button("Zurück");
+		btnEndQSearch = new Button("Zurï¿½ck");
 		btnEndQSearch.addClickListener(new ClickListener() {
 			/**
 			 * 
