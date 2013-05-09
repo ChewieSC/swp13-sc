@@ -26,6 +26,8 @@ import com.vaadin.ui.VerticalSplitPanel;
 import de.uni_leipzig.informatik.swp13_sc.converter.PGNToRDFConverterStream;
 import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
+import java.org.vectomatic.svg.chess.*;
+
 
 
 /**
@@ -293,6 +295,7 @@ public String getFileString(){
 
   private void initEngine()
   {
+      Main chessMain = new Main();
       //splitPanel.addcomp
   }
 
