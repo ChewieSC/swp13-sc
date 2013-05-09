@@ -80,7 +80,7 @@ public class ChessPlayerDataRetriever
             .append("> ?name.\n}\nLIMIT 1");
         
         // DEBUG:
-        System.out.println(sb.toString());
+        //System.out.println(sb.toString());
         
         VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(sb.toString(), this.virtuosoGraph);
         

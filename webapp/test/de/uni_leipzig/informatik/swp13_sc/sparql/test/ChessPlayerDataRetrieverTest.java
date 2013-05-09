@@ -51,7 +51,7 @@ public class ChessPlayerDataRetrieverTest
         {
             e.printStackTrace();
             fail("Could not create test graph for virtuoso. Aborting Test.");
-        }        
+        }
     }
 
     /**
