@@ -140,12 +140,15 @@ public class ResourceRetriever extends HttpServlet
                     // don't resume because there may be more than one and
                     // we don't want to have lots of meaningless output ...
                     pw.close();
+                    vqe.close();
                     return;
                 }
             }
             
             pw.println();
         }
+        
+        vqe.close();
         
         // number of results
         pw.println();

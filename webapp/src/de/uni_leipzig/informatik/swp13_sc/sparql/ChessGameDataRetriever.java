@@ -120,6 +120,53 @@ public class ChessGameDataRetriever
     }
     
     /**
+     * Determines if the given URI/IRI is a chess game resource.
+     * 
+     * @param   gameURI URI/IRI to check
+     * @return  true if chess game resource else false
+     */
+    public boolean isGame(String gameURI)
+    {
+        if (gameURI == null)
+        {
+            return false;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT *\nWHERE\n{\n  <")
+            .append(gameURI)
+            .append("> a <")
+            .append(ChessRDFVocabulary.ChessGame)
+            .append(">.\n}");
+        
+        // DEBUG:
+        //System.out.println(sb.toString());
+        
+        VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(sb.toString(), this.virtuosoGraph);
+        
+        boolean ret = false;
+        
+        try
+        {
+            ResultSet results = vqeS.execSelect();
+            
+            if (results.hasNext())
+            {
+                ret = true;
+            }
+            
+            vqeS.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        
+        return ret;
+    }
+    
+    /**
      * Returns a {@link ChessGame} for a given game URI/IRI. If a
      * {@link ChessPlayerDataRetriever} is set it will also try to get the
      * chess game data. (But it will create a new {@link ChessPlayer} object
@@ -156,7 +203,7 @@ public class ChessGameDataRetriever
                 QuerySolution result = (QuerySolution) results.next();
                 // DEBUG:
                 //System.out.println(result.toString());
-                 
+                
                 if (result.get("value").isLiteral()) 
                 {
                     Resource l_prop = result.getResource("prop");
@@ -202,6 +249,8 @@ public class ChessGameDataRetriever
             }
             
             cgb.setMoves(this.getMoves(gameURI));
+            
+            vqeS.close();
             
             return cgb.build();
         }
@@ -253,6 +302,9 @@ public class ChessGameDataRetriever
                 QuerySolution result = (QuerySolution) results.next();
                 
                 RDFNode n_var = result.get(var_name);
+                
+                vqeS.close();
+                
                 return (n_var == null) ? null : n_var.toString();
             }
         }
@@ -410,6 +462,8 @@ public class ChessGameDataRetriever
                 // DEBUG:
                 // System.out.println(lastMove);
             }
+            
+            vqeS.close();
         }
         catch (Exception e)
         {

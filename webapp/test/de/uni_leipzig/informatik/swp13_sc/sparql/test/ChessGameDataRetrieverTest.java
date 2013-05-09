@@ -3,9 +3,7 @@
  */
 package de.uni_leipzig.informatik.swp13_sc.sparql.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -161,6 +159,85 @@ public class ChessGameDataRetrieverTest
             e.printStackTrace();
             fail("Exception thrown ...");
         }
+    }
+    
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#getChessPlayerDataRetriever()}.
+     */
+    @Test
+    public final void testGetChessPlayerDataRetriever()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#isGame(java.lang.String)}.
+     */
+    @Test
+    public final void testIsGame()
+    {
+        try
+        {
+            ChessGameDataRetriever cgdr = new ChessGameDataRetriever(virtuosoTestGraph);
+            
+            assertTrue(cgdr.isGame("http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/Rowe__P___bl__Abdoulay__C___wh__1998_10_07_1"));
+            
+            assertFalse(cgdr.isGame(null));
+            assertFalse(cgdr.isGame(""));
+            assertFalse(cgdr.isGame("http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/Rowe__P___bl_"));
+            
+            // ...
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail("Exception thrown ...");
+        }
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#getSingleGameProperty(java.lang.String, java.lang.String)}.
+     */
+    @Test
+    public final void testGetSingleGameProperty()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#getWhiteChessPlayerURI(java.lang.String)}.
+     */
+    @Test
+    public final void testGetWhiteChessPlayerURI()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#getBlackChessPlayerURI(java.lang.String)}.
+     */
+    @Test
+    public final void testGetBlackChessPlayerURI()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#getWhiteChessPlayer(java.lang.String)}.
+     */
+    @Test
+    public final void testGetWhiteChessPlayer()
+    {
+        fail("Not yet implemented"); // TODO
+    }
+
+    /**
+     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever#getBlackChessPlayer(java.lang.String)}.
+     */
+    @Test
+    public final void testGetBlackChessPlayer()
+    {
+        fail("Not yet implemented"); // TODO
     }
 
 }

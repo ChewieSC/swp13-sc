@@ -56,6 +56,53 @@ public class ChessPlayerDataRetriever
     }
     
     /**
+     * Determines if the given URI/IRI is a chess player resource.
+     * 
+     * @param   playerURI URI/IRI to check
+     * @return  true if chess player resource else false
+     */
+    public boolean isPlayer(String playerURI)
+    {
+        if (playerURI == null)
+        {
+            return false;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT *\nWHERE\n{\n  <")
+            .append(playerURI)
+            .append("> a <")
+            .append(ChessRDFVocabulary.ChessPlayer)
+            .append(">.\n}");
+        
+        // DEBUG:
+        //System.out.println(sb.toString());
+        
+        VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(sb.toString(), this.virtuosoGraph);
+        
+        boolean ret = false;
+        
+        try
+        {
+            ResultSet results = vqeS.execSelect();
+            
+            if (results.hasNext())
+            {
+                ret = true;
+            }
+            
+            vqeS.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        
+        return ret;
+    }
+    
+    /**
      * Returns a  {@link ChessPlayer} resource for the given playerURI.
      * 
      * @param   playerURI   a correct chess player URI/IRI to a resource in the
@@ -95,11 +142,13 @@ public class ChessPlayerDataRetriever
                 
                 // create ChessPlayer data and set name.
                 // return object
+                vqeS.close();
                 return new ChessPlayer.Builder().setName(name.getString()).build();
             }
             // if no result returned.
             else
             {
+                vqeS.close();
                 return null;
             }
         }
