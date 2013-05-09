@@ -97,7 +97,7 @@ public class SearchView extends VerticalLayout {
 	/** Textfeld zum einfügen bzw. schreiben von Queries */
 	private TextArea taQuery = new TextArea();
 
-	/** beendet Querysuche */
+	/**Ends QuerySearch, removes LayoutComponents  */
 	private Button btnEndQSearch;
 
 	// --------Ausgabe--------//
@@ -139,13 +139,13 @@ public class SearchView extends VerticalLayout {
 		btnEndSearch = new Button("Zurück");
 
 		btnSearch.addClickListener(new ClickListener() {
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = -6654854401239363769L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
+				
+							
 				SimpleSearch ss = new SimpleSearch();
 				ss.setDBConnection(new VirtGraph(
 						"http://localhost:1358/millionbase",
@@ -227,30 +227,36 @@ public class SearchView extends VerticalLayout {
 				Notification.show("Number of results", "Total: " + ss.getResultCount(), Notification.Type.TRAY_NOTIFICATION);
 				addComponent(resultTable);
 				activeResults = true;
+				
+				
+				btnSearch.setEnabled(false);				
 			}
 		});
 
 		btnEndSearch.addClickListener(new ClickListener() {
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = 7712989898525483626L;
 
 			@Override
-			public void buttonClick(ClickEvent event) {
-				removeComponent(exSearchLayout);
-				removeComponent(simpleSearchLayoutInner);
+			public void buttonClick(ClickEvent event) {			
+			
 				if (activeResults == true) {
 					removeComponent(resultTable);
-				}
-				btnOpenSearch.setEnabled(true);
-
+					activeResults = false;
+					btnSearch.setEnabled(true);
+					
+				}else{					
+				    	removeComponent(exSearchLayout);
+				    	removeComponent(simpleSearchLayoutInner);
+				    	btnOpenSearch.setEnabled(true);
+					
+				    	removeComponent(btnEndSearch);
+			       	}				
 			}
-
 		});
 
 		simpleSearchLayoutInner.addComponent(btnSearch);
-		simpleSearchLayoutInner.addComponent(btnEndSearch);
+		addComponent(btnEndSearch);
 
 		exSearchLayout = new FormLayout();
 		exSearchFields = new FieldGroup();
@@ -312,6 +318,7 @@ public class SearchView extends VerticalLayout {
 	}
 
 	public void initQuerySearch() {
+		
 		qLayoutInner = new HorizontalLayout();
 		qLayoutInner.setSizeFull();
 		qLayoutInner.setWidth("100%");
@@ -322,14 +329,11 @@ public class SearchView extends VerticalLayout {
 		taQuery.setWidth("100%");
 
 		btnEndQSearch = new Button("Zurück");
-		btnEndQSearch.addClickListener(new ClickListener() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 6251368141708294986L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
+		btnEndQSearch.addClickListener(new ClickListener() {				
+		private static final long serialVersionUID = 6251368141708294986L;
+		
+		@Override
+		public void buttonClick(ClickEvent event) {
 				if (activeResults == true) {
 					removeComponent(resultTable); // resultTable
 					btnQSearch.setEnabled(true);
@@ -341,6 +345,8 @@ public class SearchView extends VerticalLayout {
 					btnOpenSearch.setEnabled(true);
 					btnOpenQuerySearch.setEnabled(true);
 					querySearchActive = false;
+					
+					removeComponent(btnEndQSearch);
 				}
 			}
 		});
@@ -375,7 +381,7 @@ public class SearchView extends VerticalLayout {
 
 		});
 
-		qLayoutInner.addComponent(btnEndQSearch);
+		addComponent(btnEndQSearch);
 		qLayoutInner.addComponent(btnQSearch);
 
 		addComponent(lblQSearch);
@@ -387,9 +393,7 @@ public class SearchView extends VerticalLayout {
 	public void initFunktion() {
 		// oeffne simpleSearchView
 		btnOpenSearch.addClickListener(new ClickListener() {
-			/**
-			 * 
-			 */
+			
 			private static final long serialVersionUID = 384045587732827119L;
 
 			@Override
@@ -402,6 +406,8 @@ public class SearchView extends VerticalLayout {
 					removeComponent(lblQSearch);
 					removeComponent(taQuery);
 					removeComponent(qLayoutInner);
+					
+					removeComponent(btnEndQSearch);
 
 					simpleSearchActive = true;
 					querySearchActive = false;
@@ -433,6 +439,8 @@ public class SearchView extends VerticalLayout {
 				if (simpleSearchActive == true) {
 					removeComponent(exSearchLayout);
 					removeComponent(simpleSearchLayoutInner);
+					removeComponent(btnEndSearch);
+					
 					btnOpenSearch.setEnabled(true);
 					btnOpenQuerySearch.setEnabled(false);
 
