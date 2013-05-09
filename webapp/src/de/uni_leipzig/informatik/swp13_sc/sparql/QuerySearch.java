@@ -34,61 +34,38 @@ public class QuerySearch {
 
 		System.out.println(sparqlQuery); // nur zum testen
 		
-		virtuosoGraph = new VirtGraph ("http://pcai042.informatik.uni-leipzig:1357.de/millionbase", url, "pgn", "pgn");	
+		virtuosoGraph = new VirtGraph ("http://localhost:1358/millionbase", url, "pgn", "pgn");	
 
 		System.out.println(virtuosoGraph.getGraphUrl());
-
-		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (this.sparqlQuery, virtuosoGraph);
-
-	    results = vqe.execSelect();
-		System.out.println("Results:");
-		long i = 0;
-		while (results.hasNext()) {
-		    System.out.print(i);
-			QuerySolution result = results.nextSolution();
-			for (Object var : results.getResultVars()) {
-			    try {
-			        RDFNode node = result.get((String) var);
-			        System.out.print(" | " + node);
-			    } catch (Exception e) {
-
-			    }
-			}
-		    System.out.println();
-		}
 	}
-	/*
-SELECT count(?a) count(?b) count(?c)
-where
-{
-{
-?a a cont:ChessGame.
-?a cont:moves ?d.
-?d a cont:ChessMove.
-?d cont:fen ?fen.
-FILTER (REGEX (?fen, "")).
-?a cont:result "1-0"
-} union
-{
-?b cont:result "0-1"
-} union
-{
-?c cont:result "1/2-1/2"
-}
-}
+	
+	
+	public boolean sendQuery()
+	{
+		try
+		{
+			VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (this.sparqlQuery, virtuosoGraph);
 
-	 */
-
+		    results = vqe.execSelect();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	public ResultSet getResultSet()
 	{
-		if(results == null)
+		if (results == null)
 		{
-			System.out.println("<No Results>");
-			return null;
+			if (! sendQuery())
+			{
+				System.out.println("<No Results>");
+				return null;
+			}
 		}
-		else{
 		return results;
-		   }
 	}
-
 }

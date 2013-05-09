@@ -1,4 +1,4 @@
-package de.uni_leipzig.informatik.swp13_sc.UI;
+package de.uni_leipzig.informatik.swp13_sc.ui;
 
 
 import java.io.File;
@@ -7,12 +7,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.FileResource;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Embedded;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
@@ -29,7 +35,6 @@ import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 import java.org.vectomatic.svg.chess.*;
 
 
-
 /**
  * Hauptklasse der semChess UI
  * @author LingLong
@@ -38,79 +43,26 @@ import java.org.vectomatic.svg.chess.*;
 @SuppressWarnings("serial")
 public class Swp13scUI extends UI
 {
+	//---------SplitpanelLayout----------//
+	HorizontalSplitPanel splitPanel;
+	
+	private VerticalLayout splitpanelLayout01;
+	private VerticalLayout splitpanelLayout02;
+	
+	private GridLayout explorerLayout;
+	
+	
+	
 	//---------------Game-Explorer Instanzen---------------//
-	                       //TODO
+	private SemChessLogo logo;
 
-	//---------------Suchfenster Instanzen-----------------//
-	   
-	private SearchView searchView = new SearchView();  
+	//---------------MenuView Instanzen-----------------//
 
-	//--------------Konverterfenster Instazen-------------//
-	/**Layout fuer Konverterfenster*/
-	private VerticalLayout converterLayout = new VerticalLayout();
-	/**Inneres KonverterFensterLayout*/
-	private HorizontalLayout converterLayoutInner = new HorizontalLayout();
-	/**Label Ueberschrift*/
-	private Label lbConverter = new Label("Konvertierung PGN - RDF");
-	/**Textfeld f�r pgn-upload*/
-	//private TextField tfToPars = new TextField();
-	/**
-	 * Textfeld F�r zu Parsende PGN 
-	 */
-	private TextArea taToPars = new TextArea();
-
-	/**Button fur Konvertierung*/    
-    private Button btnDownload = new Button("Download");
+	private SearchView searchView = new SearchView();  	
+	private ConverterView converterView = new ConverterView();
     
-    private String fileString = "";
-    
-    private File file;
-    
-    private String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath(); //TODO: zu verwenden
-    
-    //private FileDownloader fileDownloader; 
-    /**Button zum Suchen von Uploads*/  
-	 //TODO: Upload checken
-    Upload upload = new Upload("Upload RDF-File Here.", new Upload.Receiver() {
-    	@Override
-    	public OutputStream receiveUpload(String filename, String mimeType) {
-    		
-	    	/* Here, we'll stored the uploaded file as a temporary file. No doubt there's
-	    	a way to use a ByteArrayOutputStream, a reader around it, use ProgressListener (and
-	    	a progress bar) and a separate reader thread to populate a container *during*
-	    	the update.
-	    	 
-	    	This is quick and easy example, though.
-	    	*/
-    		System.out.println(basepath);
-    		FileOutputStream fos = null; // Stream to write to
-            try {
-                // Open the file for writing.
-            	System.out.println(mimeType);
-            	setFileString(filename);
-            	// TODO: check file for ending .pgn
-            		file = new File(basepath + filename);
-                    fos = new FileOutputStream(file);
-                    //process                
-            } catch (final java.io.FileNotFoundException e) {
-                Notification.show(
-                        "Could not open file", e.getMessage(),
-                        Notification.Type.ERROR_MESSAGE);
-                return null;
-            } 
-            return fos; // Return the output stream to write to
-    	}
-	   });
-    	
-    
-    /**
-     * OutputLabel
-     */
-    private Label lblOut = new Label();
-    /**
-     * AnzeigeLabel
-     */
-    private Label lblInfo = new Label();
+	private Button btnStartGame = new Button("Game Explorer");
+	private boolean inGame = false;
 
 //------------------------------Seitenaufbau-------------------------------------//
 	/**
@@ -121,95 +73,47 @@ public class Swp13scUI extends UI
 	protected void init(VaadinRequest request) {
 
 		searchView.initFunktion();
-		initConverter();
+		converterView.initUpload();
+		
 		initLayout();
 		initButtons();
-		initUpload();
+		
 	}
-//------------------------------Methodenteil--------------------------//	
+   //--------------------Methodenteil----------------------//	
 
-/**
- * Methode erstellt das Layout der Website	
- */
+    /**
+     * Methode erstellt das Layout der Website	 */
     private void initLayout()
      {
        
       //Hauptfenster 	2geteilt
-	  HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
-      setContent(splitPanel);
+	  splitPanel = new HorizontalSplitPanel();
+      setContent(splitPanel);   
+     
       
-      //Rechts, Unterfenster 2geteilt
-      VerticalSplitPanel splitPanelInner = new VerticalSplitPanel();
-      splitPanel.addComponent(splitPanelInner);
-            
-      splitPanelInner.addComponent(searchView); 
-      splitPanelInner.addComponent(converterLayout);
+      splitpanelLayout01 = new VerticalLayout();
       
-           
+      btnStartGame = new Button("Game Explorer");
+      splitpanelLayout01.addComponent(btnStartGame);
       
+      splitPanel.addComponent(splitpanelLayout01);
+      splitPanel.addComponent(splitpanelLayout02);
       
-      //--------------Aufbau Konverterfenster---------------//
-      converterLayout.addComponent(lbConverter);
-      converterLayout.addComponent(converterLayoutInner);
-      //converterLayoutInner.addComponent(tfToPars);
-      converterLayout.addComponent(upload);
-      converterLayout.addComponent(taToPars);
-      converterLayout.addComponent(btnDownload);
+      splitpanelLayout01.addComponent(searchView); 
+      splitpanelLayout01.addComponent(converterView);
       
-      converterLayout.addComponent(lblOut);
-      converterLayout.addComponent(lblInfo);
+      //GameExplorer
+      logo = new SemChessLogo(1,1);       
+      splitPanel.addComponent(logo);
       
+ 
       //-------------Eigenschaften der GUIkomponenten----------//
         
       //Anpassen Searchfenster
       searchView.setMargin(true);
       searchView.setVisible(true);
       
-     
-      taToPars.setWidth("100%");
-      
-          
-      
-//      searchLayoutInner.setMargin(true);
-//      searchLayoutInner.setVisible(true);
-      
-      //Anpassen Konverterfenster
-      converterLayoutInner.setSizeFull();
-      converterLayoutInner.setWidth("100%");
-      converterLayout.setWidth("100%");
-      
-      //tfToPars.setWidth("100%");
-      taToPars.setWidth("100%");
-      
-      //converterLayoutInner.setExpandRatio(tfToPars, 1);
-      converterLayout.setExpandRatio(taToPars, 1);
-      
-      converterLayout.setMargin(true);
-      converterLayout.setVisible(true);
-      
-//      converterLayoutInner.setMargin(true);
-//      converterLayoutInner.setVisible(true);  
-   
-      
-     }
-
-  
- private void initUpload(){
-  //final RdfUploader uploader = new RdfUploader(); //TODO
-     
-  //upload.setReceiver(uploader);
-	  upload.addFinishedListener(new Upload.FinishedListener() {
-	    	@Override
-	    	public void uploadFinished(Upload.FinishedEvent finishedEvent) {
-	    		File fileTemp = new File(basepath + "test.rdf");
-	    		if(fileTemp.exists())
-	    			fileTemp.delete();
-	    		postPgn(basepath + getFileString(), basepath + "test.rdf");
-	    	}
-	    	});
-
- }
-  
+     } 
   
  /**
   * Methode initialiesiert Buttons und ihre Listener 
@@ -217,79 +121,58 @@ public class Swp13scUI extends UI
   */
   private void initButtons()
   {
+    
+    btnStartGame.addClickListener(new ClickListener(){
 
-  //------------------Buttons Konverterfenster-------------------//
+		@Override
+		public void buttonClick(ClickEvent event) {
 
-	  //delete test.rdf every time
-		System.out.println(basepath + getFileString());
-
-		Resource res = new FileResource(new File(basepath + "test.rdf"));
-		FileDownloader fd = new FileDownloader(res);
-		fd.extend(btnDownload);
-
-
-
-
-//	StreamResource myResource = createResource();
-//    fileDownloader = new FileDownloader(myResource);
-
-//   		 System.out.println(file.getPath());
-
-	 //------------------Buttons Suchfenster-------------------// 
-
-
-  }
-  
-  //*------------------Anbindung der Komponenten an das Datenmodell------------//
-  
-  public boolean postPgn( String pathIn, String pathOut) {
-
-	  FileInputStream is = FileUtils.openInputStream(pathIn);
-	  FileOutputStream os = FileUtils.openOutputStream(pathOut);
-	  PGNToRDFConverterStream p = new PGNToRDFConverterStream(is, os);
-	  boolean bValue = p.start();
-	  try {
-		is.close();
-		os.close();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	  lblInfo.setValue("Parsen...Konvertieren...");
-
-	  if(bValue){
-		  lblInfo.setValue("PGN wurde erfolgreich Konvertiert! Die RDF steht jetzt zum Donwload bereit.");
-	  }
-
-	  else			
-		  lblInfo.setValue("Fehler beim Parsen/Konvertieren!");
-
-	return true;  
+            if(inGame == false)
+            {
+            	splitPanel.removeComponent(logo);
+            	initChessEngine();
+            	inGame = true;
+            }else{
+            	   splitPanel.removeComponent(explorerLayout);
+            	   splitPanel.addComponent(logo);
+            	   inGame = false;
+                 }			
+		}    	
+    });
   }
   
   
+  private void initChessEngine()
+  {	  
+	  explorerLayout = new GridLayout(3,3);
+	  explorerLayout.setSizeFull();  
+	  
+	  String basepath;	  
+	  
+	  basepath = VaadinService.getCurrent()
+	             .getBaseDirectory().getAbsolutePath();	                       
+	  
+	        final Embedded applet = new Embedded();
+	        applet.setType(Embedded.TYPE_BROWSER);
+	        applet.setWidth("500px");
+	        applet.setHeight("500px");
+	        applet.setSource(new ExternalResource(basepath + "/WEB-INF/lib/carballo.html"));
+	        
+	        explorerLayout.addComponent(applet,1,1);
+	       
+	        explorerLayout.setComponentAlignment(applet, Alignment.MIDDLE_CENTER);
+	        
+	        splitPanel.addComponent(explorerLayout); 
+  }
   
-public boolean postText( String text) {
+   
+  public boolean postText( String text)
+  {
 
 	//Parser parser = new Parser(text, "test.txt" );
 	  //Post text
 	return true;  
   }
-
-public void setFileString(String fileString){
-	this.fileString = fileString; 
-}
-public String getFileString(){
-	return fileString; 
-}
-
-  
-  /**
-   * Methode baut Knverterfenster und dessen Funktionen auf
-   */
-  private void initConverter()
-  {
-
 
   }
 
@@ -298,5 +181,4 @@ public String getFileString(){
       Main chessMain = new Main();
       //splitPanel.addcomp
   }
-
 }
