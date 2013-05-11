@@ -66,7 +66,7 @@ FILTER(regex ( ?fen,"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K"))
         totalGames = 0;
         qs = new QuerySearch(resultQueryWithFen);
         ResultSet resultSet = qs.getResultSet();
-        QuerySolution querySolution = resultSet.next();
+        QuerySolution querySolution = resultSet.nextSolution();
         totalWWin = Integer.parseInt(querySolution.get("whiteWin").toString());
         totalBWin = Integer.parseInt(querySolution.get("blackWin").toString());
         totalDraw = Integer.parseInt(querySolution.get("draw").toString());
