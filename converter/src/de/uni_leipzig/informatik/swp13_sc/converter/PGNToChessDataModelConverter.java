@@ -13,11 +13,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.alonsoruibal.chess.Board;
+import com.alonsoruibal.chess.Move;
+
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
-import de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard;
 import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
 /**
@@ -486,7 +488,10 @@ public class PGNToChessDataModelConverter
         
         // --------------------------------------------------------------------
         
-        ChessBoard cb = new ChessBoard();
+        //ChessBoard cb = new ChessBoard();
+        Board cb = new Board();
+        cb.startPosition();
+        
         boolean validFEN = true;
         
         // parse moves
@@ -504,43 +509,33 @@ public class PGNToChessDataModelConverter
                 
                 cmb.setNr(nr).setMove(m).setComment(comment);
                 
-                try
+                if (validFEN)
                 {
-                    if (! cb.move(m))
+                    try
                     {
-                        System.out.println("WARN: move " + nr + " (\"" + m +
-                                "\")! {" + cb.getLastMoveSource() + "->" +
-                                cb.getLastMoveDestination() + ", " +
-                                cb.getLastMoveFigure() + "}-{" + cb.getFEN() +
-                                "} <Game " + numberOfGames.get() + ">");
+                        int moveInt = Move.getFromString(cb, m, true);
+                        //if (! cb.move(m))
+                        if (! cb.doMove(moveInt, true))
+                        {
+                            System.out.println("WARN: move \"" + m + "\" -> \""
+                                    + Move.toStringExt(moveInt) +
+                                    "\" in <Game " + (numberOfGames.get() + 1)
+                                    + ">");
+                            
+                            validFEN = false;
+                        }
                         
-                        validFEN = false;
-                        
-                        //cg.getWhitePlayer().getName() + "_" +
-                        //cg.getBlackPlayer().getName() + "_" +
-                        //cg.getDate() + "_" + cg.getEvent()
+                        cmb.setFEN(cb.getFen());
                     }
-                    
-                    cmb.setFEN(cb.getFEN(null));
-                    
-                    // DEBUG:
-                    //System.out.println("{" + cb.getLastMoveSource() + "->" + cb.getLastMoveDestination()
-                    //      + ", " + cb.getLastMoveFigure() + "}{" + cb.getFEN() + "}");
-                }
-                catch (IndexOutOfBoundsException e)
-                {
-                    System.out.println("ERROR in Game " + numberOfGames.get() +
-                            ". (Indizes -> prob. wrong color + pawn move)");
-                    e.printStackTrace();
-                    validFEN = false;
-                }
-                catch (Exception e)
-                {
-                    // IllegalStateException
-                    // IndexOutOfBoundsException
-                    System.out.println("ERROR in Game " + numberOfGames.get() + ".");
-                    e.printStackTrace();
-                    validFEN = false;
+                    catch (Exception e)
+                    {
+                        // IllegalStateException
+                        // IndexOutOfBoundsException
+                        System.out.println("ERROR in <Game " +
+                                (numberOfGames.get() + 1) + ">.");
+                        e.printStackTrace();
+                        validFEN = false;
+                    }
                 }
                 
                 cgb.addMove(cmb.build());
