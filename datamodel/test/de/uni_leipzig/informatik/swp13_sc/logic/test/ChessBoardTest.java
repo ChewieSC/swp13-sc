@@ -95,15 +95,6 @@ public class ChessBoardTest
     }
 
     /**
-     * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getPossibleCastlings()}.
-     */
-    @Test
-    public final void testGetPossibleCastlings()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
      * Test method for {@link de.uni_leipzig.informatik.swp13_sc.logic.ChessBoard#getMoveCount()}.
      */
     @Test
@@ -197,7 +188,46 @@ public class ChessBoardTest
     @Test
     public final void testMoveAndGetFEN()
     {
-        fail("Not yet implemented"); // TODO
+        ChessBoard cbtemp = new ChessBoard();
+        
+        // Check base positioning
+        assertEquals("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", cbtemp.computeFEN());
+        
+        try
+        {
+            assertEquals("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", cbtemp.getFEN(null));
+            assertEquals("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 1 1", cbtemp.moveAndGetFEN("e4"));
+            assertEquals("rnbqkbnr/1ppppppp/p7/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2", cbtemp.moveAndGetFEN("a6"));
+            assertEquals("rnbqkbnr/1ppppppp/p7/8/2P1P3/8/PP1P1PPP/RNBQKBNR b KQkq c3 1 2", cbtemp.moveAndGetFEN("c4"));
+            assertEquals("rnbqkbnr/1p1ppppp/p7/2p5/2P1P3/8/PP1P1PPP/RNBQKBNR w KQkq c6 0 3", cbtemp.moveAndGetFEN("c5"));
+            assertEquals("rnbqkbnr/1p1ppppp/p7/2p5/2P1P3/8/PP1PNPPP/RNBQKB1R b KQkq - 1 3", cbtemp.moveAndGetFEN("Ne2"));
+            assertEquals("rnbqkbnr/1p1ppp1p/p5p1/2p5/2P1P3/8/PP1PNPPP/RNBQKB1R w KQkq - 0 4", cbtemp.moveAndGetFEN("g6"));
+            assertEquals("rnbqkbnr/1p1ppp1p/p5p1/2p5/2P1P3/2N5/PP1PNPPP/R1BQKB1R b KQkq - 1 4", cbtemp.moveAndGetFEN("Nbc3"));
+            assertEquals("rnbqk1nr/1p1pppbp/p5p1/2p5/2P1P3/2N5/PP1PNPPP/R1BQKB1R w KQkq - 0 5", cbtemp.moveAndGetFEN("Bg7"));
+            assertEquals("rnbqk1nr/1p1pppbp/p5p1/2p5/2P1P3/2N3P1/PP1PNP1P/R1BQKB1R b KQkq - 1 5", cbtemp.moveAndGetFEN("g3"));
+            assertEquals("r1bqk1nr/1p1pppbp/p1n3p1/2p5/2P1P3/2N3P1/PP1PNP1P/R1BQKB1R w KQkq - 0 6", cbtemp.moveAndGetFEN("Nc6"));
+            assertEquals("r1bqk1nr/1p1pppbp/p1n3p1/2p5/2P1P3/2N3P1/PP1PNPBP/R1BQK2R b KQkq - 1 6", cbtemp.moveAndGetFEN("Bg2"));
+            assertEquals("r1bqk1nr/1p1p1pbp/p1n1p1p1/2p5/2P1P3/2N3P1/PP1PNPBP/R1BQK2R w KQkq - 0 7", cbtemp.moveAndGetFEN("e6"));
+            assertEquals("r1bqk1nr/1p1p1pbp/p1n1p1p1/2p5/2P1P3/2NP2P1/PP2NPBP/R1BQK2R b KQkq - 1 7", cbtemp.moveAndGetFEN("d3"));
+            assertEquals("r1bqk1nr/1p3pbp/p1npp1p1/2p5/2P1P3/2NP2P1/PP2NPBP/R1BQK2R w KQkq - 0 8", cbtemp.moveAndGetFEN("d6"));
+            assertEquals("r1bqk1nr/1p3pbp/p1npp1p1/2p5/2P1P3/2NP2P1/PP2NPBP/R1BQ1RK1 b kq - 1 8", cbtemp.moveAndGetFEN("O-O"));
+            assertEquals("1rbqk1nr/1p3pbp/p1npp1p1/2p5/2P1P3/2NP2P1/PP2NPBP/R1BQ1RK1 w k - 0 9", cbtemp.moveAndGetFEN("Rb8"));
+            assertEquals("1rbqk1nr/1p3pbp/p1npp1p1/2p5/2P1PP2/2NP2P1/PP2N1BP/R1BQ1RK1 b k f3 1 9", cbtemp.moveAndGetFEN("f4"));
+            assertEquals("1rbqk1nr/5pbp/p1npp1p1/1pp5/2P1PP2/2NP2P1/PP2N1BP/R1BQ1RK1 w k b6 0 10", cbtemp.moveAndGetFEN("b5"));
+            assertEquals("1rbqk1nr/5pbp/p1npp1p1/1pp1P3/2P2P2/2NP2P1/PP2N1BP/R1BQ1RK1 b k - 1 10", cbtemp.moveAndGetFEN("e5"));
+            assertEquals("1rbqk2r/4npbp/p1npp1p1/1pp1P3/2P2P2/2NP2P1/PP2N1BP/R1BQ1RK1 w k - 0 11", cbtemp.moveAndGetFEN("Nge7"));
+        }
+        catch (NumberFormatException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+                
     }
 
     /**

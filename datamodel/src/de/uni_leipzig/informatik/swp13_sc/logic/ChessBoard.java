@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 
@@ -24,7 +26,10 @@ import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
  */
 public class ChessBoard
 {
-    // TODO: how to initialize? Or better way?
+    /**
+     * The chess field. From y=0..7, x=0..7.<br />
+     * The white figures  at the bottom have the y index of 0, 1.<br />
+     */
     private char[][] field = getCharChessField();
     /**
      * EMPTY_SQUARE<br />
@@ -32,6 +37,7 @@ public class ChessBoard
      */
     public final static char EMPTY_SQUARE = 0x00;
     
+    // ------------------------------------------------------------------------
     // Chess Figure Characters used in FEN and on Board to
     // differentiate color and piece type.
     
@@ -113,6 +119,7 @@ public class ChessBoard
      */
     public final static char CN_KING = ChessPGNVocabulary.CN_King;
     
+    // ------------------------------------------------------------------------
     // Player colors
     
     /**
@@ -134,14 +141,59 @@ public class ChessBoard
                 CN_QUEEN, CN_KING
             };
     
+    /**
+     * All moves of the game.
+     */
     private List<String> moves = new ArrayList<String>();
+    
+    /**
+     * Regex for parsing move.
+     */
+    private final static Pattern REGEX_MOVE = Pattern.compile(ChessPGNVocabulary.regex_move_single_for_engine);
+    
+    /**
+     * INVALID_INDEX is used to determine if a index computation went havoc.
+     */
+    private final static int INVALID_INDEX = -1;
+    
+    // ------------------------------------------------------------------------
+    
     // initial fen values
+    /**
+     * moveNr
+     */
     private int moveNr = 1;
+    /**
+     * halfMoveNr
+     */
     private int halfMoveNr = 0;
+    /**
+     * playerColor
+     */
     private char playerColor = WHITE;
+    /**
+     * possibleCastlings
+     */
     private String possibleCastlings = "KQkq";
-    private String possibleCastlingsForMove = "KQkq";
+    /**
+     * enPassant
+     */
     private String enPassant = "-";
+    
+    /**
+     * lastPositionDestination
+     */
+    private String lastPositionDestination = "??";
+    /**
+     * lastPositionSource
+     */
+    private String lastPositionSource = "??";
+    /**
+     * lastMovedFigure
+     */
+    private String lastMovedFigure = "??";
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Constructs a new ChessBoard with the default positioning of the
@@ -236,7 +288,6 @@ public class ChessBoard
                         break;
                     }
                     // add figure
-                    // TODO: need figure count?
                     case WHITE_PAWN:
                     case BLACK_PAWN:
                     case WHITE_ROOK:
@@ -271,12 +322,13 @@ public class ChessBoard
             }
         }
         this.playerColor              = parts.nextToken().charAt(0); // Color
-        this.possibleCastlingsForMove = parts.nextToken();     // Castlings
-        this.possibleCastlings        = this.possibleCastlingsForMove; // (?)
+        this.possibleCastlings = parts.nextToken();     // Castlings
         this.enPassant                = parts.nextToken();     // enPassant
         this.halfMoveNr = Integer.parseInt(parts.nextToken()); // half move 
         this.moveNr     = Integer.parseInt(parts.nextToken()); // move count
     }
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Generates a FEN figure placement string with an additional suffix.
@@ -303,6 +355,17 @@ public class ChessBoard
     }
     
     /**
+     * Generates the complete FEN.
+     * 
+     * @return  String with FEN
+     * @see     ChessBoard#getFEN(String)
+     */
+    public String getFEN()
+    {
+        return this.getFEN(null);
+    }
+    
+    /**
      * Computes the FEN.
      * 
      * @return  String with fen. Only the figure's positions.
@@ -318,7 +381,7 @@ public class ChessBoard
             for (int x = 0; x < 8; x ++)
             {
                 // check for empty squares
-                if (this.field[y][y] == EMPTY_SQUARE)
+                if (this.field[y][x] == EMPTY_SQUARE)
                 {
                     emptyRow ++;
                 }
@@ -363,18 +426,7 @@ public class ChessBoard
                 + this.enPassant + ' ' + this.halfMoveNr + ' ' + this.moveNr;
     }
     
-    
-    /**
-     * Returns the possible castlings for this positioning.
-     * 
-     * @return  String
-     */
-    public String getPossibleCastlings()
-    {
-        // TODO: see how to check
-        //       or compute in move()
-        return this.possibleCastlingsForMove;
-    }
+    // ------------------------------------------------------------------------
     
     /**
      * Returns the number of moves in this game so far.
@@ -386,25 +438,35 @@ public class ChessBoard
         //return this.moves.size();
         return this.moveNr - 1 + this.halfMoveNr;
     }    
-
+    
     /**
-     * Increments the move and half-move numbers.
+     * Returns the last moves destination square or ?? if not found.
+     * 
+     * @return  ?? on error
      */
-    protected void incrementMoveNr()
+    public String getLastMoveDestination()
     {
-        if (this.halfMoveNr == 0)
-        {
-            // last player was white
-            this.halfMoveNr ++;
-            this.playerColor = BLACK;
-        }
-        else
-        {
-            // last player was black
-            this.moveNr ++;
-            this.halfMoveNr = 0;
-            this.playerColor = WHITE;
-        }
+        return this.lastPositionDestination;
+    }
+    
+    /**
+     * Returns the last moves source square or ?? if not found.
+     * 
+     * @return  ?? on error
+     */
+    public String getLastMoveSource()
+    {
+        return this.lastPositionSource;
+    }
+    
+    /**
+     * Returns the last moves figure.
+     * 
+     * @return  {@link ChessBoard#EMPTY_SQUARE} on error else String with figure(s)
+     */
+    public String getLastMoveFigure()
+    {
+        return this.lastMovedFigure;
     }
     
     /**
@@ -422,6 +484,8 @@ public class ChessBoard
         //return (this.halfMoveNr == 0) ? 'w' : 'b';
         return this.playerColor;
     }
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Returns a character representing the figure at field[y][x].
@@ -496,15 +560,18 @@ public class ChessBoard
         }
     }
     
+    // ------------------------------------------------------------------------
+    
     /**
      * Converts a char in chess to a index.
      * 
      * @param   c   Char to convert.
-     * @return  int
+     * @return  int or {@link #INVALID_INDEX} if something went wrong.
+     * @throws  Exception 
      */
-    private int chessCharToInt(char c)
+    private int chessCharToInt(char c) throws Exception
     {
-        int x = -1;
+        int x = INVALID_INDEX;
         switch (c)
         {
             case 'h':
@@ -525,50 +592,88 @@ public class ChessBoard
                 x ++;
                 break;
             default:
-                break;
+                throw new Exception("Why a default clause in chessCharToInt <"
+                        + c + "-" + x + ">?");
         }
         return x;
     }
-
+    
+    /**
+     * Converts a int (index on board) to a chess char.
+     * 
+     * @param   i   int (index)
+     * @return  chess char or {@link ChessBoard#EMPTY_SQUARE} on error
+     */
+    private char chessIntToChar(int i)
+    {
+        if (i < 0 || i >= 8)
+        {
+            return EMPTY_SQUARE;
+        }
+        else
+        {
+            return (char) ('a' + i);
+        }
+    }
+    
+    private String makeIndizesToPos(int y, int x)
+    {
+        return "" + chessIntToChar(x) + (y + 1);
+    }
+    
+    /**
+     * Increments the move and half-move numbers.
+     */
+    protected void incrementMoveNr()
+    {
+        if (this.halfMoveNr == 0)
+        {
+            // last player was white
+            this.halfMoveNr ++;
+            this.playerColor = BLACK;
+        }
+        else
+        {
+            // last player was black
+            this.moveNr ++;
+            this.halfMoveNr = 0;
+            this.playerColor = WHITE;
+        }
+    }
+    
+    // ------------------------------------------------------------------------
     
     /**
      * Moves the figures on the board with the information contained in move.
      * 
      * @param   move    A chess move.
-     * @throws NumberFormatException
+     * @return  true if successful parsed and moved
+     * @throws  Exception, {@link NumberFormatException}
      */
-    public synchronized void move(String move)
-        throws NumberFormatException
-    {
+    public synchronized boolean move(String move)
+        throws  Exception
+    {        
         if ((move == null) || (move.length() <= 1))
         {
-            return;
+            System.out.println("Got invalid move! (too short)");
+            return false;
+        }
+        
+        Matcher m = REGEX_MOVE.matcher(move);
+        if (! m.find())
+        {
+            System.out.println("No match found for move \"" + move + "\"!");
+            return false;
         }
         
         boolean isWhite = this.playerColor == WHITE;
         boolean kingSideCastling = false;
         boolean queenSideCastling = false;
         
+        // --------------------------------------------------------------------
+        
         // Check Castling first and return if happend
-        if (move.equalsIgnoreCase("O-O"))
-        {
-            kingSideCastling = true;
-            if (isWhite)
-            {
-                field[0][4] = EMPTY_SQUARE;
-                field[0][5] = WHITE_ROOK;
-                field[0][6] = WHITE_KING;
-                field[0][7] = EMPTY_SQUARE;
-            }
-            else
-            {
-                field[7][4] = EMPTY_SQUARE;
-                field[7][5] = BLACK_ROOK;
-                field[7][6] = BLACK_KING;
-                field[7][7] = EMPTY_SQUARE;
-            }            
-        }
-        else if (move.equalsIgnoreCase("O-O-O"))
+        if (m.group(16) != null)
         {
             queenSideCastling = true;
             if (isWhite)
@@ -577,6 +682,10 @@ public class ChessBoard
                 field[0][2] = WHITE_KING;
                 field[0][3] = WHITE_ROOK;
                 field[0][4] = EMPTY_SQUARE;
+
+                lastPositionDestination = "d1c1";
+                lastPositionSource = "a1e1";
+                lastMovedFigure = "O-O-O";
             }
             else
             {
@@ -584,194 +693,1072 @@ public class ChessBoard
                 field[7][2] = BLACK_KING;
                 field[7][3] = BLACK_ROOK;
                 field[7][4] = EMPTY_SQUARE;
+
+                lastPositionDestination = "d8c8";
+                lastPositionSource = "a8e8";
+                lastMovedFigure = "o-o-o";
             }
+        }
+        else if (m.group(15) != null)
+        {
+            kingSideCastling = true;
+            if (isWhite)
+            {
+                field[0][4] = EMPTY_SQUARE;
+                field[0][5] = WHITE_ROOK;
+                field[0][6] = WHITE_KING;
+                field[0][7] = EMPTY_SQUARE;
+
+                lastPositionDestination = "g1f1";
+                lastPositionSource = "e1h1";
+                lastMovedFigure = "O-O";
+            }
+            else
+            {
+                field[7][4] = EMPTY_SQUARE;
+                field[7][5] = BLACK_ROOK;
+                field[7][6] = BLACK_KING;
+                field[7][7] = EMPTY_SQUARE;
+
+                lastPositionDestination = "g8f8";
+                lastPositionSource = "e8h8";
+                lastMovedFigure = "o-o";
+            }            
         }
         if (queenSideCastling || kingSideCastling)
         {
             // set remaining castlings
             if (isWhite)
             {
-                if (this.possibleCastlings.length() == 4)
-                {
-                    this.possibleCastlings = "kq";
-                }
-                else // (this.possibleCastlings.length() == 2)
-                {
-                    this.possibleCastlings = "";
-                }
+                this.possibleCastlings = this.possibleCastlings.replace("K", "").replace("Q", "");
             }
             else
             {
-                if (this.possibleCastlings.length() == 4)
-                {
-                    this.possibleCastlings = "KQ";
-                }
-                else // (this.possibleCastlings.length() == 2)
-                {
-                    this.possibleCastlings = "";
-                }
+                this.possibleCastlings = this.possibleCastlings.replace("k", "").replace("q", "");
             }
             
             // add move to list and finish
             this.moves.add(move);
             this.incrementMoveNr();
-            return; // finish
+            return true; // finish
         }
-        
-        this.enPassant = "-";
         
         // --------------------------------------------------------------------
         
-        int i;
-        int y;
-        //int oldY;
         int x;
+        int y;
         int oldX;
+        int oldY;
         char charX;
         char oldCharX;
         String pos;
-        char curFigure = move.charAt(0);
+        int diff;
         
-        // get the figure
-        if (Character.isUpperCase(curFigure))
-        {
-            // remove first
-            move = move.substring(1);
-        }
-        else
-        {
-            // implicit pawn
-            curFigure = CN_PAWN;
-        }
+        char curFigure = CN_PAWN;
         
         // --------------------------------------------------------------------
-        
         // move the figures
-        switch (curFigure)
+        
+        // pawn move
+        if (m.group(3) != null)
         {
-            case CN_PAWN:
+            // check capture
+            if (m.group(4) != null)
             {
-                // TODO: have to check ':', too?
-                if ((i = move.indexOf('x')) != -1)
+             // hit and run ...
+                // => 'captured' ?
+                // moved diagonal
+                pos = m.group(6); // new pos - destination square
+                charX = pos.charAt(0);
+                oldCharX = m.group(5).charAt(0); // old x pos, column, index=0?
+                
+                x = chessCharToInt(charX);
+                oldX = chessCharToInt(oldCharX);
+                y = Integer.parseInt(pos.substring(1));
+                y --;
+                
+                // move, no validation...
+                if (isWhite)
                 {
-                    // hit and run ...
-                    // => 'captured' ?
-                    // moved diagonal
-                    pos = move.substring(i+1, i+2+1); // new pos
-                    charX = pos.charAt(0);
-                    oldCharX = move.charAt(i-1); // old x pos, column, index=0?
-                    x = chessCharToInt(charX);
-                    oldX = chessCharToInt(oldCharX);
-                    y = Integer.parseInt(pos.substring(1));
+                    field[y-1][oldX] = EMPTY_SQUARE;
+                    field[y][x] = WHITE_PAWN;
                     
-                    // move, no validation...
+                    lastPositionSource = "" + oldCharX + y;
+                }
+                else
+                {
+                    field[y+1][oldX] = EMPTY_SQUARE;
+                    field[y][x] = BLACK_PAWN;
+                    
+                    lastPositionSource = "" + oldCharX + (y + 2);
+                }
+                
+                // enPassant
+                if (pos.equalsIgnoreCase(enPassant))
+                {
                     if (isWhite)
                     {
-                        field[y-1][oldX] = EMPTY_SQUARE;
-                        field[y][x] = WHITE_PAWN;
+                        // square below
+                        field[y-1][x] = EMPTY_SQUARE;
                     }
                     else
                     {
-                        field[y+1][oldX] = EMPTY_SQUARE;
-                        field[y][x] = BLACK_PAWN;
+                        // square above
+                        field[y+1][x] = EMPTY_SQUARE;
+                    }
+                }
+            }
+            else
+            {
+                // check if moved two fields -> en passant
+                pos = m.group(6);
+                charX = pos.charAt(0);
+                x = chessCharToInt(charX);
+                y = Integer.parseInt(pos.substring(1));
+                y --; // need index
+                // on error, abort - shouldn't occur
+                                    
+                // get source field
+                if (isWhite)
+                {
+                    if (field[y-1][x] == WHITE_PAWN)
+                    {
+                        field[y-1][x] = EMPTY_SQUARE;
+                        field[y][x] = WHITE_PAWN;
+                        
+                        this.enPassant = "-";
+                        lastPositionSource = "" + charX + y;
+                    }
+                    else
+                    {
+                        field[y-2][x] = EMPTY_SQUARE;
+                        field[y][x] = WHITE_PAWN;
+                        
+                        this.enPassant = "" + charX + y;
+                        lastPositionSource = "" + charX + (y - 1);
                     }
                 }
                 else
                 {
-                    // moved vertical / or implicitly has moved diagonal??
-                    // TODO: check diagonal movement?
-                    // check if moved two fields -> en passant
-                    pos = move.substring(0, 2);
-                    charX = pos.charAt(0);
-                    x = chessCharToInt(charX);
-                    y = Integer.parseInt(pos.substring(1)); // on error, abort
-                                        
-                    // get source field
-                    if (isWhite)
+                    if (field[y+1][x] == BLACK_PAWN)
                     {
-                        if (field[y-1][x] == WHITE_PAWN)
+                        field[y+1][x] = EMPTY_SQUARE;
+                        field[y][x] = BLACK_PAWN;
+                        
+                        this.enPassant = "-";
+                        lastPositionSource = "" + charX + (y + 2);
+                    }
+                    else
+                    {
+                        field[y+2][x] = EMPTY_SQUARE;
+                        field[y][x] = BLACK_PAWN;
+                        
+                        this.enPassant = "" + charX + (y + 2);
+                        lastPositionSource = "" + charX + (y + 3);
+                    }
+                }
+            }
+            
+            lastMovedFigure = "" + field[y][x];
+            lastPositionDestination = pos;
+            
+            // check promotion and overwrite destination field if needed
+            if (m.group(7) != null)
+            {
+                // was transformed
+                // 'promoted' ?
+                curFigure = m.group(8).charAt(0);
+                field[y][x] = (isWhite) ? curFigure : Character.toLowerCase(curFigure);
+                
+                lastMovedFigure = lastMovedFigure + '=' + field[y][x];
+            }
+        }
+        
+        // --------------------------------------------------------------------
+        // move of other figures
+        else if (m.group(9) != null)
+        {
+            // set enPassant empty - only for pawns
+            this.enPassant = "-";
+            // for loops needed where each field has to be checked in a specific direction
+            boolean found = false;
+            
+            // get figure
+            curFigure = m.group(10).charAt(0);
+            // piece (figure with color, lowercase black, uppercase white)
+            char figure = (isWhite) ? curFigure : Character.toLowerCase(curFigure);
+            
+            // get destination position
+            pos = m.group(14);
+            charX = pos.charAt(0);
+            x = chessCharToInt(charX);
+            y = Integer.parseInt(pos.substring(1));
+            y --; // decrement for use as index
+            
+            // analysis purpose
+            lastMovedFigure = "" + figure;
+            lastPositionDestination = pos;
+            
+            // get source position
+            pos = m.group(11); // column -> x
+            oldX = (pos == null) ? INVALID_INDEX : chessCharToInt(pos.charAt(0));
+            pos = m.group(12); // row -> y
+            oldY = (pos == null) ? INVALID_INDEX : Integer.parseInt(pos) - 1;
+            
+            // ----------------------------------------------------------------
+            // compute figure moves ...
+            
+            // common to all -> set figure to destination square
+            field[y][x] = figure;
+            
+            switch (curFigure)
+            {
+                case CN_ROOK:
+                {
+                    if (oldX != INVALID_INDEX)
+                    {
+                        // on the same row
+                        if (oldX != x)
                         {
-                            field[y-1][x] = EMPTY_SQUARE;
-                            field[y][x] = WHITE_PAWN;
-                            this.enPassant = "-";
+                            field[y][oldX] = EMPTY_SQUARE;
+                            found = true;
+                            oldY = y;
+                        }
+                        // search in row because column is the same
+                        else
+                        {
+                            // search top
+                            for (int i = y + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldY = i;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search bottom
+                            for (int i = y - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldY = i;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        // same column
+                        if (oldY != y)
+                        {
+                            field[oldY][x] = EMPTY_SQUARE;
+                            found = true;
+                            oldX = x;
+                        }
+                        // search in column because row is different
+                        else
+                        {
+                            // search left
+                            for (int i = x - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldX = i;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search right
+                            for (int i = x + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    found = true;
+                                    oldX = i;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    // have to search manually ... :(
+                    else
+                    {
+                        // search left
+                        for (int i = x - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = y;
+                                oldX = i;
+                                break;
+                            }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search right
+                        for (int i = x + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = y;
+                                oldX = i;
+                                break;
+                            }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search top
+                        for (int i = y + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = i;
+                                oldX = x;
+                                break;
+                            }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search bottom
+                        for (int i = y - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                found = true;
+                                oldY = i;
+                                oldX = x;
+                                break;
+                            }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // get positions and check castlings
+                    if (! found)
+                    {
+                        lastPositionSource = "??";
+                        return false;
+                    }
+                    else
+                    {
+                        lastPositionSource = "" + chessIntToChar(oldX) + (oldY + 1);
+                        
+                        // set castlings
+                        if (isWhite)
+                        {
+                            // kingside ?
+                            if (oldX == 7)
+                            {
+                                this.possibleCastlings = this.possibleCastlings.replace("K", "");
+                            }
+                            // queenside ?
+                            else if (oldX == 0)
+                            {
+                                this.possibleCastlings = this.possibleCastlings.replace("Q", "");
+                            }
                         }
                         else
                         {
-                            // ((field[y-1][x] == EMPTY_SQUARE) &&
-                            // (field[y-2][x] == WHITE_PAWN))
-                            field[y-2][x] = EMPTY_SQUARE;
-                            field[y][x] = WHITE_PAWN;
-                            this.enPassant = "" + charX + "" + (y-1);
+                            // kingside ?
+                            if (oldX == 7)
+                            {
+                                this.possibleCastlings = this.possibleCastlings.replace("k", "");
+                            }
+                            // queenside ?
+                            else if (oldX == 0)
+                            {
+                                this.possibleCastlings = this.possibleCastlings.replace("q", "");
+                            }
+                        }
+                    }
+                    break;
+                }
+                // ------------------------------------------------------------
+                case CN_KNIGHT:
+                {
+                    // include case oldX != INVALID_INDEX && oldY != INVALID_INDEX ?
+                    
+                    // x is given -> only two possibilities for y
+                    if (oldX != INVALID_INDEX)
+                    {
+                        diff = (oldX > x) ? oldX - x : x - oldX;
+                        
+                        // moved one in the x direction (left or right)
+                        if (diff == 1)
+                        {
+                            // -> has to move 2 in y direction
+                            if ((y + 2 < 8) && (field[y+2][oldX] == figure))
+                            {
+                                field[y+2][oldX] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(oldX) + (y + 3);
+                            }
+                            else if ((y - 2 >= 0) && (field[y-2][oldX] == figure))
+                            {
+                                field[y-2][oldX] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(oldX) + (y - 1);
+                            }
+                            else
+                            {
+                                lastPositionSource = "??";
+                                return false;
+                            }
+                        }
+                        // moved two in the x direction
+                        else if (diff == 2)
+                        {
+                            // has to move 1 in the y direction
+                            if ((y + 1 < 8) && (field[y+1][oldX] == figure))
+                            {
+                                field[y+1][oldX] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(oldX) + (y + 2);
+                            }
+                            else if ((y - 1 >= 0) && (field[y-1][oldX] == figure))
+                            {
+                                field[y-1][oldX] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(oldX) + y;
+                            }
+                            else
+                            {
+                                lastPositionSource = "??";
+                                return false;
+                            }
+                        }
+                        // more than two difference is not possible
+                        else
+                        {
+                            lastPositionSource = "??";
+                            return false;
+                        }
+                    }
+                    // y is given -> only two possibilities for x
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        diff = (oldY > y) ? oldY - y : y - oldY;
+                        
+                        // moved one in the y direction (left or right)
+                        if (diff == 1)
+                        {
+                            // -> has to move 2 in x direction
+                            if ((x + 2 < 8) && (field[oldY][x+2] == figure))
+                            {
+                                field[oldY][x+2] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(x + 2) + (oldY + 1);
+                            }
+                            else if ((x - 2 >= 0) && (field[oldY][x-2] == figure))
+                            {
+                                field[oldY][x-2] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(x - 2) + (oldY + 1);
+                            }
+                            else
+                            {
+                                lastPositionSource = "??";
+                                return false;
+                            }
+                        }
+                        // moved two in the y direction
+                        else if (diff == 2)
+                        {
+                            // has to move 1 in the x direction
+                            if ((x + 1 < 8) && (field[oldY][x+1] == figure))
+                            {
+                                field[oldY][x+1] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(x + 1) + (oldY + 1);
+                            }
+                            else if ((x - 1 >= 0) && (field[oldY][x-1] == figure))
+                            {
+                                field[oldY][x-1] = EMPTY_SQUARE;
+                                
+                                lastPositionSource = "" + chessIntToChar(x - 1) + (oldY + 1);
+                            }
+                            else
+                            {
+                                lastPositionSource = "??";
+                                return false;
+                            }
+                        }
+                        // more than two difference is not possible
+                        else
+                        {
+                            lastPositionSource = "??";
+                            return false;
                         }
                     }
                     else
                     {
-                        if (field[y+1][x] == BLACK_PAWN)
+                        // have to check all movement possibilities
+                        if ((x + 2 < 8) && (y + 1 < 8) && (field[y+1][x+2] == figure))
                         {
-                            field[y+1][x] = EMPTY_SQUARE;
-                            field[y][x] = BLACK_PAWN;
-                            this.enPassant = "-";
+                            field[y+1][x+2] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x + 2) + (y + 2);
+                        }
+                        else if ((x - 2 >= 0) && (y + 1 < 8) && (field[y+1][x-2] == figure))
+                        {
+                            field[y+1][x-2] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x - 2) + (y + 2);
+                        }
+                        else if ((x + 2 < 8) && (y - 1 >= 0) && (field[y-1][x+2] == figure))
+                        {
+                            field[y-1][x+2] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x + 2) + y;
+                        }
+                        else if ((x - 2 >= 0) && (y - 1 >= 0) && (field[y-1][x-2] == figure))
+                        {
+                            field[y-1][x-2] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x - 2) + y;
+                        }
+                        else if ((y + 2 < 8) && (x + 1 < 8) && (field[y+2][x+1] == figure))
+                        {
+                            field[y+2][x+1] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x + 1) + (y + 3);
+                        }
+                        else if ((y - 2 >= 0) && (x + 1 < 8) && (field[y-2][x+1] == figure))
+                        {
+                            field[y-2][x+1] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x + 1) + (y - 1);
+                        }
+                        else if ((y + 2 < 8) && (x - 1 >= 0) && (field[y+2][x-1] == figure))
+                        {
+                            field[y+2][x-1] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x - 1) + (y + 3);
+                        }
+                        else if ((y - 2 >= 0) && (x - 1 >= 0) && (field[y-2][x-1] == figure))
+                        {
+                            field[y-2][x-1] = EMPTY_SQUARE;
+                            
+                            lastPositionSource = "" + chessIntToChar(x - 1) + (y - 1);
                         }
                         else
                         {
-                            // ((field[y+1][x] == EMPTY_SQUARE) &&
-                            // (field[y+2][x] == BLACK_PAWN))
-                            field[y+2][x] = EMPTY_SQUARE;
-                            field[y][x] = BLACK_PAWN;
-                            this.enPassant = "" + charX + "" + (y+1);
+                            lastPositionSource = "??";
+                            return false;
                         }
                     }
+                    break;
                 }
-                if ((i = move.indexOf('=')) != -1)
+                // ------------------------------------------------------------
+                case CN_BISHOP:
                 {
-                    // was transformed
-                    // 'promoted' ?
-                    field[y][x] = move.charAt(i+1); // no check so far
+                    if (oldX != INVALID_INDEX)
+                    {
+                        System.out.println("BISHOP MOVE POSSIBLE ?? \"" + move + "\"");
+                        
+                        lastPositionSource = "??";
+                        return false;
+                    }
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        System.out.println("BISHOP MOVE POSSIBLE ?? \"" + move + "\"");
+                        
+                        lastPositionSource = "??";
+                        return false;
+                    }
+                    else
+                    {
+                        // search diagonal
+                        // search bottom left
+                        for (int i = x - 1, j = y - 1; ! found && i >= 0 && j >= 0; i --, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                
+                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search top left
+                        for (int i = x - 1, j = y + 1; ! found && i >= 0 && j < 8; i --, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                
+                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search bottom right
+                        for (int i = x + 1, j = y - 1; ! found && i < 8 && j >= 0; i ++, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                
+                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search top right
+                        for (int i = x + 1, j = y + 1; ! found && i < 8 && j < 8; i ++, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                found = true;
+                                
+                                lastPositionSource = "" + chessIntToChar(i) + (j + 1);
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        
+                        if (! found)
+                        {
+                            lastPositionSource = "??";
+                            return false;
+                        }
+                    }
+                    break;
                 }
-                break;
+                // ------------------------------------------------------------
+                case CN_QUEEN:
+                {
+                    if (oldX != INVALID_INDEX)
+                    {
+                        // queen move in same column
+                        if (oldX == x)
+                        {
+                            // search up
+                            for (int i = y + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    oldY = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search down
+                            for (int i = y - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[i][oldX] == figure)
+                                {
+                                    field[i][oldX] = EMPTY_SQUARE;
+                                    oldY = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[i][oldX] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // different column -> 3 fields to check
+                        else
+                        {
+                            diff = (oldX > x) ? oldX - x : x - oldX;
+                            
+                            // same row
+                            if (field[y][oldX] == figure)
+                            {
+                                field[y][oldX] = EMPTY_SQUARE;
+                                oldY = y;
+                                found = true;
+                            }
+                            // up
+                            else if ((y + diff < 8) && (field[y+diff][oldX] == figure))
+                            {
+                                field[y+diff][oldX] = EMPTY_SQUARE;
+                                oldY = y + diff;
+                                found = true; 
+                            }
+                            // down
+                            else if ((y - diff >= 0) && (field[y-diff][oldX] == figure))
+                            {
+                                field[y-diff][oldX] = EMPTY_SQUARE;
+                                oldY = y - diff;
+                                found = true;
+                            }
+                        }
+                    }
+                    else if (oldY != INVALID_INDEX)
+                    {
+                        // queen move in same row
+                        if (oldY == y)
+                        {
+                            // search right
+                            for (int i = x + 1; ! found && i < 8; i ++)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    oldX = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                            // search left
+                            for (int i = x - 1; ! found && i >= 0; i --)
+                            {
+                                if (field[oldY][i] == figure)
+                                {
+                                    field[oldY][i] = EMPTY_SQUARE;
+                                    oldX = i;
+                                    found = true;
+                                    break;
+                                }
+                                else if (field[oldY][i] != EMPTY_SQUARE)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        // different row -> 3 fields to check
+                        else
+                        {
+                            diff = (oldY > y) ? oldY - y : y - oldY;
+                            
+                            // same column
+                            if (field[oldY][x] == figure)
+                            {
+                                field[oldY][x] = EMPTY_SQUARE;
+                                oldX = x;
+                                found = true;
+                            }
+                            // right
+                            else if ((x + diff < 8) && (field[oldY][x+diff] == figure))
+                            {
+                                field[oldY][x+diff] = EMPTY_SQUARE;
+                                oldX = x + diff;
+                                found = true; 
+                            }
+                            // left
+                            else if ((x - diff >= 0) && (field[oldY][x-diff] == figure))
+                            {
+                                field[oldY][x-diff] = EMPTY_SQUARE;
+                                oldX = x - diff;
+                                found = true;
+                            }
+                        }
+                    }
+                    // check all directions
+                    else
+                    {
+                        // search vertical and horizontal
+                        // search left
+                        for (int i = x - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                oldY = y;
+                                oldX = i;
+                                found = true;
+                                break;
+                            }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search right
+                        for (int i = x + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[y][i] == figure)
+                            {
+                                field[y][i] = EMPTY_SQUARE;
+                                oldY = y;
+                                oldX = i;
+                                found = true;
+                                break;
+                            }
+                            else if (field[y][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search top
+                        for (int i = y + 1; ! found && i < 8; i ++)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                oldY = i;
+                                oldX = x;
+                                found = true;
+                                break;
+                            }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search bottom
+                        for (int i = y - 1; ! found && i >= 0; i --)
+                        {
+                            if (field[i][x] == figure)
+                            {
+                                field[i][x] = EMPTY_SQUARE;
+                                oldY = i;
+                                oldX = x;
+                                found = true;
+                                break;
+                            }
+                            else if (field[i][x] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        
+                        // ----------------------------------------------------
+                        // search diagonal
+                        
+                        // search bottom left
+                        for (int i = x - 1, j = y - 1; ! found && i >= 0 && j >= 0; i --, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
+                                found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search top left
+                        for (int i = x - 1, j = y + 1; ! found && i >= 0 && j < 8; i --, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
+                                found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search bottom right
+                        for (int i = x + 1, j = y - 1; ! found && i < 8 && j >= 0; i ++, j -- )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
+                                found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                        // search top right
+                        for (int i = x + 1, j = y + 1; ! found && i < 8 && j < 8; i ++, j ++ )
+                        {
+                            if (field[j][i] == figure)
+                            {
+                                field[j][i] = EMPTY_SQUARE;
+                                oldY = j;
+                                oldX = i;
+                                found = true;
+                                break;
+                            }
+                            else if (field[j][i] != EMPTY_SQUARE)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (! found)
+                    {
+                        lastPositionSource = "??";
+                        return false;
+                    }
+                    else
+                    {
+                        lastPositionSource = "" + chessIntToChar(oldX) + (oldY + 1);
+                    }
+                    break;
+                }
+                // ------------------------------------------------------------
+                case CN_KING:
+                {
+                    // set old field to empty square ...
+                    // from left
+                    if ((x - 1 >= 0) && (field[y][x-1] == figure))
+                    {
+                        field[y][x-1] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x - 1) + (y + 1);
+                    }
+                    // from left bottom
+                    else if ((y - 1 >= 0) && (x - 1 >= 0) && (field[y-1][x-1] == figure))
+                    {
+                        field[y-1][x-1] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x - 1) + y;
+                    }
+                    // from bottom
+                    else if ((y - 1 >= 0) && (field[y-1][x] == figure))
+                    {
+                        field[y-1][x] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x) + y;
+                    }
+                    // from right
+                    else if ((x + 1 < 8) && (field[y][x+1] == figure))
+                    {
+                        field[y][x+1] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x + 1) + (y + 1);
+                    }
+                    // from right top
+                    else if ((y + 1 < 8) && (x + 1 < 8) && (field[y+1][x+1] == figure))
+                    {
+                        field[y+1][x+1] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x + 1) + (y + 2);
+                    }
+                    // from top
+                    else if ((y + 1 < 8) && (field[y+1][x] == figure))
+                    {
+                        field[y+1][x] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x) + (y + 2);
+                    }
+                    // from top left
+                    else if ((y + 1 < 8) && (x - 1 >= 0) && (field[y+1][x-1] == figure))
+                    {
+                        field[y+1][x-1] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x - 1) + (y + 2);
+                    }
+                    // from bottom right
+                    else if ((y - 1 >= 0) && (x + 1 < 8) && (field[y-1][x+1] == figure))
+                    {
+                        field[y-1][x+1] = EMPTY_SQUARE;
+                        
+                        lastPositionSource = "" + chessIntToChar(x + 1) + y;
+                    }
+                    else
+                    {
+                        lastPositionSource = "??";
+                        return false;
+                    }
+                    
+                    // set castlings or remove them ;-)
+                    if (isWhite)
+                    {
+                        this.possibleCastlings = this.possibleCastlings.replace("K", "").replace("Q", "");
+                    }
+                    else
+                    {
+                        this.possibleCastlings = this.possibleCastlings.replace("k", "").replace("q", "");
+                    }
+                    break;
+                }
+                // error case, abort
+                default:
+                {
+                    lastMovedFigure = "??";
+                    return false; 
+                }   
             }
-            case CN_ROOK:
-            {
-                
-            }
-            case CN_KNIGHT:
-            {
-                
-            }
-            case CN_BISHOP:
-            {
-                
-            }
-            case CN_QUEEN:
-            {
-                
-            }
-            case CN_KING:
-            {
-                
-            }
-            // error case, abort
-            default:
-            {
-               return; 
-            }   
         }
         
         // --------------------------------------------------------------------
         
         // not used yet
-        if (move.indexOf('+') != -1)
+        if (m.group(17) != null)
         {
-            // check
-        }
-        else if (move.indexOf('#') != -1)
-        {
-            // check mate
-            // last move
+            // '+' check
+            // '#' check mate, last move
         }
         
         this.moves.add(move);
         this.incrementMoveNr();
+        return true;
     }
     
     /**
@@ -780,15 +1767,17 @@ public class ChessBoard
      * 
      * @param   move    Move to do.
      * @return  String with FEN
-     * @throws  NumberFormatException
+     * @throws  Exception   if there went something wrong like conversion etc.
+     * @throws  NumberFormatException   Integer.parse()
      */
     public String moveAndGetFEN(String move)
-        throws NumberFormatException
+        throws Exception, NumberFormatException
     {
         this.move(move);
         return this.getFEN(null);
     }
     
+    // ------------------------------------------------------------------------
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -802,18 +1791,16 @@ public class ChessBoard
                 .append(moveNr).append(", halfMoveNr=").append(halfMoveNr)
                 .append(", playerColor=").append(playerColor)
                 .append(", possibleCastlings=").append(possibleCastlings)
-                .append(", possibleCastlingsForMove=")
-                .append(possibleCastlingsForMove).append(", enPassant=")
-                .append(enPassant).append(", computeFEN()=")
-                .append(computeFEN()).append(", getFENSuffix()=")
-                .append(getFENSuffix()).append(", getMoveCount()=")
-                .append(getMoveCount()).append("]");
+                .append(", enPassant=").append(enPassant)
+                .append(", computeFEN()=").append(computeFEN())
+                .append(", getFENSuffix()=").append(getFENSuffix())
+                .append(", getMoveCount()=").append(getMoveCount())
+                .append("]");
         return builder.toString();
     }
     
+    // ------------------------------------------------------------------------
     
-
-
     /**
      * Creates a new 2-dimensional character based chess field with all chess
      * figures on their start squares.

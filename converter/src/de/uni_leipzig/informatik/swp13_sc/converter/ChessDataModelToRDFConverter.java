@@ -274,6 +274,12 @@ public class ChessDataModelToRDFConverter
                     + metaKey), metaValue);
         }
         
+        if (! game.hasValidFENForMoves())
+        {
+        	// TODO: temp. solution:  has to be extracted and included into the ChessRDFVocabulary
+        	r_game.addProperty(model.createProperty(ChessRDFVocabulary.getURI() + "hasInvalidFen"), "");
+        }
+        
         // --------------------------------------------------------------------
         // add moves to game
         int nr = 0;
@@ -290,10 +296,15 @@ public class ChessDataModelToRDFConverter
             {
                 r_move.addProperty(ChessRDFVocabulary.comment, m.getComment());
             }
-            if (m.getFEN() != null)
+            if (game.hasValidFENForMoves() && m.getFEN() != null)
             {
                 r_move.addProperty(ChessRDFVocabulary.fen, m.getFEN());
             }
+            // ignore to reduce size ... interferes with querying??
+            //else
+            //{
+            //	r_move.addProperty(ChessRDFVocabulary.fen, ""); // add empty?
+            //}
         }
         // finished!
         return true;

@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.alonsoruibal.chess.Board;
+import com.alonsoruibal.chess.Move;
+
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
@@ -485,6 +488,12 @@ public class PGNToChessDataModelConverter
         
         // --------------------------------------------------------------------
         
+        //ChessBoard cb = new ChessBoard();
+        Board cb = new Board();
+        cb.startPosition();
+        
+        boolean validFEN = true;
+        
         // parse moves
         int nr = 0;
         for (String line : moveLines)
@@ -494,22 +503,49 @@ public class PGNToChessDataModelConverter
             {
                 nr ++;
                 ChessMove.Builder cmb = new ChessMove.Builder();
-                try
+                
+                String m = move.group(1);
+                String comment = move.group(10);
+                
+                cmb.setNr(nr).setMove(m).setComment(comment);
+                
+                if (validFEN)
                 {
-                    String m = move.group(1);
-                    String comment = move.group(10);
-                    
-                    cgb.addMove(cmb.setNr(nr).setMove(m).setComment(comment).build());
+                    try
+                    {
+                        int moveInt = Move.getFromString(cb, m, true);
+                        //if (! cb.move(m))
+                        if (! cb.doMove(moveInt, true))
+                        {
+                            System.out.println("WARN: move \"" + m + "\" -> \""
+                                    + Move.toStringExt(moveInt) +
+                                    "\" in <Game " + (numberOfGames.get() + 1)
+                                    + ">");
+                            
+                            validFEN = false;
+                        }
+                        
+                        cmb.setFEN(cb.getFen());
+                    }
+                    catch (Exception e)
+                    {
+                        // IllegalStateException
+                        // IndexOutOfBoundsException
+                        System.out.println("ERROR in <Game " +
+                                (numberOfGames.get() + 1) + ">.");
+                        e.printStackTrace();
+                        validFEN = false;
+                    }
                 }
-                catch (IllegalStateException e)
-                {
-                    e.printStackTrace();
-                }
-                catch (IndexOutOfBoundsException e)
-                {
-                    e.printStackTrace();
-                }
+                
+                cgb.addMove(cmb.build());
             }
+        }
+        
+        // Set the correctness of the game's moves' FEN.
+        if (! validFEN)
+        {
+            cgb.invalidateFEN();
         }
         
         return cgb.build();

@@ -53,17 +53,6 @@ public class PGNToChessDataModelConverterTest
 
     /**
      * Test method for
-     * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#PGNToChessDataModelConverter(java.lang.String, java.lang.String)}
-     * .
-     */
-    @Test
-    public final void testPGNToChessDataModelConverter()
-    {
-        fail("Not yet implemented"); // TODO
-    }
-
-    /**
-     * Test method for
      * {@link de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter#parse()}
      * .
      */
