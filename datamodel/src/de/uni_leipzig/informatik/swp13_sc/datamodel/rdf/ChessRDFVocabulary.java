@@ -72,6 +72,10 @@ public class ChessRDFVocabulary
      *  com.hp.hpl.jena.rdf.model.Resource}s.
      */
     public final static Resource ChessMove;
+    /**
+     * The opening of a chess game.
+     */
+    public final static Resource ChessOpening;
     
     // Properties of ChessGame
     /**
@@ -97,6 +101,38 @@ public class ChessRDFVocabulary
      * Is the name of a chess player.
      */
     public final static Property name;
+    /**
+     * The birth place of the chess player.
+     */
+    public final static Property birthPlace;
+    /**
+     * The birth date of the chess player..
+     */
+    public final static Property birthDate;
+    /**
+     * The date of death of the chess player
+     */
+    public final static Property deathDate;
+    /**
+     * The ELO ranking of the chess player. It shows the player's ability.
+     */
+    public final static Property elo;
+    /**
+     * The player's nation/nationality.
+     */
+    public final static Property nation;
+    /**
+     * Peak ranking of a chess player.
+     */
+    public final static Property peakRanking;
+    /**
+     * A link to a thumbnail of the chess player.
+     */
+    public final static Property thumbnail;
+    /**
+     * The title of the chess player.
+     */
+    public final static Property title;
     
     // Properties of ChessGame
     /**
@@ -119,6 +155,19 @@ public class ChessRDFVocabulary
      * The date the chess game was held on.
      */
     public final static Property date;
+    /**
+     * The opening code name of this game.
+     */
+    public final static Property eco;
+    
+    /**
+     * The code name of the opening.
+     */
+    public final static Property openingCode;
+    /**
+     * The 'human-readable' name of the opening.
+     */
+    public final static Property openingName;
     
     // Properties of ChessMove
     /**
@@ -209,12 +258,22 @@ public class ChessRDFVocabulary
         ChessGame = model.createResource(Prefix + "ChessGame");
         ChessPlayer = model.createResource(Prefix + "ChessPlayer");
         ChessMove = model.createResource(Prefix + "ChessMove");
+        ChessOpening = model.createResource(Prefix + "ChessOpening");
         
         blackPlayer = model.createProperty(Prefix + "blackPlayer");
         whitePlayer = model.createProperty(Prefix + "whitePlayer");
         moves = model.createProperty(Prefix + "moves");
         
         name = model.createProperty(Prefix + "name");
+        birthPlace = model.createProperty(Prefix + "birthPlace");
+        birthDate = model.createProperty(Prefix + "birthDate");
+        deathDate = model.createProperty(Prefix + "deathDate");
+        elo = model.createProperty(Prefix + "elo");
+        nation = model.createProperty(Prefix + "nation");
+        peakRanking = model.createProperty(Prefix + "peakRanking");
+        thumbnail = model.createProperty(Prefix + "thumbnail");
+        title = model.createProperty(Prefix + "title");
+        
         //black = model.createProperty(Prefix + "black");
         //white = model.createProperty(Prefix + "white");
         event = model.createProperty(Prefix + "event");
@@ -222,10 +281,14 @@ public class ChessRDFVocabulary
         round = model.createProperty(Prefix + "round");
         result = model.createProperty(Prefix + "result");
         date = model.createProperty(Prefix + "date");
+        eco = model.createProperty(Prefix + "eco");
         
         comment = model.createProperty(Prefix + "comment");
         fen = model.createProperty(Prefix + "fen");
         move = model.createProperty(Prefix + "move");
-        moveNr = model.createProperty(Prefix + "moveNr");        
+        moveNr = model.createProperty(Prefix + "moveNr");  
+        
+        openingName = model.createProperty(Prefix + "openingName");
+        openingCode = model.createProperty(Prefix + "openingCode");
     }    
 }

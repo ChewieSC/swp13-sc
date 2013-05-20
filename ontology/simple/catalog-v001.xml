@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
     <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
-        <uri id="Automatically generated entry, Timestamp=1364491396742" name="duplicate:http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology" uri="owl-co.v2.xml.owl"/>
-        <uri id="Automatically generated entry, Timestamp=1364491396742" name="duplicate:http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology" uri="owl-co.xml.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1369078340956" name="duplicate:http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology" uri="owl-co.v2-.xml.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1369078340956" name="duplicate:http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology" uri="owl-co.xml.owl"/>
     </group>
 </catalog>
