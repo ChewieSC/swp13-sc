@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE LIMES
+  SYSTEM "limes.dtd">
+<LIMES>
+
+<PREFIX>
+<NAMESPACE>http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/</NAMESPACE>
+<LABEL>cres</LABEL>
+</PREFIX>
+<PREFIX>
+<NAMESPACE>http://dbpedia.org/ontology/</NAMESPACE>
+<LABEL>dbpedia-owl</LABEL>
+</PREFIX>
+
+<PREFIX>
+<NAMESPACE>http://dbpedia.org/class/yago/</NAMESPACE>
+<LABEL>dbpedia-yago</LABEL>
+</PREFIX>
+
+<PREFIX>
+<NAMESPACE>http://dbpedia.org/resource/</NAMESPACE>
+<LABEL>dbres</LABEL>
+</PREFIX>
+
+<PREFIX>
+<NAMESPACE>http://dbpedia.org/property/</NAMESPACE>
+<LABEL>prop</LABEL>
+</PREFIX>
+<PREFIX>
+<NAMESPACE>http://www.w3.org/1999/02/22-rdf-syntax-ns#</NAMESPACE>
+<LABEL>rdf</LABEL>
+</PREFIX>
+
+<PREFIX>
+<NAMESPACE>http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#</NAMESPACE>
+<LABEL>cont</LABEL>
+</PREFIX>
+
+   <PREFIX>
+      <NAMESPACE>http://www.w3.org/1999/02/22-rdf-syntax-ns#</NAMESPACE>
+      <LABEL>rdf</LABEL>
+   </PREFIX>
+   <PREFIX>
+      <NAMESPACE>http://www.w3.org/2002/07/owl#</NAMESPACE>
+      <LABEL>owl</LABEL>
+   </PREFIX>
+   <PREFIX>
+      <NAMESPACE>http://xmlns.com/foaf/0.1/</NAMESPACE>
+      <LABEL>foaf</LABEL>
+   </PREFIX>
+   <PREFIX>
+      <NAMESPACE>http://www.w3.org/2000/01/rdf-schema#</NAMESPACE>
+      <LABEL>rdfs</LABEL>
+   </PREFIX>
+   
+   <SOURCE>
+      <ID>sc</ID>
+      <ENDPOINT>http://pcai042.informatik.uni-leipzig.de:1358/sparql</ENDPOINT>
+      <VAR>?a</VAR>
+      <PAGESIZE>1000</PAGESIZE>
+      <RESTRICTION>?a rdf:type cont:ChessPlayer</RESTRICTION>
+      <PROPERTY>cont:name AS lowercase->nolang</PROPERTY>
+   </SOURCE>
+
+   <TARGET>
+      <ID>dbpedia</ID>
+      <ENDPOINT>http://dbpedia.org/sparql</ENDPOINT>
+      <VAR>?b</VAR>
+      <PAGESIZE>1000</PAGESIZE>
+      <RESTRICTION>
+         {?b rdf:type dbpedia-yago:AustrianChessPlayers}
+         UNION {?b a dbpedia-owl:ChessPlayer}
+         UNION {?b a dbpedia-yago:SerbianChessPlayers}
+         UNION {?b a dbpedia-yago:ChessPlayer109915834}
+         UNION {?b a dbpedia-yago:LatvianChessPlayers}
+         UNION {?b a dbpedia-yago:HungarianChessPlayers}
+         UNION {?b a dbpedia-yago:YugoslavChessPlayers}
+         UNION {?b a dbpedia-yago:ChineseChessPlayers}
+         UNION {?b a dbpedia-yago:CzechChessPlayers}
+         UNION {?b a dbpedia-yago:CuBAnChessPlayers}
+         UNION {?b a dbpedia-yago:BulgarianChessPlayers}
+         UNION {?b a dbpedia-yago:SwedishChessPlayers}
+         UNION {?b a dbpedia-yago:SwissChessPlayers}
+         UNION {?b a dbpedia-yago:SlovakChessPlayers}
+         UNION {?b a dbpedia-yago:FilipinoChessPlayers}
+         UNION {?b a dbpedia-yago:SwedishChessPlayers}
+         UNION {?b a dbpedia-yago:SwissChessPlayers}
+         UNION {?b a dbpedia-yago:ArgentineChessPlayers}
+         UNION {?b a dbpedia-yago:AustralianChessPlayers}
+         UNION {?b a dbpedia-yago:IndonesianChessPlayers}
+         UNION {?b a dbpedia-yago:FinnishChessPlayers}
+         UNION {?b a dbpedia-yago:PeruvianChessPlayers}
+         UNION {?b a dbpedia-yago:PanamanianChessPlayers}
+         UNION {?b a dbpedia-yago:AlbanianChessPlayers}
+         UNION {?b a dbpedia-yago:TajikistaniChessPlayers}
+         UNION {?b a dbpedia-yago:ArmenianChessPlayers}
+         UNION {?b a dbpedia-yago:UruguAyanChessPlayers}
+         UNION {?b a dbpedia-yago:UkrainianChessPlayers}
+         UNION {?b a dbpedia-yago:CanadianChessPlayers}
+         UNION {?b a dbpedia-yago:VietnamneseChessPlayers}
+         UNION {?b a dbpedia-yago:SouthAfricanChessPlayers}
+         UNION {?b a dbpedia-yago:NorwegianChessPlayers}
+         UNION {?b a dbpedia-yago:AzerbaijaniChessPlayers}
+         UNION {?b a dbpedia-yago:JapaneseChessPlayers}
+         UNION {?b a dbpedia-yago:LithuAnianChessPlayers}
+         UNION {?b a dbpedia-yago:ChileanChessPlayers}
+         UNION {?b a dbpedia-yago:HongKongChessPlayers}
+         UNION {?b a dbpedia-yago:NewZealandChessPlayers}
+         UNION {?b a dbpedia-yago:GreekChessPlayers}
+         UNION {?b a dbpedia-yago:EnglishChessPlayers}
+         UNION {?b a dbpedia-yago:DanishChessPlayers}
+         UNION {?b a dbpedia-yago:DutchChessPlayers}
+         UNION {?b a dbpedia-yago:IndianChessPlayers}
+         UNION {?b a dbpedia-yago:EstonianChessPlayers}
+         UNION {?b a dbpedia-yago:SingaporeChessPlayers}
+         UNION {?b a dbpedia-yago:SpanishChessPlayers}
+         UNION {?b a dbpedia-yago:PolishChessPlayers}
+         UNION {?b a dbpedia-yago:ScottishChessPlayers}
+         UNION {?b a dbpedia-yago:BrazilianChessPlayers}
+         UNION {?b a dbpedia-yago:PakistaniChessPlayers}
+         UNION {?b a dbpedia-yago:ItalianChessPlayers}
+         UNION {?b a dbpedia-yago:RomanianChessPlayers}
+         UNION {?b a dbpedia-yago:BelgianChessPlayers}
+         UNION {?b a dbpedia-yago:IcelandicChessPlayers}
+         UNION {?b a dbpedia-yago:BangladeshiChessPlayers}
+         UNION {?b a dbpedia-yago:PortuguEseChessPlayers}
+         UNION {?b a dbpedia-yago:EcuADorianChessPlayers}
+         UNION {?b a dbpedia-yago:IranianChessPlayers}
+         UNION {?b a dbpedia-yago:CostaRicanChessPlayers}
+         UNION {?b a dbpedia-yago:JewishChessPlayers}
+         UNION {?b a dbpedia-yago:AmericanChessPlayers}
+         UNION {?b a dbpedia-yago:SovietChessPlayers}
+         UNION {?b a dbpedia-yago:RussianChessPlayers}
+         UNION {?b a dbpedia-yago:IrishChessPlayers}
+         UNION {?b a dbpedia-yago:BritishChessPlayers}
+         UNION {?b a dbpedia-yago:FrenchChessPlayers}
+         UNION {?b a dbpedia-yago:SlovenianChessPlayers}
+         UNION {?b a dbpedia-yago:SyrianChessPlayers}
+         UNION {?b a dbpedia-yago:GermanChessPlayers}
+         UNION {?b a dbpedia-yago:BelarusianChessPlayers} 
+         UNION {?b a dbpedia-yago:GeorgianChessPlayers}
+         UNION {?b a dbpedia-yago:UzbekistaniChessPlayers}
+         UNION {?b a dbpedia-yago:SicilianChessPlayers}
+         UNION {?b a dbpedia-yago:IsraeliChessPlayers}
+         UNION {?b a dbpedia-yago:QatariChessPlayers}
+         UNION {?b a dbpedia-yago:MoldovanChessPlayers}
+         UNION {?b a dbpedia-yago:MexicanChessPlayers}
+         UNION {?b a dbpedia-yago:KazakhstaniChessPlayers}
+         UNION {?b a dbpedia-yago:JamaicanChessPlayers}
+         UNION {?b a dbpedia-yago:WelshChessPlayers}
+         UNION {?b a dbpedia-yago:BolivianChessPlayers}
+         UNION {?b a dbpedia-yago:MongolianChessPlayers}
+         UNION {?b a dbpedia-yago:CroatianChessPlayers}
+         UNION {?b a dbpedia-yago:MontenegrinChessPlayers}
+         UNION {?b a dbpedia-yago:ColombianChessPlayers}
+         UNION {?b a dbpedia-yago:MacedonianChessPlayers}
+         UNION {?b a dbpedia-yago:ZambianChessPlayers}
+         UNION {?b a dbpedia-yago:EgyptianChessPlayers}
+         UNION {?b a dbpedia-yago:GuyaneseChessPlayers}
+         UNION {?b a dbpedia-yago:NepaleseChessPlayers}
+         UNION {?b a dbpedia-yago:TurkmenistanChessPlayers}
+         UNION {?b a dbpedia-yago:BarbadianChessPlayers}
+         UNION {?b a dbpedia-yago:ZimbabweanChessPlayers}
+         UNION {?b a dbpedia-yago:MoroccanChessPlayers}
+         UNION {?b a dbpedia-yago:ChessPlayersAtThe2009MaccabiahGames}
+         UNION {?b a dbpedia-yago:PuErtoRicanChessPlayers}
+         UNION {?b a dbpedia-yago:MaccabiahChessPlayersOfHungary}
+         UNION {?b a dbpedia-yago:FijianChessPlayers}
+         UNION {?b a dbpedia-yago:ParaguAyanChessPlayers}
+         UNION {?b a dbpedia-yago:VenezuElanChessPlayers}
+         UNION {?b a dbpedia-yago:LuxembourgianChessPlayers}
+         UNION {?b a dbpedia-yago:IraqiChessPlayers}
+         UNION {?b a dbpedia-yago:PalestinianChessPlayers}
+         UNION {?b a dbpedia-yago:LebaneseChessPlayers}
+         UNION {?b a dbpedia-yago:UnitedArabEmiratiChessPlayers}
+         UNION {?b a dbpedia-yago:ArabicChessPlayers}
+         UNION {?b a dbpedia-yago:MaccabiahChessPlayersOfIsrael}
+         UNION {?b a dbpedia-yago:FaroeseChessPlayers}
+         UNION {?b a dbpedia-yago:MaccabiahChessPlayersOfBrazil}
+         UNION {?b a dbpedia-yago:KyrgyzstaniChessPlayers}
+         UNION {?b a dbpedia-yago:BritishVirginIslandsChessPlayers}
+      </RESTRICTION>
+      <PROPERTY>prop:name AS lowercase->nolang</PROPERTY>
+   </TARGET>
+    
+   <METRIC>trigrams(a.cont:name, b.prop:name)</METRIC>
+   
+   <ACCEPTANCE>
+      <THRESHOLD>0.8</THRESHOLD>
+      <FILE>accept.nt</FILE>
+      <RELATION>owl:sameAs</RELATION>
+   </ACCEPTANCE>
+   
+   <REVIEW>
+      <THRESHOLD>0.6</THRESHOLD>
+      <FILE>review.nt</FILE>
+      <RELATION>owl:sameAs</RELATION>
+   </REVIEW>
+
+   <EXECUTION>Simple</EXECUTION>
+   
+   <OUTPUT>NT</OUTPUT>
+   
+</LIMES>
