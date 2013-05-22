@@ -250,6 +250,65 @@ public class SimpleSearch
      * FIELD_KEY_CP2_NAME
      */
     public final static String FIELD_KEY_CP2_NAME = "cp-name[2]";
+    
+    // Optional meta data
+    /**
+     * FIELD_KEY_CP1_ELO
+     */
+    public final static String FIELD_KEY_CP1_ELO = "cp-elo[1]";
+    /**
+     * FIELD_KEY_CP2_ELO
+     */
+    public final static String FIELD_KEY_CP2_ELO = "cp-elo[2]";
+    /**
+     * FIELD_KEY_CP1_NATION
+     */
+    public final static String FIELD_KEY_CP1_NATION = "cp-nation[1]";
+    /**
+     * FIELD_KEY_CP2_NATION
+     */
+    public final static String FIELD_KEY_CP2_NATION = "cp-nation[2]";
+    /**
+     * FIELD_KEY_CP1_TITLE
+     */
+    public final static String FIELD_KEY_CP1_TITLE = "cp-title[1]";
+    /**
+     * FIELD_KEY_CP2_TITLE
+     */
+    public final static String FIELD_KEY_CP2_TITLE = "cp-title[2]";
+    /**
+     * FIELD_KEY_CP1_BIRTH_DATE
+     */
+    public final static String FIELD_KEY_CP1_BIRTH_DATE = "cp-birthDate[1]";
+    /**
+     * FIELD_KEY_CP2_BIRTH_DATE
+     */
+    public final static String FIELD_KEY_CP2_BIRTH_DATE = "cp-birthDate[2]";
+    /**
+     * FIELD_KEY_CP1_DEATH_DATE
+     */
+    public final static String FIELD_KEY_CP1_DEATH_DATE = "cp-deathDate[1]";
+    /**
+     * FIELD_KEY_CP2_DEATH_DATE
+     */
+    public final static String FIELD_KEY_CP2_DEATH_DATE = "cp-deathDate[2]";
+    /**
+     * FIELD_KEY_CP1_BIRTH_PLACE
+     */
+    public final static String FIELD_KEY_CP1_BIRTH_PLACE = "cp-birthPlace[1]";
+    /**
+     * FIELD_KEY_CP2_BIRTH_PLACE
+     */
+    public final static String FIELD_KEY_CP2_BIRTH_PLACE = "cp-birthPlace[2]";
+    /**
+     * FIELD_KEY_CP1_PEAK_RANKING
+     */
+    public final static String FIELD_KEY_CP1_PEAK_RANKING = "cp-peakRanking[1]";
+    /**
+     * FIELD_KEY_CP2_PEAK_RANKING
+     */
+    public final static String FIELD_KEY_CP2_PEAK_RANKING = "cp-peakRanking[2]";
+    
     /**
      * FIELD_KEY_CP1_COLOR
      */
@@ -645,7 +704,7 @@ public class SimpleSearch
         }
         
         // date 
-        // TODO: change for ??
+        // TODO: changes needed for ??
         if (this.fields.containsKey(FIELD_KEY_CG_DATE) &&
                 (null != this.fields.get(FIELD_KEY_CG_DATE)))
         {
@@ -693,7 +752,7 @@ public class SimpleSearch
                 .append(SPARQL_QUERY_NEWLINE);
         }
         
-        // round
+        // result
         if (this.fields.containsKey(FIELD_KEY_CG_RESULT) &&
                 (null != this.fields.get(FIELD_KEY_CG_RESULT)))
         {
@@ -837,7 +896,14 @@ public class SimpleSearch
             .append(SPARQL_QUERY_NEWLINE);
         
         // get name
-        String name = null;        
+        String name = null;
+        String elo = null;
+        String birthDate = null;
+        String deathDate = null;
+        String birthPlace = null;
+        String peakRanking = null;
+        String title = null;
+        String nation = null;
         if (nr == 1)
         {
             if (this.fields.containsKey(FIELD_KEY_CP1_NAME) &&
@@ -845,14 +911,86 @@ public class SimpleSearch
             {
                 name = this.fields.get(FIELD_KEY_CP1_NAME);
             }
+            // additional optional data
+            if (this.fields.containsKey(FIELD_KEY_CP1_ELO) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_ELO)))
+            {
+                elo = this.fields.get(FIELD_KEY_CP1_ELO);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP1_TITLE) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_TITLE)))
+            {
+                title = this.fields.get(FIELD_KEY_CP1_TITLE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP1_NATION) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_NATION)))
+            {
+                nation = this.fields.get(FIELD_KEY_CP1_NATION);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP1_BIRTH_DATE) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_BIRTH_DATE)))
+            {
+                birthDate = this.fields.get(FIELD_KEY_CP1_BIRTH_DATE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP1_BIRTH_PLACE) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_BIRTH_PLACE)))
+            {
+                birthPlace = this.fields.get(FIELD_KEY_CP1_BIRTH_PLACE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP1_DEATH_DATE) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_DEATH_DATE)))
+            {
+                deathDate = this.fields.get(FIELD_KEY_CP1_DEATH_DATE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP1_PEAK_RANKING) &&
+                    (null != this.fields.get(FIELD_KEY_CP1_PEAK_RANKING)))
+            {
+                peakRanking = this.fields.get(FIELD_KEY_CP1_PEAK_RANKING);
+            }
         }
         else if (nr == 2)
         {
             if (this.fields.containsKey(FIELD_KEY_CP2_NAME) &&
                     (null != this.fields.get(FIELD_KEY_CP2_NAME)))
-                {
-                    name = this.fields.get(FIELD_KEY_CP2_NAME);
-                }
+            {
+                name = this.fields.get(FIELD_KEY_CP2_NAME);
+            }
+            // additional optional data
+            if (this.fields.containsKey(FIELD_KEY_CP2_ELO) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_ELO)))
+            {
+                elo = this.fields.get(FIELD_KEY_CP2_ELO);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP2_TITLE) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_TITLE)))
+            {
+                title = this.fields.get(FIELD_KEY_CP2_TITLE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP2_NATION) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_NATION)))
+            {
+                nation = this.fields.get(FIELD_KEY_CP2_NATION);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP2_BIRTH_DATE) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_BIRTH_DATE)))
+            {
+                birthDate = this.fields.get(FIELD_KEY_CP2_BIRTH_DATE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP2_BIRTH_PLACE) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_BIRTH_PLACE)))
+            {
+                birthPlace = this.fields.get(FIELD_KEY_CP2_BIRTH_PLACE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP2_DEATH_DATE) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_DEATH_DATE)))
+            {
+                deathDate = this.fields.get(FIELD_KEY_CP2_DEATH_DATE);
+            }
+            if (this.fields.containsKey(FIELD_KEY_CP2_PEAK_RANKING) &&
+                    (null != this.fields.get(FIELD_KEY_CP2_PEAK_RANKING)))
+            {
+                peakRanking = this.fields.get(FIELD_KEY_CP2_PEAK_RANKING);
+            }
         }
         
         
@@ -874,6 +1012,161 @@ public class SimpleSearch
                 .append(var_name_player)
                 .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
                 .append(name)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        
+        if (elo != null)
+        {
+            String var_name_player = var_name + "_elo";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.elo.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(elo)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        if (title != null)
+        {
+            String var_name_player = var_name + "_title";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.title.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(title)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        if (nation != null)
+        {
+            String var_name_player = var_name + "_nation";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.nation.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(nation)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        if (birthDate != null)
+        {
+            String var_name_player = var_name + "_birthDate";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.birthDate.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(birthDate)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        if (birthPlace != null)
+        {
+            String var_name_player = var_name + "_birthPlace";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.birthPlace.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(birthPlace)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        if (deathDate != null)
+        {
+            String var_name_player = var_name + "_deathDate";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.deathDate.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(deathDate)
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+        }
+        if (peakRanking != null)
+        {
+            String var_name_player = var_name + "_peakRanking";
+            sb.append('?')
+                .append(var_name)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.peakRanking.getLocalName())
+                .append(" ?")
+                .append(var_name_player)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE);
+            
+            sb.append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append('?')
+                .append(var_name_player)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(peakRanking)
                 .append(SPARQL_QUERY_FILTER_REGEX_END)
                 .append('.')
                 .append(SPARQL_QUERY_NEWLINE);
