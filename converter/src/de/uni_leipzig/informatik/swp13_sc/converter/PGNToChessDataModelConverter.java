@@ -29,7 +29,6 @@ import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
  * 
  *
  * @author Erik
- * @see PGNToRDFConverterAllAtOnce
  */
 public class PGNToChessDataModelConverter
 {

@@ -8,15 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Literal;
-
-import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
-import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
+
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Resource;
+
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 
 /**
  * A retriever class for querying a triplestore over a VirtGraph (only
@@ -32,11 +34,6 @@ public class ChessPlayerDataRetriever
      * The virtuosoGraph (Virtuoso triplestore) which will be queried.
      */
     private final VirtGraph virtuosoGraph;
-    
-    /**
-     * Internal. VARIABLE_NAME for the sparql queries generated.
-     */
-    private final static String VARIABLE_NAME = "?name";
     
     /**
      * Constructor. Requires the connection to the datastore (Virtuoso)
@@ -118,13 +115,9 @@ public class ChessPlayerDataRetriever
         }
         
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ")
-            .append(VARIABLE_NAME)
-            .append("\nWHERE\n{\n  <")
-            .append(playerURI)
-            .append("> <")
-            .append(ChessRDFVocabulary.name.toString())
-            .append("> ?name.\n}\nLIMIT 1");
+        sb.append("SELECT DISTINCT ?prop ?value\nWHERE\n{  <")
+        .append(playerURI)
+        .append("> ?prop ?value.\n}");
         
         // DEBUG:
         //System.out.println(sb.toString());
@@ -135,22 +128,38 @@ public class ChessPlayerDataRetriever
         {
             ResultSet results = vqeS.execSelect();
             
-            if (results.hasNext())
+            ChessPlayer.Builder cpb = new ChessPlayer.Builder();
+            
+            while (results.hasNext())
             {
                 QuerySolution result = (QuerySolution) results.next();
-                Literal name = result.getLiteral(VARIABLE_NAME);
                 
-                // create ChessPlayer data and set name.
-                // return object
-                vqeS.close();
-                return new ChessPlayer.Builder().setName(name.getString()).build();
+                if (result.get("value").isLiteral()) 
+                {
+                    Resource l_prop = result.getResource("prop");
+                    String prop = l_prop.getLocalName();
+
+                    Literal l_value = result.getLiteral("value");
+                    String value = l_value.toString();
+                    
+                    if (ChessRDFVocabulary.name.getLocalName().equalsIgnoreCase(prop))
+                    {
+                        cpb.setName(value);
+                    }
+                    // add rest to meta data
+                    else
+                    {
+                        cpb.addMetaData(prop, value);
+                    }
+                    
+                    // DEBUG:
+                    //System.out.println("Prop: " + prop + ", Value: " + value);
+                }
             }
-            // if no result returned.
-            else
-            {
-                vqeS.close();
-                return null;
-            }
+
+            vqeS.close();
+            
+            return cpb.build();
         }
         catch (Exception e)
         {

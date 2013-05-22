@@ -179,7 +179,7 @@ public class ChessGame
      * stored.
      * 
      * @param   key     Key-name of the meta value.
-     * @return  Builder
+     * @return  String (meta data value) or null if not available
      */
     public String getMetaValue(String key)
     {
