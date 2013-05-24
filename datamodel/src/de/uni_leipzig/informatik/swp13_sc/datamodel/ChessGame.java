@@ -58,10 +58,6 @@ public class ChessGame
      */
     private final Map<String, String> meta;
     
-    /**
-     * If the FENs of the game's moves are correct.
-     */
-    private final boolean hasValidFENForMoves;
     
     /**
      * Constructor used to create this chess game.
@@ -81,7 +77,6 @@ public class ChessGame
         this.moves.addAll( builder.moves);
         this.meta        = new HashMap<String, String>();
         this.meta.putAll(  builder.meta);
-        this.hasValidFENForMoves = builder.hasValidFENForMoves;
     }
     
     /**
@@ -186,15 +181,6 @@ public class ChessGame
         return this.meta.get(key);
     }
     
-    /**
-     * Returns whether the moves' FEN is valid or not.
-     * 
-     * @return  true if valid, false if not existing or wrong
-     */
-    public boolean hasValidFENForMoves()
-    {
-        return this.hasValidFENForMoves;
-    }
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
@@ -209,8 +195,7 @@ public class ChessGame
                 .append(site).append(", date=").append(date).append(", round=")
                 .append(round).append(", result=").append(result)
                 .append(", moves=").append(moves).append(", meta=")
-                .append(meta).append(", hasValidFENForMoves=")
-                .append(hasValidFENForMoves).append("]");
+                .append(meta).append("]");
         return builder2.toString();
     }
     
@@ -235,7 +220,6 @@ public class ChessGame
         private String result = null;
         private List<ChessMove> moves = new ArrayList<ChessMove>();
         private Map<String, String> meta = new HashMap<String, String>();
-        private boolean hasValidFENForMoves = true;
         
         /**
          * Standard empty constructor.
@@ -369,18 +353,6 @@ public class ChessGame
         }
         
         /**
-         * Sets the validity of the game's moves' FENs to false.<nr />
-         * In short: it invalidates their FENs ...
-         * 
-         * @return  Builder
-         */
-        public Builder invalidateFEN()
-        {
-            this.hasValidFENForMoves = false;
-            return this;
-        }
-        
-        /**
          * Adds a meta data key-value pair linked to this game.
          * 
          * @param   key     The key. A identifier for the value.
@@ -459,9 +431,7 @@ public class ChessGame
                     .append(site).append(", date=").append(date)
                     .append(", round=").append(round).append(", result=")
                     .append(result).append(", moves=").append(moves)
-                    .append(", meta=").append(meta)
-                    .append(", hasValidFENForMoves=")
-                    .append(hasValidFENForMoves).append("]");
+                    .append(", meta=").append(meta).append("]");
             return builder.toString();
         }
     }

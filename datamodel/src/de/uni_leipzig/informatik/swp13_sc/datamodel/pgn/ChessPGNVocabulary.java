@@ -324,4 +324,24 @@ public class ChessPGNVocabulary
     public final static String regex_meta_start_line =
             "^" + regex_meta_start;
     
+    
+    /**
+     * Regex string to get parts of a chess player name and to normalize it.
+     */
+    public final static String regex_player_name_comma =
+            "^([^,]+)(,([^,]+))?$";
+    /**
+     * Regex to search for pairs of braces in names.
+     */
+    public final static String regex_player_name_braces =
+            "(\\([^\\(]*?\\))|(\\[[^\\[]*?\\])|(\\{[^\\{]*?\\})";
+    /**
+     * Regex to get multiple spaces
+     */
+    public final static String regex_player_name_spaces =
+            "\\s\\s+";
+    
+    //public final static String regex_empty_string =
+    //        "^\\s*$";
+    
 }

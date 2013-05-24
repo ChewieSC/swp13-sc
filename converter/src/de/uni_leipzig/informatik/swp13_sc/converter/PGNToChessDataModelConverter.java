@@ -100,6 +100,19 @@ public class PGNToChessDataModelConverter
      */
     private static Pattern pattern_meta = Pattern.compile(ChessPGNVocabulary.regex_meta);
     
+    /**
+     * Regex pattern to search for commas.
+     */
+    private static Pattern pattern_name_comma = Pattern.compile(
+            ChessPGNVocabulary.regex_player_name_comma);
+    /**
+     * Regex pattern to search for braces.
+     */
+    private static Pattern pattern_name_braces = Pattern.compile(
+            ChessPGNVocabulary.regex_player_name_braces);
+    private static Pattern pattern_name_spaces = Pattern.compile(
+            ChessPGNVocabulary.regex_player_name_spaces);
+    
     // ------------------------------------------------------------------------
     
     /**
@@ -302,6 +315,21 @@ public class PGNToChessDataModelConverter
                         this.numberOfGames.incrementAndGet();
                         gameCount ++;
                     }
+                    else
+                    {
+                        // output game
+                        /*System.out.println("Invalid game {{");
+                        for (String s : metaLines)
+                        {
+                            System.out.println(s);
+                        }
+                        System.out.println();
+                        for (String s : moveLines)
+                        {
+                            System.out.println(s);
+                        }
+                        System.out.println("}}");*/
+                    }
                     metaLines = new ArrayList<String>();
                     moveLines = new ArrayList<String>();
                 }
@@ -336,7 +364,18 @@ public class PGNToChessDataModelConverter
                         }
                         else
                         {
-                            System.out.println("  --> invalid game ... ?");
+                            // output invalid game
+                            /*System.out.println("Invalid game {{");
+                            for (String s : metaLines)
+                            {
+                                System.out.println(s);
+                            }
+                            System.out.println();
+                            for (String s : moveLines)
+                            {
+                                System.out.println(s);
+                            }
+                            System.out.println("}}");*/
                         }
                         
                         // check for end
@@ -441,14 +480,26 @@ public class PGNToChessDataModelConverter
                 String key = meta.group(1);
                 String value = meta.group(2);
                 
+                // remove empty values
+                if (EMPTY.equalsIgnoreCase(value.trim()))
+                {
+                    //System.out.println("WARN: Empty value for key " + key +
+                    //        " in Game " + (numberOfGames.get() + 1));
+                    continue;
+                }
+                
                 // switch(key) only with JRE 1.7 !
                 if (ChessPGNVocabulary.Meta_Key_White.equals(key))
                 {
-                    cgb.setWhitePlayer(new ChessPlayer.Builder().setName(value).build());
+                    //System.out.println("Name Normalization: \"" + value + "\" -> \""
+                    //        + normalizeName(value) + "\"");
+                    cgb.setWhitePlayer(new ChessPlayer.Builder().setName(normalizeName(value)).build());
                 }
                 else if (ChessPGNVocabulary.Meta_Key_Black.equals(key))
                 {
-                    cgb.setBlackPlayer(new ChessPlayer.Builder().setName(value).build());
+                    //System.out.println("Name Normalization: \"" + value + "\" -> \""
+                    //        + normalizeName(value) + "\"");
+                    cgb.setBlackPlayer(new ChessPlayer.Builder().setName(normalizeName(value)).build());
                 }
                 else if (ChessPGNVocabulary.Meta_Key_Date.equals(key))
                 {
@@ -487,11 +538,10 @@ public class PGNToChessDataModelConverter
         
         // --------------------------------------------------------------------
         
-        //ChessBoard cb = new ChessBoard();
+        //ChessBoard my_cb = new ChessBoard();
+        //boolean first = true;
         Board cb = new Board();
         cb.startPosition();
-        
-        boolean validFEN = true;
         
         // parse moves
         int nr = 0;
@@ -508,43 +558,48 @@ public class PGNToChessDataModelConverter
                 
                 cmb.setNr(nr).setMove(m).setComment(comment);
                 
-                if (validFEN)
+                try
                 {
-                    try
+                    int moveInt = Move.getFromString(cb, m, true);
+                    //if (! cb.move(m))
+                    if (! cb.doMove(moveInt, true))
                     {
-                        int moveInt = Move.getFromString(cb, m, true);
-                        //if (! cb.move(m))
-                        if (! cb.doMove(moveInt, true))
-                        {
-                            System.out.println("WARN: move \"" + m + "\" -> \""
-                                    + Move.toStringExt(moveInt) +
-                                    "\" in <Game " + (numberOfGames.get() + 1)
-                                    + ">");
-                            
-                            validFEN = false;
-                        }
+                        System.out.println("WARN: move \"" + m + "\" -> \""
+                                + Move.toStringExt(moveInt) +
+                                "\" in <Game " + (numberOfGames.get() + 1)
+                                + ">");
                         
-                        cmb.setFEN(cb.getFen());
+                        return null;
                     }
-                    catch (Exception e)
-                    {
-                        // IllegalStateException
-                        // IndexOutOfBoundsException
-                        System.out.println("ERROR in <Game " +
-                                (numberOfGames.get() + 1) + ">.");
-                        e.printStackTrace();
-                        validFEN = false;
-                    }
+                    
+                    String fen = cb.getFen();
+                    fen = fen.substring(0, fen.indexOf(' '));
+                    cmb.setFEN(fen);
+                    
+                    // Compare FEN generation
+                    //if (first)
+                    //{
+                    //    my_cb.move(m);
+                    //    if (! fen.equals(my_cb.computeFEN()))
+                    //    {
+                    //        System.out.println("WARN: Different FEN in game " +
+                    //                (numberOfGames.get() + 1) + ", move " + nr);
+                    //        first = false;
+                    //    }
+                    //}
+                }
+                catch (Exception e)
+                {
+                    // IllegalStateException
+                    // IndexOutOfBoundsException
+                    System.out.println("ERROR in <Game " +
+                            (numberOfGames.get() + 1) + ">.");
+                    e.printStackTrace();
+                    return null;
                 }
                 
                 cgb.addMove(cmb.build());
             }
-        }
-        
-        // Set the correctness of the game's moves' FEN.
-        if (! validFEN)
-        {
-            cgb.invalidateFEN();
         }
         
         return cgb.build();
@@ -628,6 +683,35 @@ public class PGNToChessDataModelConverter
     public List<ChessGame> getGames(boolean remove)
     {
         return this.getGames(ALL_GAMES, remove);
+    }
+    
+    
+    /**
+     * Will switch surname and first. Removes spaces and braces.
+     * 
+     * @param   name    Name to process
+     * @return  normalized name
+     */
+    private final static String normalizeName(String name)
+    {
+        // remove braces
+        name = pattern_name_braces.matcher(name).replaceAll("");
+        
+        Matcher n = pattern_name_comma.matcher(name);
+        
+        // if too much commas
+        if (! n.find())
+        {
+            return name.trim();
+        }
+        
+        // concat name parts
+        name = n.group(3);
+        name = (name == null) ? "" : name;        
+        name += " " + n.group(1);
+        
+        // remove spaces
+        return pattern_name_spaces.matcher(name).replaceAll(" ").trim();
     }
         
 }
