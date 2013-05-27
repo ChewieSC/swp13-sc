@@ -5,8 +5,13 @@
 package de.uni_leipzig.informatik.swp13_sc.converter;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,6 +66,18 @@ public class PGNToChessDataModelConverter
      * complete numberOfGames
      */
     private AtomicInteger numberOfGames;
+    /**
+     * total number of invalid (unconverted) games
+     */
+    private AtomicInteger numberOfInvalidGames;
+    /**
+     * temporary file for storing invalid PGNs
+     */
+    private File invalidPGNsOutputFile;
+    /**
+     * Writer for invalid PGN chess games.
+     */
+    private BufferedWriter invalidPGNWriter;
     
     /**
      * Used to check that the last input file is only opened once.
@@ -139,6 +156,8 @@ public class PGNToChessDataModelConverter
         
         this.games = new ArrayList<ChessGame>();
         this.numberOfGames = new AtomicInteger();
+        
+        this.numberOfInvalidGames = new AtomicInteger();
     }
     
     /**
@@ -174,6 +193,16 @@ public class PGNToChessDataModelConverter
     }
     
     /**
+     * Return the complete number of actual invalid chess games.
+     * 
+     * @return  int
+     */
+    public int numberOfInvalidGames()
+    {
+        return numberOfInvalidGames.get();
+    }
+    
+    /**
      * Returns the number of unconverted games still in memory.
      * 
      * @return  int
@@ -186,6 +215,24 @@ public class PGNToChessDataModelConverter
         }
         return numberOfParsedGames();
     }
+    
+    /**
+     * Returns the absolute path name of the output file for invalid PGN games.
+     * Will return null if unknown pathname.
+     * 
+     * @return  String with absolute pathname of invalid PGN games or null on
+     *          error
+     */
+    public String getFileOfInvalidGames()
+    {
+        if (this.invalidPGNsOutputFile == null)
+        {
+            return null;
+        }
+        
+        return this.invalidPGNsOutputFile.getAbsolutePath();
+    }
+    
     
     /**
      * Sets the input filename.
@@ -229,6 +276,7 @@ public class PGNToChessDataModelConverter
             if (! reader.ready())
             {
                 this.reader = null;
+                return false;
             }
         }
         catch (IOException e)
@@ -238,6 +286,103 @@ public class PGNToChessDataModelConverter
         }
         
         this.reader = reader;
+        return true;
+    }
+    
+    /**
+     * Sets the output stream for invalid PGN files to capture. It will automatically
+     * create a new writer from it.
+     * 
+     * @param   outputStream    OutputStream to write into
+     */
+    public void setInvalidPGNOutputStream(OutputStream outputStream)
+    {
+        this.setInvalidPGNOutputWriter(FileUtils.openWriter(outputStream));
+    }
+    
+    /**
+     * Sets the invalid PGN game output writer for this parser.
+     * 
+     * @param   writer  BufferedWriter to write with
+     * @return  true if successful assigned
+     */
+    public boolean setInvalidPGNOutputWriter(BufferedWriter writer)
+    {
+        // is working
+        //if (this.isParsing)
+        //{
+        //    return false;
+        //}
+        
+        this.invalidPGNWriter = writer;
+        
+        return true;
+    }
+    
+    /**
+     * Creates a temporary (!) file for storing invalid chess games. Default.
+     * 
+     * @param   filename    Filename of input file / reference file
+     * @return  false on error
+     */
+    public boolean createTemporaryOutputWriterForInvalidPGNs(String filename)
+    {
+        if (this.invalidPGNsOutputFile != null && this.invalidPGNsOutputFile.exists())
+        {
+            if (this.invalidPGNWriter == null)
+            {
+                try
+                {
+                    this.setInvalidPGNOutputStream(new FileOutputStream(this.invalidPGNsOutputFile));
+                }
+                catch (FileNotFoundException e)
+                {
+                    e.printStackTrace();
+                    return false;
+                }
+                //return true;
+            }
+            //else
+            // has a writer already
+        }
+        else
+        {
+            // TODO: use for directory?
+            File tf;
+            
+            // create filename
+            if (filename == null)
+            {
+                filename = "InvalidGames_";
+            }
+            else
+            {
+                tf = new File(this.inputFilename);
+                filename = tf.getName();
+                
+                if (filename.indexOf(".pgn") != -1)
+                {
+                    filename = filename.substring(0, filename.indexOf(".pgn"));
+                }
+                filename += "_";
+            }
+            
+            // create new temp file
+            try
+            {
+                this.invalidPGNsOutputFile = File.createTempFile(filename, ".pgn", null);
+                this.invalidPGNsOutputFile.deleteOnExit();
+                this.setInvalidPGNOutputStream(new FileOutputStream(this.invalidPGNsOutputFile));
+                
+                //System.out.format("  Created new temp file \"%s\" for invalid PGN games.%n",
+                //        this.invalidPGNsOutputFile.getPath());
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                return false;
+            }
+        }
         return true;
     }
     
@@ -269,6 +414,9 @@ public class PGNToChessDataModelConverter
                     reader = FileUtils.openReader(FileUtils.openInputStream(this.inputFilename));
                 }
             }
+            
+            // create file for invalid games if not existing
+            createTemporaryOutputWriterForInvalidPGNs(this.inputFilename);
         }
         catch (IOException e)
         {
@@ -317,18 +465,10 @@ public class PGNToChessDataModelConverter
                     }
                     else
                     {
+                        this.numberOfInvalidGames.incrementAndGet();
+                        
                         // output game
-                        /*System.out.println("Invalid game {{");
-                        for (String s : metaLines)
-                        {
-                            System.out.println(s);
-                        }
-                        System.out.println();
-                        for (String s : moveLines)
-                        {
-                            System.out.println(s);
-                        }
-                        System.out.println("}}");*/
+                        writePGN(metaLines, moveLines);
                     }
                     metaLines = new ArrayList<String>();
                     moveLines = new ArrayList<String>();
@@ -364,18 +504,10 @@ public class PGNToChessDataModelConverter
                         }
                         else
                         {
+                            this.numberOfInvalidGames.incrementAndGet();
+                            
                             // output invalid game
-                            /*System.out.println("Invalid game {{");
-                            for (String s : metaLines)
-                            {
-                                System.out.println(s);
-                            }
-                            System.out.println();
-                            for (String s : moveLines)
-                            {
-                                System.out.println(s);
-                            }
-                            System.out.println("}}");*/
+                            writePGN(metaLines, moveLines);
                         }
                         
                         // check for end
@@ -416,6 +548,12 @@ public class PGNToChessDataModelConverter
             {
                 reader.close();
                 reader = null;
+                
+                if (this.invalidPGNWriter != null)
+                {
+                    invalidPGNWriter.close();
+                    invalidPGNWriter = null;
+                }
             }
             catch (IOException e)
             {
@@ -564,7 +702,7 @@ public class PGNToChessDataModelConverter
                     //if (! cb.move(m))
                     if (! cb.doMove(moveInt, true))
                     {
-                        System.out.println("WARN: move \"" + m + "\" -> \""
+                        System.err.println("WARN: move \"" + m + "\" -> \""
                                 + Move.toStringExt(moveInt) +
                                 "\" in <Game " + (numberOfGames.get() + 1)
                                 + ">");
@@ -686,6 +824,8 @@ public class PGNToChessDataModelConverter
     }
     
     
+    // ------------------------------------------------------------------------
+    
     /**
      * Will switch surname and first. Removes spaces and braces.
      * 
@@ -712,6 +852,52 @@ public class PGNToChessDataModelConverter
         
         // remove spaces
         return pattern_name_spaces.matcher(name).replaceAll(" ").trim();
+    }
+    
+    /**
+     * Internal. Writes the parsed lines (...) into the invalidPGNWriter
+     * object.
+     * 
+     * @param   meta    PGN meta data
+     * @param   moves   PGN moves
+     * @return  true if no error
+     */
+    private boolean writePGN(List<String> meta, List<String> moves)
+    {
+        if (meta == null || moves == null)
+        {
+            return false;
+        }
+        
+        if (invalidPGNWriter == null)
+        {
+            return false;
+        }
+        
+        try
+        {
+            for (String line : meta)
+            {
+                invalidPGNWriter.write(line);
+                invalidPGNWriter.newLine();
+            }
+            invalidPGNWriter.newLine();
+            for (String line : moves)
+            {
+                invalidPGNWriter.write(line);
+                invalidPGNWriter.newLine();
+            }
+            invalidPGNWriter.newLine();
+            
+            invalidPGNWriter.flush();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        
+        return true;
     }
         
 }

@@ -5,13 +5,9 @@ package de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.test;
 
 import static org.junit.Assert.*;
 
-import java.util.regex.Pattern;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.uni_leipzig.informatik.swp13_sc.converter.PGNToChessDataModelConverter;
 
 /**
  * 

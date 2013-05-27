@@ -6,6 +6,7 @@ package de.uni_leipzig.informatik.swp13_sc.converter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.IllegalFormatException;
 import java.util.List;
@@ -498,6 +499,9 @@ public class PGNToRDFConverterRanged
                     Float.toString(((System.currentTimeMillis() - start) / 1000.0f)));
         }
         
+        long start2 = System.currentTimeMillis();
+        System.out.format("  Writing %d generated names of chess games into archive ... ",
+                cdm2rdf.getConvertedGameNames().size());
         // write the generate chess game names into a file
         try
         {
@@ -511,10 +515,41 @@ public class PGNToRDFConverterRanged
         {
             e.printStackTrace();
         }
+        System.out.format(" finished. (%s s)%n",
+                Float.toString(((System.currentTimeMillis() - start2) / 1000.0f)));
+        
+        start2 = System.currentTimeMillis();
+        System.out.format("  Writing %d invalid chess games into archive ... ",
+                pgn2cdm.numberOfInvalidGames());
+        // write all the unparsed games into the archive for later postprocessing
+        try
+        {
+            ZipEntry ze = new ZipEntry("invalidChessGames.pgn");
+            zos.putNextEntry(ze);
+            
+            // read temp file
+            InputStream is = FileUtils.openInputStream(pgn2cdm.getFileOfInvalidGames());
+            int read;
+            byte buf[] = new byte[8192];
+            while ((read = is.read(buf, 0, buf.length)) > 0)
+            {
+                zos.write(buf, 0, read);
+            }
+            is.close();
+            
+            zos.closeEntry();
+            zos.flush();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        System.out.format(" finished. (%s s)%n",
+                Float.toString(((System.currentTimeMillis() - start2) / 1000.0f)));
         
         System.out.format(
-                "  Processed %d games to %d triples in %s seconds.%n  Wrote %d part(s) to Zip-Archive %s.%n",
-                pgn2cdm.numberOfParsedGames(), numberOfTriples,
+                "  Processed %d games (skipped %d) to %d triples in %s seconds.%n  Wrote %d part(s) to Zip-Archive %s.%n",
+                pgn2cdm.numberOfParsedGames(), pgn2cdm.numberOfInvalidGames(), numberOfTriples,
                 Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f)),
                 nr, outputZip); 
         

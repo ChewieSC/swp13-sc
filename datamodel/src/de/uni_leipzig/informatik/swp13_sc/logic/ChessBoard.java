@@ -616,9 +616,18 @@ public class ChessBoard
         }
     }
     
+    /**
+     * Not used yet. Converts indices of chess positions into the algebraic
+     * notation.
+     * 
+     * @param   y   row (1-8)
+     * @param   x   column (a-h)
+     * @return  2 char String [a-h][1-8]
+     */
+    @SuppressWarnings("unused")
     private String makeIndizesToPos(int y, int x)
     {
-        return "" + chessIntToChar(x) + (y + 1);
+        return chessIntToChar(x) + "" + (y + 1);
     }
     
     /**

@@ -8,7 +8,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class ChessDataModelToRDFConverter
      * Internal. List of all game names.
      */
     //private Set<String> convertedGames;
-    private Map<String, List<String>> convertedGames;
+    private Map<String, Integer> convertedGames;
     /**
      * Internal. Seperator char for URI names.
      */
@@ -127,7 +126,7 @@ public class ChessDataModelToRDFConverter
         // create store
         model = createModel();
         
-        convertedGames = new HashMap<String, List<String>>();
+        convertedGames = new HashMap<String, Integer>();
     }
     
     // ------------------------------------------------------------------------
@@ -137,9 +136,25 @@ public class ChessDataModelToRDFConverter
      * 
      * @return  unmodifiableSet<String>
      */
-    public Map<String, List<String>> getConvertedGameNames()
+    public List<String> getConvertedGameNames()
     {
-        return Collections.unmodifiableMap(this.convertedGames);
+        List<String> list = new ArrayList<String>();
+        
+        for (String key : this.convertedGames.keySet())
+        {
+            int n = this.convertedGames.get(key);
+            for (int i = 1; i <= n; i ++)
+            {
+                String gameName = key;
+                if (i > 1)
+                {
+                    gameName += separator + "1";
+                }
+                list.add(gameName);
+            }
+        }
+        
+        return list;
     }
     
     /**
@@ -484,13 +499,20 @@ public class ChessDataModelToRDFConverter
             return false;
         }
         
-        for (String key : this.getConvertedGameNames().keySet())
+        for (String key : this.convertedGames.keySet())
         {
-            for (String s : this.getConvertedGameNames().get(key))
+            int n = this.convertedGames.get(key);
+            for (int i = 1; i <= n; i ++)
             {
                 try
                 {
-                    bw.write(s);
+                    String gameName = key;
+                    if (i > 1)
+                    {
+                        gameName += separator + "" + i;
+                    }
+                    
+                    bw.write(gameName);
                     bw.newLine();
                 }
                 catch (IOException e)
@@ -568,17 +590,15 @@ public class ChessDataModelToRDFConverter
         String game;
         if (convertedGames.containsKey(key))
         {
-            List<String> games = convertedGames.get(key);
-            
-            game = key + separator + "" + (games.size() + 1);
-            games.add(game);
+            int nr = convertedGames.get(key);
+            nr ++;
+            game = key + separator + "" + nr;
+            this.convertedGames.put(key, nr);
         }
         else
         {
-            List<String> games = new ArrayList<String>();
-            game = key + separator + "" + (games.size() + 1);
-            games.add(game);
-            this.convertedGames.put(key, games);
+            game = key;
+            this.convertedGames.put(key, 1);
         }
         
         return game;
