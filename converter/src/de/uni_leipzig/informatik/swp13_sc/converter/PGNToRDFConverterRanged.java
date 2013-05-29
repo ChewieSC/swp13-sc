@@ -518,34 +518,37 @@ public class PGNToRDFConverterRanged
         System.out.format(" finished. (%s s)%n",
                 Float.toString(((System.currentTimeMillis() - start2) / 1000.0f)));
         
-        start2 = System.currentTimeMillis();
-        System.out.format("  Writing %d invalid chess games into archive ... ",
-                pgn2cdm.numberOfInvalidGames());
-        // write all the unparsed games into the archive for later postprocessing
-        try
+        if (pgn2cdm.numberOfInvalidGames() > 0)
         {
-            ZipEntry ze = new ZipEntry("invalidChessGames.pgn");
-            zos.putNextEntry(ze);
-            
-            // read temp file
-            InputStream is = FileUtils.openInputStream(pgn2cdm.getFileOfInvalidGames());
-            int read;
-            byte buf[] = new byte[8192];
-            while ((read = is.read(buf, 0, buf.length)) > 0)
+            start2 = System.currentTimeMillis();
+            System.out.format("  Writing %d invalid chess games into archive ... ",
+                    pgn2cdm.numberOfInvalidGames());
+            // write all the unparsed games into the archive for later postprocessing
+            try
             {
-                zos.write(buf, 0, read);
+                ZipEntry ze = new ZipEntry("invalidChessGames.pgn");
+                zos.putNextEntry(ze);
+                
+                // read temp file
+                InputStream is = FileUtils.openInputStream(pgn2cdm.getFileOfInvalidGames());
+                int read;
+                byte buf[] = new byte[8192];
+                while ((read = is.read(buf, 0, buf.length)) > 0)
+                {
+                    zos.write(buf, 0, read);
+                }
+                is.close();
+                
+                zos.closeEntry();
+                zos.flush();
             }
-            is.close();
-            
-            zos.closeEntry();
-            zos.flush();
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            System.out.format(" finished. (%s s)%n",
+                    Float.toString(((System.currentTimeMillis() - start2) / 1000.0f)));
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        System.out.format(" finished. (%s s)%n",
-                Float.toString(((System.currentTimeMillis() - start2) / 1000.0f)));
         
         System.out.format(
                 "  Processed %d games (skipped %d) to %d triples in %s seconds.%n  Wrote %d part(s) to Zip-Archive %s.%n",
@@ -581,6 +584,8 @@ public class PGNToRDFConverterRanged
      */
     public boolean processToStream(String input, String output)
     {
+        // TODO: Check input/output files
+        
         // parse & convert
         long startFile = System.currentTimeMillis();
         long numberOfTriples = 0;
@@ -668,9 +673,29 @@ public class PGNToRDFConverterRanged
                     Float.toString(((System.currentTimeMillis() - start) / 1000.0f)));
         }
         
+        /*
+        // TODO: Resolve names for multiple input files
+        if (pgn2cdm.numberOfInvalidGames() > 0)
+        {
+            try
+            {
+                File tempInvalidGamesFile = new File(pgn2cdm.getFileOfInvalidGames());
+                File invalidGamesFile = new File(new File(output).getParent(), "invalidChessGames.pgn");
+                
+                tempInvalidGamesFile.renameTo(invalidGamesFile);
+            }
+            catch (Exception e)
+            {
+                // NullPointerException
+                // SecurityException
+                e.printStackTrace();
+            }
+        }
+        */
+        
         System.out.format(
-                "  Processed %d games to %d triples in %s seconds.%n  Wrote %d File(-Parts).%n",
-                pgn2cdm.numberOfParsedGames(), numberOfTriples,
+                "  Processed %d games (skipped %d) to %d triples in %s seconds.%n  Wrote %d File(-Parts).%n",
+                pgn2cdm.numberOfParsedGames(), pgn2cdm.numberOfInvalidGames(), numberOfTriples,
                 Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f)),
                 nr);
         
