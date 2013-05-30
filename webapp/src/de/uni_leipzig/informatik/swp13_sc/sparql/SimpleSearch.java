@@ -42,6 +42,10 @@ public class SimpleSearch
      */
     private boolean distinct;
     /**
+     * Sets the maximum number of results returned.
+     */
+    private int limit;
+    /**
      * Tells the SPARQL Query composer to construct a COUNT query.
      */
     private boolean count;
@@ -128,6 +132,10 @@ public class SimpleSearch
      */
     private final static String SPARQL_QUERY_WHERE_END = "}";
             //SPARQL_QUERY_NEWLINE + "}";
+    /**
+     * SPARQL_QUERY_LIMIT
+     */
+    private final static String SPARQL_QUERY_LIMIT = "LIMIT ";
     
     /**
      * SPARQL_QUERY_FILTER_REGEX_START
@@ -390,6 +398,24 @@ public class SimpleSearch
     }
     
     /**
+     * Sets the maximum number of results to be returned. If the argument is
+     * less 0 than the previous limit will stay in effect. If the argument is
+     * 0 it will mean no limit at all.
+     * 
+     * @param   limit   maximum number of results greater 0
+     * @return  SimpleSearch (this) to chain calls
+     */
+    public SimpleSearch setLimit(int limit)
+    {
+        if (limit >= 0)
+        {
+            this.limit = limit;
+        }
+        
+        return this;
+    }
+    
+    /**
      * Tells the SPARQL Query constructor to construct a COUNT SPARQL query
      * if set to true.
      * 
@@ -631,6 +657,14 @@ public class SimpleSearch
         
         // query end
         sb.append(SPARQL_QUERY_WHERE_END);
+        
+        // limit results if not counting and not unlimited
+        if ((! this.count) && (this.limit > 0))
+        {
+            sb.append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_LIMIT)
+                .append(this.limit);
+        }
         
         return sb.toString();
     }
@@ -1212,6 +1246,14 @@ public class SimpleSearch
         
         // query end
         sb.append(SPARQL_QUERY_WHERE_END);
+        
+        // limit results if not counting and not unlimited
+        if ((! this.count) && (this.limit > 0))
+        {
+            sb.append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_LIMIT)
+                .append(this.limit);
+        }
         
         return sb.toString();
     }

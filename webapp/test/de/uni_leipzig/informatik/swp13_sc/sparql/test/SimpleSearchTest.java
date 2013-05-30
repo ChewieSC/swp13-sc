@@ -91,7 +91,7 @@ public class SimpleSearchTest
     {
         SimpleSearch ss = new SimpleSearch();
         
-        ss.setDBConnection(new VirtGraph("http://localhost:1358/millionbase",
+        ss.setDBConnection(new VirtGraph("millionbase",
                 "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba"));
         ss.setField(SimpleSearch.FIELD_KEY_CG_RESULT, SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
         
@@ -259,6 +259,10 @@ public class SimpleSearchTest
         
         ss.setCountResults(true);
         qu = ss.getSPARQLQuery();
+        
+        qu = ss.setCountResults(false)
+                .setLimit(257)
+                .getSPARQLQuery();
     }
     
     /**
