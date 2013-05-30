@@ -4,7 +4,8 @@ import java.util.List;
 
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.vaadin.ui.Table;
+import com.vaadin.ui.*;
+import com.vaadin.server.ExternalResource;
 
 public class ResultTable extends Table
 {
@@ -12,12 +13,17 @@ public class ResultTable extends Table
 
 	public ResultTable(List<String> resultList)
 	{
-		this.addContainerProperty("URI", String.class, null);
-		
-		for (int i = 0; i < resultList.size(); i ++)
-		{
-			this.addItem(new Object[] { resultList.get(i) }, new Integer(i));
-		}
+        this.addContainerProperty("URI", Link.class, null);
+        String uri;
+        ExternalResource uriRessource;
+        Link link;
+        for (int i = 0; i < resultList.size(); i ++)
+        {
+            uri = resultList.get(i);
+            uriRessource = new ExternalResource(uri);
+            link = new Link(uri,uriRessource);
+            this.addItem(new Object[] {link}, new Integer(i));
+        }
 	}
 
 	public ResultTable(ResultSet resultSet)
