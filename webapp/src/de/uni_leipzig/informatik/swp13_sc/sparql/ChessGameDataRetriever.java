@@ -3,9 +3,6 @@
  */
 package de.uni_leipzig.informatik.swp13_sc.sparql;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
@@ -17,7 +14,6 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
-import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
@@ -44,21 +40,11 @@ public class ChessGameDataRetriever
     private ChessPlayerDataRetriever cpdr;
     
     /**
-     * Internal. VARIABLE_MOVE_MOVENR
+     * Internal ChessMoveListDataRetriever to retrieve chess move data from
+     * game URI/IRIs and assign the resources to the chess games.
      */
-    private final static String VARIABLE_MOVE_MOVENR = "?nr";
-    /**
-     * Internal. VARIABLE_MOVE
-     */
-    private final static String VARIABLE_MOVE = "?move";
-    /**
-     * Internal. VARIABLE_MOVE_MOVENAME
-     */
-    private final static String VARIABLE_MOVE_MOVENAME = "?movename";
-    /**
-     * Internal. VARIABLE_MOVE_FEN
-     */
-    private final static String VARIABLE_MOVE_FEN = "?fen";
+    private ChessMoveListDataRetriever cmdr;
+    
     /**
      * Constructor. Requires the connection to the datastore (Virtuoso)
      * 
@@ -74,6 +60,8 @@ public class ChessGameDataRetriever
         }
         
         this.virtuosoGraph = virtuosoGraph;
+        
+        this.createDefaultChessMoveListDataRetriever();
     }
     
     /**
@@ -100,6 +88,25 @@ public class ChessGameDataRetriever
         try
         {
             this.cpdr = new ChessPlayerDataRetriever(this.virtuosoGraph);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return this;
+    }
+    
+    /**
+     * Creates a default {@link ChessMoveListDataRetriever} object to retrieve
+     * chess move resources.
+     * 
+     * @return  {@link ChessGameDataRetriever}
+     */
+    public ChessGameDataRetriever createDefaultChessMoveListDataRetriever()
+    {
+        try
+        {
+            this.cmdr = new ChessMoveListDataRetriever(this.virtuosoGraph);
         }
         catch (Exception e)
         {
@@ -248,7 +255,7 @@ public class ChessGameDataRetriever
                 // TODO: black and white meta keys are not set yet ...
             }
             
-            cgb.setMoves(this.getMoves(gameURI));
+            cgb.setMoves(this.cmdr.getMoves(gameURI));
             
             vqeS.close();
             
@@ -367,110 +374,5 @@ public class ChessGameDataRetriever
             return this.cpdr.getPlayer(this.getBlackChessPlayerURI(gameURI));
         }
         return null;
-    }
-    
-    /**
-     * Returns a list of {@link ChessMove}s for a given game URI/IRI. On error
-     * it will return an empty list.
-     * 
-     * @param   gameURI URI/IRI of game
-     * @return  List<{@link ChessMove}>
-     */
-    public List<ChessMove> getMoves(String gameURI)
-    {
-        if (gameURI == null)
-        {
-            return new ArrayList<ChessMove>();
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT DISTINCT ")
-            .append(VARIABLE_MOVE_MOVENAME)
-            .append(' ')
-            .append(VARIABLE_MOVE_MOVENR)
-            .append(' ')
-            .append(VARIABLE_MOVE_FEN)
-            .append("\nWHERE\n{\n  <")
-            .append(gameURI)
-            .append("> <")
-            .append(ChessRDFVocabulary.moves.toString())
-            .append("> ")
-            .append(VARIABLE_MOVE)
-            .append(".\n  ")
-            .append(VARIABLE_MOVE)
-            .append(" <")
-            .append(ChessRDFVocabulary.move.toString())
-            .append("> ")
-            .append(VARIABLE_MOVE_MOVENAME)
-            .append(".\n  ")
-            .append(VARIABLE_MOVE)
-            .append(" <")
-            .append(ChessRDFVocabulary.moveNr.toString())
-            .append("> ")
-            .append(VARIABLE_MOVE_MOVENR)
-            .append(".\n  OPTIONAL\n  {\n    ")
-            .append(VARIABLE_MOVE)
-            .append(" <")
-            .append(ChessRDFVocabulary.fen.toString())
-            .append("> ")
-            .append(VARIABLE_MOVE_FEN)
-            .append(".\n  }\n")
-            .append("}\nORDER BY ")
-            .append(VARIABLE_MOVE_MOVENR);
-        
-        // DEBUG:
-        //System.out.println(sb.toString());
-        
-        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
-        
-        VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(sb.toString(), this.virtuosoGraph);
-        
-        try
-        {
-            ResultSet results = vqeS.execSelect();
-            
-            ChessMove lastMove = new ChessMove.Builder().setNr(-2).build();
-            
-            while (results.hasNext())
-            {
-                QuerySolution result = (QuerySolution) results.next();
-                
-                Literal l_name = result.getLiteral(VARIABLE_MOVE_MOVENAME);
-                String name = l_name.toString();
-                
-                Literal l_nr = result.getLiteral(VARIABLE_MOVE_MOVENR);
-                int nr = l_nr.getInt();
-                
-                Literal l_fen = result.getLiteral(VARIABLE_MOVE_FEN);
-                String fen = (l_fen == null) ? null : l_fen.toString();
-                fen = ("".equals(fen)) ? null : fen;
-                
-                // create ChessGame object and set data.
-                // check if double - that means a move with the same nr but different data
-                ChessMove move = new ChessMove.Builder().setMove(name).setNr(nr).setFEN(fen).build();
-                if (move.getNr() == lastMove.getNr())
-                {
-                    // second move has FEN
-                    if (lastMove.getFEN() == null && move.getFEN() != null)
-                    {
-                        moves.remove(moves.size() - 1);
-                    }
-                }
-                moves.add(move);
-                lastMove = move;
-                
-                // DEBUG:
-                // System.out.println(lastMove);
-            }
-            
-            vqeS.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return new ArrayList<ChessMove>();
-        }
-        
-        return moves;
     }
 }
