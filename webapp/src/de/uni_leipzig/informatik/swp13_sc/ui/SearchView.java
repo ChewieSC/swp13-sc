@@ -161,7 +161,7 @@ public class SearchView extends VerticalLayout
         simpleSearchLayout = new HorizontalLayout();
 
         btnSearch = new Button("Suche Starten");
-        btnEndSearch = new Button("Zurï¿½ck");
+        btnEndSearch = new Button("Zurück");
 
         btnSearch.addClickListener(new ClickListener()
         {
@@ -279,7 +279,7 @@ public class SearchView extends VerticalLayout
                     }
                 }
                 
-             //-----------Ergï¿½nzungen simpleSearch---------//
+             //-----------Ergänzungen simpleSearch---------//
                 
                 s = tf_birth_p1.getValue();               
                 if (s != null && !"".equals(s))
@@ -429,21 +429,21 @@ public class SearchView extends VerticalLayout
         // obj.getClass().toString(), Notification.Type.TRAY_NOTIFICATION);
         cb_ResultType.addItem(SL_PLAYER1);
         cb_ResultType.addItem(SL_PLAYER2);
-        cb_ResultType.setValue(cb_ResultType.getItemIds().iterator().next());
+        cb_ResultType.setValue(obj);
 
         cb_Color_1 = new ComboBox("Color of Player 1");
         cb_Color_1.setNullSelectionAllowed(false);
         obj = cb_Color_1.addItem(SL_NOCOLOR);
         cb_Color_1.addItem(SL_WHITE);
         cb_Color_1.addItem(SL_BLACK);
-        cb_Color_1.setValue(cb_Color_1.getItemIds().iterator().next()); // ? want to select the first ... :(
+        cb_Color_1.select(obj); // ? want to select the first ... :(
 
         cb_Color_2 = new ComboBox("Color of Player 2");
         cb_Color_2.setNullSelectionAllowed(false);
         obj = cb_Color_2.addItem(SL_NOCOLOR);
         cb_Color_2.addItem(SL_WHITE);
         cb_Color_2.addItem(SL_BLACK);
-        cb_Color_2.setValue(cb_Color_2.getItemIds().iterator().next()); // ?
+        cb_Color_2.setValue(obj); // ?
 
         exSearchLayout01.addComponent(tf_Date);
         exSearchLayout01.addComponent(tf_Event);
@@ -511,12 +511,12 @@ public class SearchView extends VerticalLayout
         qLayoutInner.setSizeFull();
         qLayoutInner.setWidth("100%");
 
-        lblQSearch = new Label("SPARQL Abfrage fï¿½r Fortgeschrittene Benutzer");
+        lblQSearch = new Label("SPARQL Abfrage für Fortgeschrittene Benutzer");
 
         taQuery = new TextArea();
         taQuery.setWidth("100%");
 
-        btnEndQSearch = new Button("Zurï¿½ck");
+        btnEndQSearch = new Button("Zurück");
         btnEndQSearch.addClickListener(new ClickListener()
         {
             private static final long serialVersionUID = 1L; 

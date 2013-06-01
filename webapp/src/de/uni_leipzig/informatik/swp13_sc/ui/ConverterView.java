@@ -16,6 +16,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.SucceededEvent;
 import com.vaadin.ui.VerticalLayout;
 
 import de.uni_leipzig.informatik.swp13_sc.converter.PGNToRDFConverterStream;
@@ -25,7 +26,7 @@ import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
  * KLasse enhaelt das Layout sowie Funktionen des Upload und Konvertierens
  * 
  * @author LingLong
- * 
+ * @author Chewie
  */
 public class ConverterView extends VerticalLayout
 {
@@ -47,7 +48,7 @@ public class ConverterView extends VerticalLayout
     // private TextField tfToPars = new TextField();
 
     /** Textfeld Für zu Parsende PGN */
-    private TextArea taToPars = new TextArea();
+    // private TextArea taToPars = new TextArea(); //erstmal rausgenommen
 
     /** Button fur Konvertierung */
     private Button btnDownload = new Button("Download");
@@ -56,13 +57,37 @@ public class ConverterView extends VerticalLayout
 
     private File file;
 
-    private String basepath = VaadinService.getCurrent().getBaseDirectory()
-            .getAbsolutePath(); // TODO: zu verwenden
+    private String basepath = VaadinService.getCurrent().getBaseDirectory().getAbsolutePath(); 
 
-    private Upload upload;
+	Upload upload = new Upload("Upload RDF-File Here.", new Upload.Receiver() {
+    	@SuppressWarnings("deprecation")
+		@Override
+    	public OutputStream receiveUpload(String filename, String mimeType) {
+    		
+    		lblInfo.setValue("");
+    		FileOutputStream fos = null; // Stream to write to
+            try {
+                // Open the file for writing.
+            	System.out.println(mimeType);
+            	if(!filename.equals(getFileString())){
+            		setFileString(filename);
+            	}	
+            	// TODO: check file for ending .pgn
+            		file = new File(basepath + filename);
+                    fos = new FileOutputStream(file);
+                    //process                
+            } catch (final java.io.FileNotFoundException e) {
+                Notification.show(
+                        "Could not open file", e.getMessage(),
+                        Notification.TYPE_ERROR_MESSAGE);
+                return null;
+            } 
+            return fos; // Return the output stream to write to
+    	}
+	   });
 
     // private FileDownloader fileDownloader;
-    /** Button zum Suchen von Uploads */
+    /* Button zum Suchen von Uploads */
     // TODO: Upload checken
 
     /**
@@ -70,52 +95,13 @@ public class ConverterView extends VerticalLayout
      */
     public ConverterView()
     {
-        upload = new Upload("Upload RDF-File Here.", new Upload.Receiver()
-        {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public OutputStream receiveUpload(String filename, String mimeType)
-            {
-                /*
-                 * Here, we'll stored the uploaded file as a temporary file. No
-                 * doubt there's a way to use a ByteArrayOutputStream, a reader
-                 * around it, use ProgressListener (and a progress bar) and a
-                 * separate reader thread to populate a container *during* the
-                 * update.
-                 * 
-                 * This is quick and easy example, though.
-                 */
-                System.out.println(basepath);
-                FileOutputStream fos = null; // Stream to write to
-                try
-                {
-                    // Open the file for writing.
-                    System.out.println(mimeType);
-
-                    setFileString(filename);
-                    // TODO: check file for ending .pgn
-                    file = new File(basepath + filename);
-                    fos = new FileOutputStream(file);
-                    // process
-                }
-                catch (final java.io.FileNotFoundException e)
-                {
-                    Notification.show("Could not open file", e.getMessage(),
-                            Notification.Type.ERROR_MESSAGE);
-                    return null;
-                }
-                return fos; // Return the output stream to write to
-            }
-        });
-
         // --------------Aufbau Konverterfenster---------------//
 
         addComponent(lbConverter);
         addComponent(converterLayoutInner);
 
         addComponent(upload);
-        addComponent(taToPars);
+//        addComponent(taToPars);
         addComponent(btnDownload);
 
         addComponent(lblOut);
@@ -127,10 +113,10 @@ public class ConverterView extends VerticalLayout
         setWidth("100%");
 
         // tfToPars.setWidth("100%");
-        taToPars.setWidth("100%");
+//        taToPars.setWidth("100%");
 
         // converterLayoutInner.setExpandRatio(tfToPars, 1);
-        setExpandRatio(taToPars, 1);
+//        setExpandRatio(taToPars, 1);
 
         setMargin(true);
         setVisible(true);
@@ -139,75 +125,55 @@ public class ConverterView extends VerticalLayout
         // converterLayoutInner.setVisible(true);
     }
 
-    public void initUpload()
+    @SuppressWarnings("deprecation")
+	public void initUpload()
     {
-        // final RdfUploader uploader = new RdfUploader(); //TODO
-
-        // upload.setReceiver(uploader);
-        upload.addFinishedListener(new Upload.FinishedListener()
-        {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void uploadFinished(Upload.FinishedEvent finishedEvent)
-            {
-                File fileTemp = new File(basepath + "test.rdf");
-
-                if (fileTemp.exists())
-                {
-                    fileTemp.delete();
-                }
-
-                postPgn(basepath + getFileString(), basepath + "test.rdf");
-            }
-        });
-
-        // delete test.rdf every time
-        System.out.println(basepath + getFileString());
-
-        Resource res = new FileResource(new File(basepath + "test.rdf"));
-
-        FileDownloader fd = new FileDownloader(res);
-        fd.extend(btnDownload);
-
-        // StreamResource myResource = createResource();
-        // fileDownloader = new FileDownloader(myResource);
-
-        // System.out.println(file.getPath());
+    	upload.addListener(new Upload.SucceededListener() {	
+    		@Override
+    		public void uploadSucceeded(SucceededEvent event) {
+    			String[] tokens = getFileString().split("\\.(?=[^\\.]+$)");
+    			File fileTemp = new File(basepath + tokens[0] + ".rdf");
+        		if(fileTemp.exists())
+        			fileTemp.delete();
+        		System.out.println("File Name in UploadSucceded: " + getFileString());    		
+        		postPgn(basepath + getFileString(), basepath + tokens[0] + ".rdf");
+    		}
+    	});
+    
     }
 
     // *------------------Anbindung der Komponenten an das
     // Datenmodell------------//
 
-    public boolean postPgn(String pathIn, String pathOut)
-    {
-        FileInputStream is = FileUtils.openInputStream(pathIn);
-        FileOutputStream os = FileUtils.openOutputStream(pathOut);
-        PGNToRDFConverterStream p = new PGNToRDFConverterStream(is, os);
-        boolean bValue = p.start();
+    public boolean postPgn( String pathIn, String pathOut) {
+  	  
+  	  System.out.println("Check Check");
+  	  lblInfo.setValue("Parsen...Konvertieren...");
+  	  FileInputStream is = FileUtils.openInputStream(pathIn);
+  	  FileOutputStream os = FileUtils.openOutputStream(pathOut);
+  	  PGNToRDFConverterStream p = new PGNToRDFConverterStream(is, os);
+  	  boolean bValue = p.start();
+  	  try {
+  		is.close();
+  		os.close();
+	  } catch (IOException e) {
+	  		e.printStackTrace();
+	  }
+	  	  
 
-        try
-        {
-            is.close();
-            os.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return false;
-        }
+  	  if(bValue){
+  		  System.out.println("Check Check Check");
+  		  lblInfo.setValue("PGN wurde erfolgreich Konvertiert! Die RDF steht jetzt zum Donwload bereit.");
+  		  btnDownload.setEnabled(true);
+  		  FileResource res = new FileResource(new File(pathOut));
+  		  FileDownloader fd = new FileDownloader(res);
+  		  fd.extend(btnDownload);
+  	  }
 
-        lblInfo.setValue("Parsen...Konvertieren...");
+  	  else			
+  		  lblInfo.setValue("Fehler beim Parsen/Konvertieren!");
 
-        if (bValue)
-        {
-            lblInfo.setValue("PGN wurde erfolgreich Konvertiert! Die RDF steht jetzt zum Donwload bereit.");
-        }
-
-        else
-            lblInfo.setValue("Fehler beim Parsen/Konvertieren!");
-
-        return bValue;
+  	return bValue;  
     }
 
     public void setFileString(String fileString)

@@ -82,28 +82,7 @@ FILTER(regex ( ?fen,"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K"))
     }
     public void setFen(String fen)
     {
-        this.fen = "SELECT count(distinct ?w) as ?whiteWin count(distinct ?b) as ?blackWin count(distinct ?d) as ?draw " +
-                "WHERE{" +
-                "{?w a cont:ChessGame. " +
-                "?w cont:result \"1-0\". " +
-                "?w cont:moves ?m. " +
-                "?m cont:fen ?fen " +
-                "FILTER(regex ( ?fen,"+fen+")) }" +
-                "UNION " +
-                "{?b a cont:ChessGame. \" +\n" +
-                "?b cont:result \"0-1\".  "+
-                "?b cont:moves ?m. " +
-                "?m cont:fen ?fen " +
-                "FILTER(regex ( ?fen,"+fen+")) }" +
-                "}" +
-                "UNION" +
-                "{" +
-                "?d a cont:ChessGame." +
-                "?d cont:result \"1/2-1/2\"." +
-                "?d cont:moves ?m." +
-                "?m cont:fen ?fen" +
-                "}" +
-                "FILTER(regex ( ?fen,\"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K\"))";
+        this.fen = fen;
         updateQuery();
     }
 

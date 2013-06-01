@@ -25,6 +25,7 @@ public class SemChessLogo extends GridLayout
                 .getAbsolutePath();
 
         // Image as a file resource
+        System.out.println();
         resource = new FileResource(new File(basepath
                 + "/WEB-INF/images/SemChessLogo.png"));
 

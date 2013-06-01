@@ -30,7 +30,7 @@ public class QuerySearch {
 
 		System.out.println(sparqlQuery); // nur zum testen
 		
-		virtuosoGraph = new VirtGraph ("http://localhost:1358/millionbase", url, "pgn", "pgn");	
+		virtuosoGraph = new VirtGraph ("millionbase", url, "pgn", "pgn");	
 
 		System.out.println(virtuosoGraph.getGraphUrl());
 	}
