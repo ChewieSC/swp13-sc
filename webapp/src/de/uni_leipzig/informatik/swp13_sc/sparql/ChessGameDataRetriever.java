@@ -3,6 +3,8 @@
  */
 package de.uni_leipzig.informatik.swp13_sc.sparql;
 
+import java.util.List;
+
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
@@ -14,6 +16,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessPlayer;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.pgn.ChessPGNVocabulary;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
@@ -374,5 +377,18 @@ public class ChessGameDataRetriever
             return this.cpdr.getPlayer(this.getBlackChessPlayerURI(gameURI));
         }
         return null;
+    }
+    
+    /**
+     * Returns a list of {@link ChessMove}s for a given game URI/IRI. On error
+     * it will return an empty list.
+     * 
+     * @param   uri URI/IRI of game or opening
+     * @return  List<{@link ChessMove}>
+     * @see ChessMoveListDataRetriever
+     */
+    public List<ChessMove> getMoves(String uri)
+    {
+        return this.cmdr.getMoves(uri);
     }
 }
