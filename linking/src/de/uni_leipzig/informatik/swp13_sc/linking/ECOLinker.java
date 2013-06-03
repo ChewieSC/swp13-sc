@@ -35,25 +35,58 @@ import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 public class ECOLinker
 {
     
+    /**
+     * Graph (Connection to Virtuoso triple store) to query from
+     */
     protected VirtGraph virtuosoGraph;
+    /**
+     * cached mappings of ECOs and chess game URIs
+     */
     protected Map<String, List<String>> ecoGameMapping;
+    /**
+     * if cached mappings are available
+     */
     private boolean hasMappings;
+    /**
+     * Class to retrieve chess openings (ECOs) from a triple store.
+     */
     protected ChessOpeningDataRetriever codr;
     
+    /**
+     * Default timeout for a SPARQL query. (for efficiency) 
+     */
     public final static int QUERY_TIMEOUT = 90;
     
     // ------------------------------------------------------------------------
     
+    /**
+     * variable name of ecos
+     */
     protected final static String SPARQL_ECOS_VAR = "?ECO_URI";
+    /**
+     * graph name of ecos (testing)
+     */
     protected final static String SPARQL_ECOS_GRAPH = "eco";
+    /**
+     * graph from clausel for sparql (testing)
+     */
     protected final static String SPARQL_ECOS_FROM = ""; //"FROM <" + SPARQL_ECOS_GRAPH + ">\n";
+    /**
+     * sparql query to get all ECOs of the current database
+     */
     protected final static String SPARQL_ECOS = "SELECT DISTINCT "
             + SPARQL_ECOS_VAR + "\n" + SPARQL_ECOS_FROM + "WHERE\n{\n  "
             + SPARQL_ECOS_VAR + " a cont:ChessOpening .\n}\nORDER BY " + SPARQL_ECOS_VAR;
     
     // ------------------------------------------------------------------------
     
+    /**
+     * variable name of a chess game (for sparql query, mapping)
+     */
     protected final static String SPARQL_GAME_VAR = "?game";
+    /**
+     * variable prefix name of a chess move (for builder)
+     */
     protected final static String SPARQL_GAME_MOVE_VAR_PREFIX = "?move_";
     
     // ------------------------------------------------------------------------
@@ -292,6 +325,40 @@ public class ECOLinker
         return mappings;
     }
     
+    /**
+     * Computes the reverse mapping for a mapping (Map<String, List<String>>).
+     * E.g. ECO,URIs -> URI,ECOs
+     * 
+     * @param   map a Map< String, List< String >>
+     * @return  Map< String, List< String >>
+     */
+    public Map<String, List<String>> getReverseMapping(Map<String, List<String>> map)
+    {
+        Map<String, List<String>> revMap = new HashMap<String, List<String>>();
+        
+        if (map != null)
+        {
+            for (String key : map.keySet())
+            {
+                for (String entry : map.get(key))
+                {
+                    if (revMap.containsKey(entry))
+                    {
+                        revMap.get(entry).add(key);
+                    }
+                    else
+                    {
+                        List<String> newList = new ArrayList<String>();
+                        newList.add(key);
+                        revMap.put(entry, newList);
+                    }
+                }
+            }
+        }
+        
+        return revMap;
+    }
+    
     // ------------------------------------------------------------------------   
     
     /**
@@ -417,8 +484,10 @@ public class ECOLinker
      */
     public static void main(String[] args)
     {
-        if ((args.length < 4) || (args.length > 6))
+        if ((args.length < 4) || (args.length > 5))
         {
+            System.out.println("Usage: java -jar Programm.jar <graph> <link to db>"
+                    + " <username> <password> [<outputfilename::=Mapping_ECO_GAME.ttl>]");
             System.exit(1);
         }
         
