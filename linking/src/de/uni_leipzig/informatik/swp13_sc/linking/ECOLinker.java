@@ -35,10 +35,6 @@ import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
  */
 public class ECOLinker
 {
-    // some constants
-    // sparql prefix/start
-    
-    // move compare ...
     
     protected VirtGraph virtuosoGraph;
     protected Map<String, List<String>> ecoGameMapping;
@@ -65,7 +61,7 @@ public class ECOLinker
     {
         this.virtuosoGraph = virtuosoGraph;
         //this.virtuosoGraph.setQueryTimeout(300); // in sec
-        this.virtuosoGraph.setQueryTimeout(15);
+        this.virtuosoGraph.setQueryTimeout(90);
         
         this.ecoGameMapping = new HashMap<String, List<String>>();
         this.hasMappings = false;
@@ -122,23 +118,35 @@ public class ECOLinker
         
         //construct query
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT DISTINCT ")
-            .append(SPARQL_GAME_VAR)
-            .append("\nWHERE\n{\n  ")
-            .append(SPARQL_GAME_VAR)
-            .append(" a ")
-            .append(ChessRDFVocabulary.getOntologyPrefixName())
-            .append(":")
-            .append(ChessRDFVocabulary.ChessGame.getLocalName())
-            .append(" .\n");
         
         // more efficient to move later moves to the front and common to the
         // back, reduce the result set early (?)
-        for (int nr = co.getMoves().size(); nr > 0; nr --)
+        for (int nr = 1; nr <= co.getMoves().size(); nr ++)
+        //for (int nr = co.getMoves().size(); nr > 0; nr --)
         {
+            String temp = sb.toString();
+            
+            sb = new StringBuilder();
             String moveVar = SPARQL_GAME_MOVE_VAR_PREFIX + nr;
-            sb.append("  ")
+            sb.append("SELECT ")
                 .append(SPARQL_GAME_VAR)
+                .append(" WHERE\n{\n  ");
+            if (temp.length() > 0)
+            {
+                sb.append("{\n")
+                .append(temp)
+                .append("\n  }\n  ");
+            }
+            if (nr == 1)
+            {
+                sb.append(SPARQL_GAME_VAR)
+                    .append(" a ")
+                    .append(ChessRDFVocabulary.getOntologyPrefixName())
+                    .append(":")
+                    .append(ChessRDFVocabulary.ChessGame.getLocalName())
+                    .append(" .\n  ");
+            }
+            sb.append(SPARQL_GAME_VAR)
                 .append(" ")
                 .append(ChessRDFVocabulary.getOntologyPrefixName())
                 .append(":")
@@ -170,12 +178,11 @@ public class ECOLinker
                 .append(ChessRDFVocabulary.move.getLocalName())
                 .append(" \"")
                 .append(co.getMoves().get(nr - 1).getMove())
-                .append("\" .\n");
+                .append("\" .\n}");
             
             // FEN ?
         }
         
-        sb.append("}");
         System.out.println("Get Games: " + sb.toString());
         
         List<String> list = new ArrayList<String>();
@@ -269,7 +276,6 @@ public class ECOLinker
             }
         }
         
-        
         return m;
     }
     
@@ -310,6 +316,5 @@ public class ECOLinker
                 "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
                 "dba", "dba"));
         ecol.writeMappingModel("Mapping_ECO_GAME.ttl");
-        
     }
 }
