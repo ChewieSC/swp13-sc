@@ -1,9 +1,9 @@
+
 package de.uni_leipzig.informatik.swp13_sc.ui;
 
 import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.query.ResultSet;
-import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -56,43 +56,41 @@ public class SearchView extends VerticalLayout
 
     /** Layout fuer erweiterte Suche */
     private VerticalLayout simpleSearchLayout;
-    
+
     private FormLayout fly_cg;
 
     /** Suchfelder fuer erweiterte Suche */
 
     private TextField tf_Name_1; // name player 1
     private TextField tf_Name_2; // name player 2
-    
-    private TextField tf_birth_p1;  //Geburt player1
-    private TextField tf_birth_p2;  //Geburt player2
-    
-    private TextField tf_death_p1;  //Todestag player1
-    private TextField tf_death_p2;  //Todestag player2
-    
+
+    private TextField tf_birth_p1; // Geburt player1
+    private TextField tf_birth_p2; // Geburt player2
+
+    private TextField tf_death_p1; // Todestag player1
+    private TextField tf_death_p2; // Todestag player2
+
     private TextField tf_nation_p1;
     private TextField tf_nation_p2;
-    
-    private TextField tf_elo_p1;    //elo player 1,2  
+
+    private TextField tf_elo_p1; // elo player 1,2
     private TextField tf_elo_p2;
-    
-    private TextField tf_birthPlace_p1; 
+
+    private TextField tf_birthPlace_p1;
     private TextField tf_birthPlace_p2;
-    
-    private TextField tf_peak_p1;   //PeakRanking player 1,2
+
+    private TextField tf_peak_p1; // PeakRanking player 1,2
     private TextField tf_peak_p2;
-    
+
     private ComboBox cb_Color_1; // color of player 1
     private ComboBox cb_Color_2; // color of player 2
     private ComboBox cb_ResultType; // player or game
     private ComboBox cb_Result; // result of game - 1-0, 0-1, 1/2-1/2
-    
 
     private TextField tf_Date; // date of game
     private TextField tf_Event; // event of game
     private TextField tf_Site; // site of game
-    private TextField tf_Round; // round of game    
-   
+    private TextField tf_Round; // round of game
 
     private final static String SL_GAME = "Game";
     private final static String SL_PLAYER1 = "Player 1";
@@ -134,7 +132,7 @@ public class SearchView extends VerticalLayout
     public SearchView()
     {
         setSpacing(true);
-        
+
         searchLayoutInner = new HorizontalLayout();
         searchLayoutInner.setSizeFull();
         searchLayoutInner.setWidth("100%");
@@ -147,7 +145,7 @@ public class SearchView extends VerticalLayout
 
         searchLayoutInner.addComponent(btnOpenSearch);
         searchLayoutInner.addComponent(btnOpenQuerySearch);
-        
+
         addComponent(searchLayoutInner);
     }
 
@@ -156,14 +154,13 @@ public class SearchView extends VerticalLayout
         simpleSearchLayoutInner = new HorizontalLayout();
         simpleSearchLayoutInner.setSizeFull();
         simpleSearchLayoutInner.setWidth("100%");
-        
+
         simpleSearchLayout = new VerticalLayout();
 
         btnSearch = new Button("Suche Starten");
         btnEndSearch = new Button("Zurück");
 
-        btnSearch.addClickListener(new ClickListener()
-        {
+        btnSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -171,12 +168,9 @@ public class SearchView extends VerticalLayout
             {
                 Configuration c = new Configuration();
                 SimpleSearch ss = new SimpleSearch();
-                ss.setDBConnection(new VirtGraph
-                	(
-                		c.getVirtuosoBasegraph(),
-                		"jdbc:virtuoso://" + c.getVirtuosoHostname(),
-                		c.getVirtuosoUsername(), c.getVirtuosoPassword()
-                	));                                              
+                ss.setDBConnection(new VirtGraph(c.getVirtuosoBasegraph(),
+                        "jdbc:virtuoso://" + c.getVirtuosoHostname(), c
+                                .getVirtuosoUsername(), c.getVirtuosoPassword()));
 
                 String s = tf_Date.getValue();
                 if (s != null && !"".equals(s))
@@ -272,84 +266,83 @@ public class SearchView extends VerticalLayout
                                 SimpleSearch.FIELD_VALUE_RESULTTYPE_GAME);
                     }
                 }
-                
-             //-----------Ergänzungen simpleSearch---------//
-                
-                s = tf_birth_p1.getValue();               
+
+                // -----------Ergänzungen simpleSearch---------//
+
+                s = tf_birth_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_DATE, s);
-                }	
-                
-                s = tf_birth_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_DATE, s);
+                }
+
+                s = tf_birth_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_DATE, s);
-                }		
-                
-                s = tf_death_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_DATE, s);
+                }
+
+                s = tf_death_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_DEATH_DATE, s);
-                }	
-                
-                s = tf_death_p2 .getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_DEATH_DATE, s);
+                }
+
+                s = tf_death_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_DEATH_DATE, s);
-                }	
-                
-                s = tf_nation_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_DEATH_DATE, s);
+                }
+
+                s = tf_nation_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_NATION, s);
-                }		
-                
-                s = tf_nation_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_NATION, s);
+                }
+
+                s = tf_nation_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_NATION, s);
-                }		
-                
-                s = tf_elo_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_NATION, s);
+                }
+
+                s = tf_elo_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_ELO, s);
-                }		
-                
-                s = tf_elo_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_ELO, s);
+                }
+
+                s = tf_elo_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_ELO, s);
-                }		
-                
-                s = tf_birthPlace_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_ELO, s);
+                }
+
+                s = tf_birthPlace_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_PLACE, s);
-                }		
-                
-                s = tf_birthPlace_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_PLACE, s);
+                }
+
+                s = tf_birthPlace_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_PLACE, s);
-                }	
-                
-                s = tf_peak_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_PLACE, s);
+                }
+
+                s = tf_peak_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_PEAK_RANKING, s);
-                }	
-                
-                s = tf_peak_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_PEAK_RANKING, s);
+                }
+
+                s = tf_peak_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_PEAK_RANKING, s);
-                }	
-                
-             
-             //-------------------------------------------//
-                
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_PEAK_RANKING, s);
+                }
+
+                // -------------------------------------------//
+
                 if (resultTable != null)
                 {
                     removeComponent(resultTable);
@@ -357,7 +350,7 @@ public class SearchView extends VerticalLayout
                 resultTable = new ResultTable(ss.getResult());
                 addComponent(resultTable);
                 activeResults = true;
-                
+
                 Notification.show("Number of results",
                         "Total: " + ss.getResultCount(),
                         Notification.Type.TRAY_NOTIFICATION);
@@ -366,8 +359,7 @@ public class SearchView extends VerticalLayout
             }
         });
 
-        btnEndSearch.addClickListener(new ClickListener()
-        {
+        btnEndSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -378,7 +370,7 @@ public class SearchView extends VerticalLayout
                     removeComponent(resultTable);
                     resultTable = null;
                     activeResults = false;
-                    
+
                     btnSearch.setEnabled(true);
                 }
                 else
@@ -405,15 +397,14 @@ public class SearchView extends VerticalLayout
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_BLACK);
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_WHITE);
-        
+
         fly_cg = new FormLayout(tf_Event, tf_Site, tf_Date, tf_Round, cb_Result);
         fly_cg.setMargin(true);
-        
+
         Panel pnl_cg = new Panel();
         pnl_cg.setCaption("Chess game");
         pnl_cg.setSizeUndefined();
         pnl_cg.setContent(fly_cg);
-        
 
         cb_ResultType = new ComboBox("Search for");
         cb_ResultType.setNullSelectionAllowed(false);
@@ -425,10 +416,9 @@ public class SearchView extends VerticalLayout
         cb_ResultType.setValue(obj);
         cb_ResultType.setEnabled(false);
 
-
         tf_Name_1 = new TextField("Name");
         tf_Name_2 = new TextField("Name");
-        
+
         cb_Color_1 = new ComboBox("Color of Player");
         cb_Color_1.setNullSelectionAllowed(false);
         obj = cb_Color_1.addItem(SL_NOCOLOR);
@@ -441,7 +431,7 @@ public class SearchView extends VerticalLayout
         cb_Color_2.addItem(SL_WHITE);
         cb_Color_2.addItem(SL_BLACK);
         cb_Color_2.setValue(obj); // ?
-        
+
         tf_birth_p1 = new TextField("Birth date");
         tf_birth_p2 = new TextField("Birth date");
         tf_death_p1 = new TextField("Date of death");
@@ -454,42 +444,42 @@ public class SearchView extends VerticalLayout
         tf_birthPlace_p2 = new TextField("Birth place");
         tf_peak_p1 = new TextField("Peak-Ranking");
         tf_peak_p2 = new TextField("Peak-Ranking");
-        
-        
+
         Panel pnl_p1 = new Panel();
         pnl_p1.setCaption("First player");
         pnl_p1.setSizeUndefined();
-        
+
         FormLayout fly_p1 = new FormLayout(tf_Name_1, cb_Color_1, tf_nation_p1,
-                tf_birth_p1, tf_birthPlace_p1, tf_death_p1, tf_elo_p1, tf_peak_p1);
+                tf_birth_p1, tf_birthPlace_p1, tf_death_p1, tf_elo_p1,
+                tf_peak_p1);
         fly_p1.setSizeUndefined();
         fly_p1.setMargin(true);
         pnl_p1.setContent(fly_p1);
-        
-        
+
         Panel pnl_p2 = new Panel();
         pnl_p2.setCaption("Second player");
         pnl_p2.setSizeUndefined();
-        
+
         FormLayout fly_p2 = new FormLayout(tf_Name_2, cb_Color_2, tf_nation_p2,
-                tf_birth_p2, tf_birthPlace_p2, tf_death_p2, tf_elo_p2, tf_peak_p2);
+                tf_birth_p2, tf_birthPlace_p2, tf_death_p2, tf_elo_p2,
+                tf_peak_p2);
         fly_p2.setSizeUndefined();
         fly_p2.setMargin(true);
         pnl_p2.setContent(fly_p2);
-        
+
         HorizontalLayout ly_cp = new HorizontalLayout(pnl_p1, pnl_p2);
         ly_cp.setSizeUndefined();
         ly_cp.setSpacing(true);
-        //ly_cp.setMargin(true);
-        
-        
-        //HorizontalLayout ly_srch = new HorizontalLayout(cb_ResultType, btnSearch);
-        simpleSearchLayout.addComponent(pnl_cg); 
+        // ly_cp.setMargin(true);
+
+        // HorizontalLayout ly_srch = new HorizontalLayout(cb_ResultType,
+        // btnSearch);
+        simpleSearchLayout.addComponent(pnl_cg);
         simpleSearchLayout.addComponent(ly_cp);
         simpleSearchLayout.addComponent(cb_ResultType);
         simpleSearchLayout.addComponent(btnSearch);
         simpleSearchLayout.setSpacing(true);
-        
+
         addComponent(simpleSearchLayout);
     }
 
@@ -505,9 +495,8 @@ public class SearchView extends VerticalLayout
         taQuery.setWidth("100%");
 
         btnEndQSearch = new Button("Zurück");
-        btnEndQSearch.addClickListener(new ClickListener()
-        {
-            private static final long serialVersionUID = 1L; 
+        btnEndQSearch.addClickListener(new ClickListener() {
+            private static final long serialVersionUID = 1L;
 
             @Override
             public void buttonClick(ClickEvent event)
@@ -534,8 +523,7 @@ public class SearchView extends VerticalLayout
         });
 
         btnQSearch = new Button("Absenden");
-        btnQSearch.addClickListener(new ClickListener()
-        {
+        btnQSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -577,8 +565,7 @@ public class SearchView extends VerticalLayout
     public void initFunktion()
     {
         // oeffne simpleSearchView
-        btnOpenSearch.addClickListener(new ClickListener()
-        {
+        btnOpenSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -593,7 +580,7 @@ public class SearchView extends VerticalLayout
 
                     removeComponent(lblQSearch);
                     removeComponent(taQuery);
-                    removeComponent(qLayoutInner);  
+                    removeComponent(qLayoutInner);
 
                     removeComponent(btnEndQSearch);
 
@@ -615,8 +602,7 @@ public class SearchView extends VerticalLayout
         });
 
         // oeffne QuerySearchView
-        btnOpenQuerySearch.addClickListener(new ClickListener()
-        {
+        btnOpenQuerySearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
