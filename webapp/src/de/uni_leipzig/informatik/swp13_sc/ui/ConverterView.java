@@ -128,7 +128,7 @@ public class ConverterView extends VerticalLayout
     @SuppressWarnings("deprecation")
 	public void initUpload()
     {
-    	upload.addListener(new Upload.SucceededListener() {	
+    	upload.addSucceededListener(new Upload.SucceededListener() {	
     		@Override
     		public void uploadSucceeded(SucceededEvent event) {
     			String[] tokens = getFileString().split("\\.(?=[^\\.]+$)");

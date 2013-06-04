@@ -349,6 +349,7 @@ public class SimpleSearch
         this.distinct = true;
         this.hasResult = false;
         this.resultCount = -1;
+        this.limit = 100;
     }
     
     /**

@@ -6,6 +6,8 @@ import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 import com.hp.hpl.jena.query.ResultSet;
 
+import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
+
 /**
  * Fuehrt eine sparql-Anfrage an Virtuoso aus und gibt die Ergebnissmenge zurueck
  * @author LingLong
@@ -14,8 +16,6 @@ import com.hp.hpl.jena.query.ResultSet;
 public class QuerySearch {
 
 	private String sparqlQuery;	
-
-	private final static String url = "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357";	
 
 	private VirtGraph virtuosoGraph;
 	
@@ -30,7 +30,12 @@ public class QuerySearch {
 
 		System.out.println(sparqlQuery); // nur zum testen
 		
-		virtuosoGraph = new VirtGraph ("millionbase", url, "pgn", "pgn");	
+		Configuration c = new Configuration();
+		
+		virtuosoGraph = new VirtGraph (c.getVirtuosoBasegraph(),
+		        "jdbc:virtuoso://" + c.getVirtuosoHostname(),
+		        c.getVirtuosoUsername(), c.getVirtuosoPassword());
+		virtuosoGraph.setQueryTimeout(30); // 30 s
 
 		System.out.println(virtuosoGraph.getGraphUrl());
 	}

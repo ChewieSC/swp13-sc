@@ -3,6 +3,8 @@ package de.uni_leipzig.informatik.swp13_sc.ui;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever;
+import de.uni_leipzig.informatik.swp13_sc.sparql.ChessMoveListDataRetriever;
+import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
 import virtuoso.jena.driver.VirtGraph;
 import java.util.List;
 
@@ -43,10 +45,10 @@ public class ReplayGame
     {
         try
         {
-            //this.virtuosoGraph = new VirtGraph("http://localhost:1358/millionbase",
-            //        "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba");
-            this.virtuosoGraph = new VirtGraph("millionbase",
-                    "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba");
+            Configuration c = new Configuration();
+            this.virtuosoGraph = new VirtGraph(c.getVirtuosoBasegraph(),
+                    "jdbc:virtuoso://" + c.getVirtuosoHostname(), 
+                    c.getVirtuosoUsername(), c.getVirtuosoPassword());
         }
         catch (Exception e)
         {
@@ -78,7 +80,7 @@ public class ReplayGame
      */
     public final ChessGame getGame(String uri)
     {
-    	ChessGame cg=null;
+    	ChessGame cg = null;
         try
         {
             ChessGameDataRetriever cgdr = new ChessGameDataRetriever(virtuosoGraph);
@@ -88,13 +90,11 @@ public class ReplayGame
             //http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#move
 //            cg1 = cgdr.getGame("http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/R__Jamieson_H__Ardiansyah_1979_______1");
             cg = cgdr.getGame(uri);
-            cgdr.getBlackChessPlayer(uri);
-            blackPlayerName = cgdr.getSingleGameProperty(uri, "http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#black");
-            whitePlayerName = cgdr.getSingleGameProperty(uri, "http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#white");
-            eco = cgdr.getSingleGameProperty(uri, "http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#eco");
             
-            // for retrieving chess player data
-//            cgdr.createDefaultChessPlayerDataRetriever();
+            blackPlayerName = cgdr.getBlackChessPlayer(uri).getName();
+            whitePlayerName = cgdr.getWhiteChessPlayer(uri).getName();
+            //eco = cgdr.getSingleGameProperty(uri, "http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#eco");
+            eco = cg.getMetaValue("eco");
             tearDown();
         }
         catch (Exception e)
@@ -119,11 +119,11 @@ public class ReplayGame
     	String temp="";
         try
         {
-            ChessGameDataRetriever cgdr = new ChessGameDataRetriever(virtuosoGraph);
+            ChessMoveListDataRetriever cmdr = new ChessMoveListDataRetriever(virtuosoGraph);
             
             //cgdr.createDefaultChessPlayerDataRetriever();
             
-            cgl = cgdr.getMoves(uri);
+            cgl = cmdr.getMoves(uri);
             
             tearDown();
         }

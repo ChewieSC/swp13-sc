@@ -135,7 +135,7 @@ public class Swp13scUI extends UI
 					final ReplayGame rg = new ReplayGame();
 					Label lblInfoURI2;
 					//test with: http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/R__Jamieson_H__Ardiansyah_1979_______1
-					if (taToParsURI.getValue().contains("http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/")){
+					if (taToParsURI.getValue().startsWith("http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/")){
 						String pgn = rg.createPGN(taToParsURI.getValue());
 						if (pgn.equals("Query konnte nicht erstellt werden. Überprüfen Sie die Game URI oder versuchen Sie es später nochmal.")){
 							lblInfoURI2 = new Label(pgn, Label.CONTENT_XHTML);

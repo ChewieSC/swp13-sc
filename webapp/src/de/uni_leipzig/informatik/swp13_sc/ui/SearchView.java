@@ -18,6 +18,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import de.uni_leipzig.informatik.swp13_sc.sparql.QuerySearch;
 import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
+import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
 
 /**
  * Kapselt das Layout und die Funktionalit�ten des Suchfensters und dessen
@@ -170,18 +171,13 @@ public class SearchView extends VerticalLayout
             @Override
             public void buttonClick(ClickEvent event)
             {
+                Configuration c = new Configuration();
                 SimpleSearch ss = new SimpleSearch();
                 ss.setDBConnection(new VirtGraph
                 	(
-                		"millionbase",
-                		"jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
-                		"dba", 
-                		"dba"           				
-                				
-                       /* "http://localhost:1358/millionbase",
-                        "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
-                        "dba", "dba"*/
-                		
+                		c.getVirtuosoBasegraph(),
+                		"jdbc:virtuoso://" + c.getVirtuosoHostname(),
+                		c.getVirtuosoUsername(), c.getVirtuosoPassword()
                 	));                                              
 
                 String s = tf_Date.getValue();
