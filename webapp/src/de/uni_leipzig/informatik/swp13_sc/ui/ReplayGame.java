@@ -84,6 +84,7 @@ public class ReplayGame
         try
         {
             ChessGameDataRetriever cgdr = new ChessGameDataRetriever(virtuosoGraph);
+            cgdr.createDefaultChessPlayerDataRetriever(); // to also get chess player data
             //http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/Vitasek__bl__Franzen__wh__1987_______1
             //http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology#blackPlayer
             //<http://pcai042.informatik.uni-leipzig.de/~swp13-sc/ChessOntology/Resources/Vitasek__bl_>

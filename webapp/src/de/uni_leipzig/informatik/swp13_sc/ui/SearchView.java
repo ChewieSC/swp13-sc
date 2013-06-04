@@ -12,6 +12,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -54,14 +55,11 @@ public class SearchView extends VerticalLayout
     private Button btnSearch;
 
     /** Layout fuer erweiterte Suche */
-    private HorizontalLayout simpleSearchLayout;
+    private VerticalLayout simpleSearchLayout;
     
-    private FormLayout exSearchLayout01;
-    
-    private FormLayout exSearchLayout02;
+    private FormLayout fly_cg;
 
     /** Suchfelder fuer erweiterte Suche */
-    private FieldGroup exSearchFields;
 
     private TextField tf_Name_1; // name player 1
     private TextField tf_Name_2; // name player 2
@@ -159,7 +157,7 @@ public class SearchView extends VerticalLayout
         simpleSearchLayoutInner.setSizeFull();
         simpleSearchLayoutInner.setWidth("100%");
         
-        simpleSearchLayout = new HorizontalLayout();
+        simpleSearchLayout = new VerticalLayout();
 
         btnSearch = new Button("Suche Starten");
         btnEndSearch = new Button("Zurück");
@@ -394,18 +392,10 @@ public class SearchView extends VerticalLayout
             }
         });
 
-        simpleSearchLayoutInner.addComponent(btnSearch);
         addComponent(btnEndSearch);
-
-        exSearchLayout01 = new FormLayout();
-        exSearchLayout02 = new FormLayout();
-        
-        exSearchFields = new FieldGroup();
 
         tf_Date = new TextField("Date");
         tf_Event = new TextField("Event");
-        tf_Name_1 = new TextField("Name of Player 1");
-        tf_Name_2 = new TextField("Name of Player 2");
         tf_Round = new TextField("Round");
         tf_Site = new TextField("Site");
 
@@ -415,89 +405,91 @@ public class SearchView extends VerticalLayout
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_BLACK);
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_WHITE);
+        
+        fly_cg = new FormLayout(tf_Event, tf_Site, tf_Date, tf_Round, cb_Result);
+        fly_cg.setMargin(true);
+        
+        Panel pnl_cg = new Panel();
+        pnl_cg.setCaption("Chess game");
+        pnl_cg.setSizeUndefined();
+        pnl_cg.setContent(fly_cg);
+        
 
         cb_ResultType = new ComboBox("Search for");
-        cb_ResultType.setNullSelectionAllowed(false); // nothing will not be
-                                                      // displayed ... still not
-                                                      // working
+        cb_ResultType.setNullSelectionAllowed(false);
         Object obj = cb_ResultType.addItem(SL_GAME); // default
         // Notification.show("Debug obj ret", (obj == null)? "null" :
         // obj.getClass().toString(), Notification.Type.TRAY_NOTIFICATION);
         cb_ResultType.addItem(SL_PLAYER1);
         cb_ResultType.addItem(SL_PLAYER2);
         cb_ResultType.setValue(obj);
+        cb_ResultType.setEnabled(false);
 
-        cb_Color_1 = new ComboBox("Color of Player 1");
+
+        tf_Name_1 = new TextField("Name");
+        tf_Name_2 = new TextField("Name");
+        
+        cb_Color_1 = new ComboBox("Color of Player");
         cb_Color_1.setNullSelectionAllowed(false);
         obj = cb_Color_1.addItem(SL_NOCOLOR);
         cb_Color_1.addItem(SL_WHITE);
         cb_Color_1.addItem(SL_BLACK);
         cb_Color_1.select(obj); // ? want to select the first ... :(
-
-        cb_Color_2 = new ComboBox("Color of Player 2");
+        cb_Color_2 = new ComboBox("Color of Player");
         cb_Color_2.setNullSelectionAllowed(false);
         obj = cb_Color_2.addItem(SL_NOCOLOR);
         cb_Color_2.addItem(SL_WHITE);
         cb_Color_2.addItem(SL_BLACK);
         cb_Color_2.setValue(obj); // ?
-
-        exSearchLayout01.addComponent(tf_Date);
-        exSearchLayout01.addComponent(tf_Event);
-        exSearchLayout01.addComponent(tf_Round);
-        exSearchLayout01.addComponent(tf_Site);
-        exSearchLayout01.addComponent(cb_Result);
-
-        exSearchLayout01.addComponent(tf_Name_1);
-        exSearchLayout01.addComponent(cb_Color_1);
-        exSearchLayout01.addComponent(tf_Name_2);
-        exSearchLayout01.addComponent(cb_Color_2);
-
-        exSearchLayout01.addComponent(cb_ResultType);
-
-        exSearchLayout01.addComponent(btnSearch);
-        exSearchFields.setBuffered(false);
-
-               
         
-        tf_birth_p1 = new TextField("Birthdate p1");  //Geburt player1
-        tf_birth_p2 = new TextField("Birthdate p2");  //Geburt player2
-        
-        tf_death_p1 = new TextField("Date of death p1");  //Todestag player1
-        tf_death_p2 = new TextField("Date of death p2");  //Todestag player2
-        
-        tf_nation_p1 = new TextField("Nation p1");
-        tf_nation_p2 = new TextField("Nation p2");
-        
-        tf_elo_p1 = new TextField("Elo p1");    //elo player 1,2  
-        tf_elo_p2 = new TextField("Elo p2");
-        
-        tf_birthPlace_p1 = new TextField("Birthplace p1"); 
-        tf_birthPlace_p2 = new TextField("Birthplace p2");
-        
-        tf_peak_p1 = new TextField("Peakranking p1");   //PeakRanking player 1,2
-        tf_peak_p2 = new TextField("Peakranking p2");
-        
-        exSearchLayout02.addComponent(tf_birth_p1);
-        exSearchLayout02.addComponent( tf_birth_p2);
-        exSearchLayout02.addComponent(tf_death_p1);
-        exSearchLayout02.addComponent(tf_death_p2);
-        exSearchLayout02.addComponent( tf_nation_p1);
-        
-        exSearchLayout02.addComponent(tf_nation_p2);
-        exSearchLayout02.addComponent(tf_elo_p1);
-        exSearchLayout02.addComponent(tf_elo_p2);
-        exSearchLayout02.addComponent(tf_birthPlace_p1);
-        exSearchLayout02.addComponent(tf_birthPlace_p2);
-        
-        exSearchLayout02.addComponent(tf_peak_p1);
-        exSearchLayout02.addComponent(tf_peak_p2);
+        tf_birth_p1 = new TextField("Birth date");
+        tf_birth_p2 = new TextField("Birth date");
+        tf_death_p1 = new TextField("Date of death");
+        tf_death_p2 = new TextField("Date of death");
+        tf_nation_p1 = new TextField("Nationality");
+        tf_nation_p2 = new TextField("Nationality");
+        tf_elo_p1 = new TextField("ELO");
+        tf_elo_p2 = new TextField("ELO");
+        tf_birthPlace_p1 = new TextField("Birth place");
+        tf_birthPlace_p2 = new TextField("Birth place");
+        tf_peak_p1 = new TextField("Peak-Ranking");
+        tf_peak_p2 = new TextField("Peak-Ranking");
         
         
-        simpleSearchLayout.addComponent(exSearchLayout01); 
-        simpleSearchLayout.addComponent(exSearchLayout02);
+        Panel pnl_p1 = new Panel();
+        pnl_p1.setCaption("First player");
+        pnl_p1.setSizeUndefined();
+        
+        FormLayout fly_p1 = new FormLayout(tf_Name_1, cb_Color_1, tf_nation_p1,
+                tf_birth_p1, tf_birthPlace_p1, tf_death_p1, tf_elo_p1, tf_peak_p1);
+        fly_p1.setSizeUndefined();
+        fly_p1.setMargin(true);
+        pnl_p1.setContent(fly_p1);
         
         
-        addComponent(simpleSearchLayoutInner);
+        Panel pnl_p2 = new Panel();
+        pnl_p2.setCaption("Second player");
+        pnl_p2.setSizeUndefined();
+        
+        FormLayout fly_p2 = new FormLayout(tf_Name_2, cb_Color_2, tf_nation_p2,
+                tf_birth_p2, tf_birthPlace_p2, tf_death_p2, tf_elo_p2, tf_peak_p2);
+        fly_p2.setSizeUndefined();
+        fly_p2.setMargin(true);
+        pnl_p2.setContent(fly_p2);
+        
+        HorizontalLayout ly_cp = new HorizontalLayout(pnl_p1, pnl_p2);
+        ly_cp.setSizeUndefined();
+        ly_cp.setSpacing(true);
+        //ly_cp.setMargin(true);
+        
+        
+        //HorizontalLayout ly_srch = new HorizontalLayout(cb_ResultType, btnSearch);
+        simpleSearchLayout.addComponent(pnl_cg); 
+        simpleSearchLayout.addComponent(ly_cp);
+        simpleSearchLayout.addComponent(cb_ResultType);
+        simpleSearchLayout.addComponent(btnSearch);
+        simpleSearchLayout.setSpacing(true);
+        
         addComponent(simpleSearchLayout);
     }
 

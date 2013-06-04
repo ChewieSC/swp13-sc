@@ -22,6 +22,13 @@ public class ResultTable extends Table
 
 	public ResultTable(ResultSet resultSet)
 	{
+	    if (resultSet == null)
+	    {
+	        this.addContainerProperty("Result", String.class, null);
+	        this.addItem(new Object[] {"No results available!"}, new Long(1));
+	        return;
+	    }
+	    
 		@SuppressWarnings("unchecked")
 		List<String> resultVars = resultSet.getResultVars();
 		Object resultObject[] = new Object[resultVars.size()];
