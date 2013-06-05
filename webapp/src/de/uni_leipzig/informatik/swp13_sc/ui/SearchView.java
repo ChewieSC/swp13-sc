@@ -1,9 +1,13 @@
 
 package de.uni_leipzig.informatik.swp13_sc.ui;
 
+import java.util.Iterator;
+
 import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.query.ResultSet;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -82,8 +86,14 @@ public class SearchView extends VerticalLayout
     private TextField tf_peak_p1; // PeakRanking player 1,2
     private TextField tf_peak_p2;
 
-    private ComboBox cb_Color_1; // color of player 1
+    private ComboBox cb_Color_1; // color of player 1 
+    private Object cbCol1NoCol;
+    private Object cbCol1White;
+    private Object cbCol1Black;
     private ComboBox cb_Color_2; // color of player 2
+    private Object cbCol2NoCol;
+    private Object cbCol2White;
+    private Object cbCol2Black;
     private ComboBox cb_ResultType; // player or game
     private ComboBox cb_Result; // result of game - 1-0, 0-1, 1/2-1/2
 
@@ -421,16 +431,87 @@ public class SearchView extends VerticalLayout
 
         cb_Color_1 = new ComboBox("Color of Player");
         cb_Color_1.setNullSelectionAllowed(false);
-        obj = cb_Color_1.addItem(SL_NOCOLOR);
-        cb_Color_1.addItem(SL_WHITE);
-        cb_Color_1.addItem(SL_BLACK);
-        cb_Color_1.select(obj); // ? want to select the first ... :(
+        cb_Color_1.setImmediate(true);
+        
+        cbCol1NoCol = cb_Color_1.addItem(SL_NOCOLOR);
+        cbCol1White =  cb_Color_1.addItem(SL_WHITE);
+        cbCol1Black =  cb_Color_1.addItem(SL_BLACK);
+        
         cb_Color_2 = new ComboBox("Color of Player");
         cb_Color_2.setNullSelectionAllowed(false);
-        obj = cb_Color_2.addItem(SL_NOCOLOR);
-        cb_Color_2.addItem(SL_WHITE);
-        cb_Color_2.addItem(SL_BLACK);
-        cb_Color_2.setValue(obj); // ?
+        cb_Color_2.setImmediate(true);
+        cbCol2NoCol = cb_Color_2.addItem(SL_NOCOLOR);
+        cbCol2White = cb_Color_2.addItem(SL_WHITE);
+        cbCol2Black = cb_Color_2.addItem(SL_BLACK);
+        
+        cb_Color_1.addValueChangeListener(new Property.ValueChangeListener() {
+			
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Object id = event.getProperty();
+				Iterator iter = cb_Color_2.getItemIds().iterator();
+			//	System.out.println("ID: "+cb_Color_1.getItem(id).toString()+ " EventID: "+event.getProperty());
+				while(iter.hasNext())
+				{
+					Object cb2Id = iter.next();
+					if(event.getProperty().getValue().equals(cb2Id.toString()))
+					{
+						if(cb2Id.toString().equals(SL_NOCOLOR))
+						{	
+							cb_Color_2.setValue(cb2Id);
+						}
+						else if(cb2Id.toString().equals(SL_WHITE))
+						{
+							cb_Color_2.setValue(iter.next());
+						}
+						else if(cb2Id.toString().equals(SL_BLACK))
+						{
+							Iterator newIt = cb_Color_2.getItemIds().iterator();
+							newIt.next();
+							cb_Color_2.setValue(newIt.next());
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		});
+        cb_Color_2.addValueChangeListener(new Property.ValueChangeListener() {
+			
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Object id = event.getProperty();
+				Iterator iter = cb_Color_1.getItemIds().iterator();
+			//	System.out.println("ID: "+cb_Color_1.getItem(id).toString()+ " EventID: "+event.getProperty());
+				while(iter.hasNext())
+				{
+					Object cb2Id = iter.next();
+					if(event.getProperty().getValue().equals(cb2Id.toString()))
+					{
+						if(cb2Id.toString().equals(SL_NOCOLOR))
+						{	
+							cb_Color_1.setValue(cb2Id);
+						}
+						else if(cb2Id.toString().equals(SL_WHITE))
+						{
+							cb_Color_1.setValue(iter.next());
+						}
+						else if(cb2Id.toString().equals(SL_BLACK))
+						{
+							Iterator newIt = cb_Color_1.getItemIds().iterator();
+							newIt.next();
+							cb_Color_1.setValue(newIt.next());
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		});
 
         tf_birth_p1 = new TextField("Birth date");
         tf_birth_p2 = new TextField("Birth date");
