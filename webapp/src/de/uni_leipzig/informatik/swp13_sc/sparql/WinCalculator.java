@@ -88,7 +88,23 @@ FILTER(regex ( ?fen,"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K"))
 
     private void updateQuery()
     {
-        resultQueryWithFen = ""; //todo Query einbauen.
+        resultQueryWithFen = "SELECT count(distinct ?w) as ?whiteWin " +
+        		"count(distinct ?b) as ?blackWin " +
+        		"count(distinct ?d) as ?draw " +
+        		"WHERE{{" +
+        		"?w cont:result '1-0'." +
+        				"?w cont:moves ?m." +
+        				"?m cont:fen "+fen+"}" +
+        				"union" +
+        				"{" +
+        				"?b cont:result '0-1'." +
+        						"?b cont:moves ?m." +
+        						"?m cont:fen "+fen+"}" +
+        						"union" +
+        						"{" +
+        						"?d cont:result '1/2-1/2'." +
+        								"?d cont:moves ?m." +
+        								"?m cont:fen "+fen+"}}"; 
     }
     public double getWinWhite()
     {

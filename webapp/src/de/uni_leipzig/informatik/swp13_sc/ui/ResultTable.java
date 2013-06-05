@@ -56,13 +56,13 @@ public class ResultTable extends Table
 	
 	public ResultTable(ResultSet resultSet)
 	{
-		@SuppressWarnings("unchecked")
+		setSelectable(true);
 		List<String> resultVars = resultSet.getResultVars();
-		Object resultObject[] = new Object[resultVars.size()];
+		Object resultObject[] = new Object[resultVars.size()-1];
 		
-		for (int i = 0; i < resultVars.size(); i++)
+		for (int i = 0; i < resultVars.size()-1; i++)
 		{
-			this.addContainerProperty(resultVars.get(i), Link.class, null);
+			this.addContainerProperty(resultVars.get(i), String.class, null);
 		}
 		
 		long nr = 0;
@@ -70,7 +70,7 @@ public class ResultTable extends Table
 		{
 			QuerySolution result = resultSet.nextSolution();
 			
-			for (int i = 0; i < resultVars.size(); i++)
+			for (int i = 0; i < resultVars.size()-1; i++)
 			{
 				resultObject[i] = result.get(resultVars.get(i)).toString();
 			}
