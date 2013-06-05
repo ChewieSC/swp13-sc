@@ -78,6 +78,7 @@ public class MenuView extends VerticalLayout
             @Override
             public void buttonClick(ClickEvent event)
             {
+            	searchView.setUi(ui);
                 if (searchViewEnabled)
                 {
                     removeComponent(searchView);

@@ -206,8 +206,14 @@ public class Swp13scUI extends UI
         splitPanel.addComponent(explorerLayout);
     }
     @SuppressWarnings("deprecation")
-    public void initChessEngine(final String uri)
+    public void initChessEngine(String uri)
     {
+    	try{
+    		removeChessEngine();
+    	}catch (Exception ex)
+    	{
+    		
+    	}
         splitPanel.removeComponent(logo);
 
         explorerLayout = new GridLayout(2, 2);
@@ -235,11 +241,11 @@ public class Swp13scUI extends UI
         innerReplayGameLayout.addComponent(lblInfoURI);
         innerReplayGameLayout.addComponent(taToParsURI);
         innerReplayGameLayout.addComponent(btnReplay);
-
+        taToParsURI.setValue(uri);
         btnReplay.addClickListener(new Button.ClickListener() {
             public void buttonClick(ClickEvent event)
             {
-            	taToParsURI.setValue(uri);
+            	
                 if (taToParsURI.getValue() != "")
                 {
                     final ReplayGame rg = new ReplayGame();
@@ -317,6 +323,7 @@ public class Swp13scUI extends UI
                 Alignment.TOP_CENTER);
 
         splitPanel.addComponent(explorerLayout);
+        btnReplay.click();
     }
     public void removeChessEngine()
     {

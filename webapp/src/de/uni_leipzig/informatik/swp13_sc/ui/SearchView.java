@@ -111,6 +111,8 @@ public class SearchView extends VerticalLayout
 
     /** beendet simpleSearch */
     private Button btnEndSearch;
+    
+    private Swp13scUI ui;
 
     // ----- Instanzen Querysuche -----//
 
@@ -158,7 +160,10 @@ public class SearchView extends VerticalLayout
 
         addComponent(searchLayoutInner);
     }
-
+    public void setUi(Swp13scUI ui)
+    {
+    	this.ui = ui;	
+    }
     public void initSearch()
     {
         simpleSearchLayoutInner = new HorizontalLayout();
@@ -357,7 +362,7 @@ public class SearchView extends VerticalLayout
                 {
                     removeComponent(resultTable);
                 }
-                resultTable = new ResultTable(ss.getResult());
+                resultTable = new ResultTable(ss.getResult(),ui);
                 addComponent(resultTable);
                 activeResults = true;
 
