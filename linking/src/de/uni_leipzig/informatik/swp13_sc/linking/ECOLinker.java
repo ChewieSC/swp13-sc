@@ -48,6 +48,15 @@ public class ECOLinker
      */
     private boolean hasMappings;
     /**
+     * whether all games should be processed or only those left
+     */
+    private boolean queryOnlyGamesWithOutECOResources;
+    /**
+     * How many sub query should be created before the moves left will only be
+     * appended onto the rest.
+     */
+    private int subqueryDepth;
+    /**
      * Class to retrieve chess openings (ECOs) from a triple store.
      */
     protected ChessOpeningDataRetriever codr;
@@ -56,6 +65,15 @@ public class ECOLinker
      * Default timeout for a SPARQL query. (for efficiency) 
      */
     public final static int QUERY_TIMEOUT = 90;
+    /**
+     * Says that it will only query for games where no chess opening resource
+     * is set. So it 'can' reduce the amount of games to search and process.
+     */
+    public final static boolean QUERY_ONLY_GAMES_WO_ECO_RES = true;
+    /**
+     * maximum depth to create subqueries
+     */
+    public final static int MAX_SUBQUERY_DEPTH = 10;
     
     // ------------------------------------------------------------------------
     
@@ -100,7 +118,7 @@ public class ECOLinker
      */
     public ECOLinker(VirtGraph virtuosoGraph)
     {
-        this(virtuosoGraph, QUERY_TIMEOUT);
+        this(virtuosoGraph, QUERY_TIMEOUT, QUERY_ONLY_GAMES_WO_ECO_RES);
     }
     
     /**
@@ -111,12 +129,15 @@ public class ECOLinker
      * @param   virtuosoGraph   connection to Virtuoso triple store
      * @param   timeout     timeout in seconds
      */
-    public ECOLinker(VirtGraph virtuosoGraph, int timeout)
+    public ECOLinker(VirtGraph virtuosoGraph, int timeout, boolean onlyWOECORes)
     {
         this.virtuosoGraph = virtuosoGraph;
         this.virtuosoGraph.setQueryTimeout(timeout); // sec.
         
         this.hasMappings = false;
+        
+        this.queryOnlyGamesWithOutECOResources = onlyWOECORes;
+        this.subqueryDepth = (MAX_SUBQUERY_DEPTH < 1)? 1 : MAX_SUBQUERY_DEPTH;
         
         try
         {
@@ -126,6 +147,19 @@ public class ECOLinker
         {
             e.printStackTrace();
         }
+    }
+    
+    // ------------------------------------------------------------------------
+    
+    /**
+     * Set to true if you want to only query chess games which do not contain a
+     * mapping with the chess opening yet.
+     * 
+     * @param   ecoless false if all chess games
+     */
+    public void setOnlyGamesWithOutECOResources(boolean ecoless)
+    {
+        this.queryOnlyGamesWithOutECOResources = ecoless;
     }
     
     // ------------------------------------------------------------------------
@@ -173,7 +207,7 @@ public class ECOLinker
      * @param   co  ChessOpening object (contains the opening moves)
      * @return  List<String> with mapped games for those opening moves
      */
-    public List<String> getGamesForOpenings(ChessOpening co)
+    public List<String> getGamesForOpenings(ChessOpening co, String coURI)
     {
         if ((co == null) || (co.getMoves() == null) || (co.getMoves().isEmpty()))
         {
@@ -188,27 +222,99 @@ public class ECOLinker
         for (int nr = 1; nr <= co.getMoves().size(); nr ++)
         //for (int nr = co.getMoves().size(); nr > 0; nr --)
         {
-            String temp = sb.toString();
-            
-            sb = new StringBuilder();
-            String moveVar = SPARQL_GAME_MOVE_VAR_PREFIX + nr;
-            sb.append("SELECT ")
-                .append(SPARQL_GAME_VAR)
-                .append(" WHERE\n{\n  ");
-            if (temp.length() > 0)
+            if (nr <= this.subqueryDepth)
             {
-                sb.append("{\n")
-                .append(temp)
-                .append("\n  }\n  ");
+                // create subqueries
+                String temp = sb.toString();
+                
+                sb = new StringBuilder()
+                    .append("SELECT ")
+                    .append(SPARQL_GAME_VAR)
+                    .append(" WHERE\n{\n  ");
+                if (temp.length() > 0)
+                {
+                    sb.append("{\n    ")
+                    .append(temp.replaceAll("\n", "\n    "))
+                    .append("\n  }\n  ");
+                }
+                
+                
             }
+            else if (nr == this.subqueryDepth + 1)
+            {
+                sb = new StringBuilder(sb.capacity())
+                    .append(sb.toString().replaceAll("\n", "\n    "))
+                    .append("\n  }\n  ");
+            }
+            else
+            {
+                // append normal
+                sb.append("  ");
+            }
+            
+            String moveVar = SPARQL_GAME_MOVE_VAR_PREFIX + nr;
+            
             if (nr == 1)
             {
-                sb.append(SPARQL_GAME_VAR)
-                    .append(" a ")
-                    .append(ChessRDFVocabulary.getOntologyPrefixName())
-                    .append(":")
-                    .append(ChessRDFVocabulary.ChessGame.getLocalName())
-                    .append(" .\n  ");
+//                sb.append("{\n    SELECT ")
+//                    .append(SPARQL_GAME_VAR)
+//                    .append(" WHERE\n    {\n      ")
+//                    .append(SPARQL_GAME_VAR)
+//                    .append(" a ")
+//                    .append(ChessRDFVocabulary.getOntologyPrefixName())
+//                    .append(":")
+//                    .append(ChessRDFVocabulary.ChessGame.getLocalName())
+//                    .append(" .\n  ");
+//                
+//                if (this.queryOnlyGamesWithOutECOResources)
+//                {
+//                    sb.append("    OPTIONAL\n      {\n        ")
+//                        .append(SPARQL_GAME_VAR)
+//                        .append(' ')
+//                        .append(ChessRDFVocabulary.getOntologyPrefixName())
+//                        .append(":")
+//                        .append(ChessRDFVocabulary.eco.getLocalName())
+//                        .append(" ?eco .\n        ?eco a ")
+//                        .append(ChessRDFVocabulary.getOntologyPrefixName())
+//                        .append(":")
+//                        .append(ChessRDFVocabulary.ChessOpening.getLocalName())
+//                        .append(" .\n      }\n      FILTER (! BOUND ( ?eco ) ) .\n  ");
+//                }
+//                sb.append("  }\n  }\n  ");
+                
+                if (this.queryOnlyGamesWithOutECOResources)
+                {
+                    sb.append("{\n    SELECT ")
+                        .append(SPARQL_GAME_VAR)
+                        .append(" WHERE\n    {\n      ")
+                        .append(SPARQL_GAME_VAR)
+                        .append(" a ")
+                        .append(ChessRDFVocabulary.getOntologyPrefixName())
+                        .append(":")
+                        .append(ChessRDFVocabulary.ChessGame.getLocalName())
+                        .append(" .\n  ")
+                        .append("    OPTIONAL\n      {\n        ")
+                        .append(SPARQL_GAME_VAR)
+                        .append(' ')
+                        .append(ChessRDFVocabulary.getOntologyPrefixName())
+                        .append(":")
+                        .append(ChessRDFVocabulary.eco.getLocalName())
+                        .append(" ?eco .\n        ?eco a ")
+                        .append(ChessRDFVocabulary.getOntologyPrefixName())
+                        .append(":")
+                        .append(ChessRDFVocabulary.ChessOpening.getLocalName())
+                        .append(" .\n      }\n      FILTER (! BOUND ( ?eco ) ) .\n  ")
+                        .append("  }\n  }\n  ");
+                }
+                else
+                {
+                    sb.append(SPARQL_GAME_VAR)
+                        .append(" a ")
+                        .append(ChessRDFVocabulary.getOntologyPrefixName())
+                        .append(":")
+                        .append(ChessRDFVocabulary.ChessGame.getLocalName())
+                        .append(" .\n  ");
+                }
             }
             sb.append(SPARQL_GAME_VAR)
                 .append(" ")
@@ -242,10 +348,20 @@ public class ECOLinker
                 .append(ChessRDFVocabulary.move.getLocalName())
                 .append(" \"")
                 .append(co.getMoves().get(nr - 1).getMove())
-                .append("\" .\n}");
+                .append("\" .\n");
             
+            if (nr <= this.subqueryDepth)
+            {
+                sb.append('}');
+            }
             // FEN ?
         }
+        
+        if (co.getMoves().size() > this.subqueryDepth)
+        {
+            sb.insert(0, " WHERE\n{\n  {\n    ").insert(0, SPARQL_GAME_VAR).insert(0, "SELECT ").append('}');
+        }
+        
         
         System.out.println("Get Games: " + sb.toString());
         
@@ -312,7 +428,7 @@ public class ECOLinker
             }
             
             long start = System.currentTimeMillis();
-            List<String> games = getGamesForOpenings(co);
+            List<String> games = getGamesForOpenings(co, uri);
             // %f --> #.######
             // %s -- Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f))
             System.out.format("Took %s sec. for %d mappings with %s.%n",
@@ -479,15 +595,17 @@ public class ECOLinker
      *                      <li> link to database</li>
      *                      <li> username</li>
      *                      <li> password</li>
+     *                      <li> [ecoless  (default: false)] - query games with eco
+     *                               resources or only those without</li>
      *                      <li> [outputfile  (default: Mapping_ECO_GAME.ttl)]</li>
      *                  </ol>
      */
     public static void main(String[] args)
     {
-        if ((args.length < 4) || (args.length > 5))
+        if ((args.length < 4) || (args.length > 6))
         {
             System.out.println("Usage: java -jar Programm.jar <graph> <link to db>"
-                    + " <username> <password> [<outputfilename::=Mapping_ECO_GAME.ttl>]");
+                    + " <username> <password> [<Only games w/o eco::=yes|no> [<outputfilename::=Mapping_ECO_GAME.ttl>]]");
             System.exit(1);
         }
         
@@ -495,10 +613,12 @@ public class ECOLinker
         String link = args[1];
         String user = args[2];
         String pass = args[3];
-        String file = (args.length == 5) ? args[4] : "Mapping_ECO_GAME.ttl";
+        boolean ecoless = (args.length == 5) ? "yes".equalsIgnoreCase(args[4]) : false;
+        String file = (args.length == 6) ? args[5] : "Mapping_ECO_GAME.ttl";
         
         ECOLinker ecol = new ECOLinker(new VirtGraph(graph, "jdbc:virtuoso://"
                 + link, user, pass));
+        ecol.setOnlyGamesWithOutECOResources(ecoless);
         ecol.writeMappingModel(file);
     }
 }
