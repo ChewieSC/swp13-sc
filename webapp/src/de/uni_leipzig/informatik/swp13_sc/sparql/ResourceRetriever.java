@@ -101,7 +101,7 @@ public class ResourceRetriever extends HttpServlet
         pw.println(sparql);
         pw.println();
         
-        Configuration c = new Configuration();
+        Configuration c = Configuration.getInstance();
         
         // query Virtuoso
         VirtGraph virtuosoGraph = new VirtGraph("jdbc:virtuoso://" + c.getVirtuosoHostname(),

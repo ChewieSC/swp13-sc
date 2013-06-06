@@ -3,6 +3,8 @@ package de.uni_leipzig.informatik.swp13_sc.ui;
 
 import java.util.Iterator;
 
+import org.mortbay.servlet.CGI;
+
 import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.query.ResultSet;
@@ -13,6 +15,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
@@ -61,7 +64,8 @@ public class SearchView extends VerticalLayout
     /** Layout fuer erweiterte Suche */
     private VerticalLayout simpleSearchLayout;
 
-    private FormLayout fly_cg;
+    private FormLayout fly_cg_1;
+    private FormLayout fly_cg_2;
 
     /** Suchfelder fuer erweiterte Suche */
 
@@ -101,6 +105,7 @@ public class SearchView extends VerticalLayout
     private TextField tf_Event; // event of game
     private TextField tf_Site; // site of game
     private TextField tf_Round; // round of game
+    private TextField tf_ECO; // ECO/Opening of game
 
     private final static String SL_GAME = "Game";
     private final static String SL_PLAYER1 = "Player 1";
@@ -181,7 +186,7 @@ public class SearchView extends VerticalLayout
             @Override
             public void buttonClick(ClickEvent event)
             {
-                Configuration c = new Configuration();
+                Configuration c = Configuration.getInstance();
                 SimpleSearch ss = new SimpleSearch();
                 ss.setDBConnection(new VirtGraph(c.getVirtuosoBasegraph(),
                         "jdbc:virtuoso://" + c.getVirtuosoHostname(), c
@@ -206,6 +211,11 @@ public class SearchView extends VerticalLayout
                 if (s != null && !"".equals(s))
                 {
                     ss.setField(SimpleSearch.FIELD_KEY_CG_SITE, s);
+                }
+                s = tf_ECO.getValue();
+                if (s != null && !"".equals(s))
+                {
+                    ss.setField(SimpleSearch.FIELD_KEY_CG_ECO, s);
                 }
 
                 s = tf_Name_1.getValue();
@@ -357,6 +367,8 @@ public class SearchView extends VerticalLayout
                 }
 
                 // -------------------------------------------//
+                
+                System.out.println(ss.getSPARQLQuery());
 
                 if (resultTable != null)
                 {
@@ -405,6 +417,8 @@ public class SearchView extends VerticalLayout
         tf_Event = new TextField("Event");
         tf_Round = new TextField("Round");
         tf_Site = new TextField("Site");
+        tf_ECO = new TextField("ECO (Opening)");
+        //tf_ECO.setMaxLength(3); // now combined (code and name)
 
         cb_Result = new ComboBox("Result of Game");
         cb_Result.setNullSelectionAllowed(true);
@@ -413,13 +427,19 @@ public class SearchView extends VerticalLayout
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_WHITE);
 
-        fly_cg = new FormLayout(tf_Event, tf_Site, tf_Date, tf_Round, cb_Result);
-        fly_cg.setMargin(true);
+        fly_cg_1 = new FormLayout(tf_Event, tf_Site, tf_Date);
+        fly_cg_1.setMargin(true);
+        
+        fly_cg_2 = new FormLayout(tf_Round, cb_Result, tf_ECO);
+        fly_cg_2.setMargin(true);
+        
+        HorizontalLayout hly_cg = new HorizontalLayout(fly_cg_1, fly_cg_2);
+        hly_cg.setSpacing(true);
 
         Panel pnl_cg = new Panel();
         pnl_cg.setCaption("Chess game");
-        pnl_cg.setSizeUndefined();
-        pnl_cg.setContent(fly_cg);
+        pnl_cg.setContent(hly_cg);
+        
 
         cb_ResultType = new ComboBox("Search for");
         cb_ResultType.setNullSelectionAllowed(false);
@@ -429,7 +449,6 @@ public class SearchView extends VerticalLayout
         cb_ResultType.addItem(SL_PLAYER1);
         cb_ResultType.addItem(SL_PLAYER2);
         cb_ResultType.setValue(obj);
-        cb_ResultType.setEnabled(false);
 
         tf_Name_1 = new TextField("Name");
         tf_Name_2 = new TextField("Name");
@@ -544,24 +563,21 @@ public class SearchView extends VerticalLayout
 
         Panel pnl_p2 = new Panel();
         pnl_p2.setCaption("Second player");
-        pnl_p2.setSizeUndefined();
 
         FormLayout fly_p2 = new FormLayout(tf_Name_2, cb_Color_2, tf_nation_p2,
                 tf_birth_p2, tf_birthPlace_p2, tf_death_p2, tf_elo_p2,
                 tf_peak_p2);
-        fly_p2.setSizeUndefined();
         fly_p2.setMargin(true);
         pnl_p2.setContent(fly_p2);
-
-        HorizontalLayout ly_cp = new HorizontalLayout(pnl_p1, pnl_p2);
-        ly_cp.setSizeUndefined();
-        ly_cp.setSpacing(true);
-        // ly_cp.setMargin(true);
-
-        // HorizontalLayout ly_srch = new HorizontalLayout(cb_ResultType,
-        // btnSearch);
-        simpleSearchLayout.addComponent(pnl_cg);
-        simpleSearchLayout.addComponent(ly_cp);
+        
+        GridLayout gl = new GridLayout(2, 2);
+        gl.addComponent(pnl_cg, 0, 0, 1, 0);
+        gl.addComponent(pnl_p1);
+        gl.addComponent(pnl_p2);
+        gl.setSizeUndefined();
+        gl.setSpacing(true);
+        
+        simpleSearchLayout.addComponent(gl);
         simpleSearchLayout.addComponent(cb_ResultType);
         simpleSearchLayout.addComponent(btnSearch);
         simpleSearchLayout.setSpacing(true);

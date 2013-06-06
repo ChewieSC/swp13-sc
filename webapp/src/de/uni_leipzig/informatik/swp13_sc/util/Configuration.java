@@ -10,7 +10,8 @@ import java.util.Properties;
 
 /**
  * A configuration class for easier and centralized access to common
- * configurations. e. g. the Virtuoso triple store access ...
+ * configurations. e. g. the Virtuoso triple store access ...<br />
+ * It uses the singleton pattern to allow only one instance at runtime.
  * 
  * @author Erik
  */
@@ -19,15 +20,20 @@ public class Configuration
     /**
      * The File object in which the configurations are stored.
      */
-    protected final File configFile;
+    private final File configFile;
     /**
      * The actual configurations.
      */
-    protected final Properties configs;
+    private final Properties configs;
     /**
      * The default configurations.
      */
-    protected final Properties defaultConfigs;
+    private final Properties defaultConfigs;
+    
+    /**
+     * Singleton-instance
+     */
+    private static Configuration instance = new Configuration();
     
     // ------------------------------------------------------------------------
     
@@ -60,7 +66,7 @@ public class Configuration
      * 
      * @throws  IllegalArgumentException
      */
-    public Configuration()
+    private Configuration()
             throws IllegalArgumentException
     {
         this(CONFIG_FILE_NAME);
@@ -74,7 +80,7 @@ public class Configuration
      * @param   configFile  file to load the configuration values from
      * @throws  IllegalArgumentException
      */
-    public Configuration(String configFile)
+    private Configuration(String configFile)
             throws IllegalArgumentException
     {
         if (configFile == null || "".equalsIgnoreCase(configFile.trim()))
@@ -86,6 +92,36 @@ public class Configuration
         this.defaultConfigs = getDefaultKonfiguration();
         this.configs = new Properties(this.defaultConfigs);
         
+        this.loadFromFile();
+    }
+    
+    /**
+     * Returns the Singleton instance.
+     * 
+     * @return  {@link Configuration}
+     */
+    public static Configuration getInstance()
+    {
+        return instance;
+    }
+    
+    // ------------------------------------------------------------------------
+    
+    /**
+     * Returns the absolute path to the configuration file.
+     * 
+     * @return  String with file name and path
+     */
+    public String getConfigFilename()
+    {
+        return this.configFile.getAbsolutePath();
+    }
+    
+    /**
+     * Load the configuration from the file.
+     */
+    private void loadFromFile()
+    {
         try
         {
             this.configs.load(FileUtils.openInputStream(this.configFile.getPath()));
@@ -100,8 +136,7 @@ public class Configuration
 
             try
             {
-                OutputStream os = FileUtils.openOutputStream(this.configFile
-                        .getPath());
+                OutputStream os = FileUtils.openOutputStream(this.configFile.getPath());
                 this.defaultConfigs.store(os, "Default configurations for swp13-sc project");
                 os.close();
                 System.out.println("Wrote default configuration file to: " +
@@ -121,16 +156,14 @@ public class Configuration
         }
     }
     
-    // ------------------------------------------------------------------------
-    
     /**
-     * Returns the absolute path to the configuration file.
-     * 
-     * @return  String with file name and path
+     * Discards all changes to configurations and load a fresh copy from the
+     * configuration file.
      */
-    public String getConfigFilename()
+    public void reload()
     {
-        return this.configFile.getAbsolutePath();
+        this.configs.clear();
+        this.loadFromFile();
     }
     
     // ------------------------------------------------------------------------
@@ -179,7 +212,8 @@ public class Configuration
     
     /**
      * Sets a new configuration or adds a new value for the key and returns the
-     * last value stored.
+     * last value stored. Modifications are only temporary. {@link Configuration}
+     * is not intended to allow storing new/changed values.
      * 
      * @see java.util.Properties#setProperty(String, String)
      */

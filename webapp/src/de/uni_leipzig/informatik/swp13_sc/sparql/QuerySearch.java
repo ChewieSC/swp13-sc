@@ -30,7 +30,7 @@ public class QuerySearch {
 
 		System.out.println(sparqlQuery); // nur zum testen
 		
-		Configuration c = new Configuration();
+		Configuration c = Configuration.getInstance();
 		
 		virtuosoGraph = new VirtGraph (c.getVirtuosoBasegraph(),
 		        "jdbc:virtuoso://" + c.getVirtuosoHostname(),

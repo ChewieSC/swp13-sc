@@ -51,7 +51,7 @@ public class ReplayGame
     {
         try
         {
-            Configuration c = new Configuration();
+            Configuration c = Configuration.getInstance();
             this.virtuosoGraph = new VirtGraph(c.getVirtuosoBasegraph(),
                     "jdbc:virtuoso://" + c.getVirtuosoHostname(),
                     c.getVirtuosoUsername(), c.getVirtuosoPassword());

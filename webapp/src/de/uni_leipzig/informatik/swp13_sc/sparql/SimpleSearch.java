@@ -101,6 +101,10 @@ public class SimpleSearch
      */
     private final static String SPARQL_QUERY_SELECT_GAME_VAR = "game";
     /**
+     * SPARQL_QUERY_SELECT_OPENING_VAR
+     */
+    private final static String SPARQL_QUERY_SELECT_OPENING_VAR = "opening";
+    /**
      * SPARQL_QUERY_SELECT_PLAYER_VAR
      */
     private final static String SPARQL_QUERY_SELECT_PLAYER_VAR = "player";
@@ -236,6 +240,10 @@ public class SimpleSearch
      * FIELD_KEY_CG_RESULT
      */
     public final static String FIELD_KEY_CG_RESULT = "cg-result";
+    /**
+     * FIELD_KEY_CG_ECO
+     */
+    public final static String FIELD_KEY_CG_ECO = "cg-eco";
     /**
      * FIELD_VALUE_CG_RESULT_WHITE
      */
@@ -800,6 +808,68 @@ public class SimpleSearch
                 .append(this.fields.get(FIELD_KEY_CG_RESULT))
                 .append("\".")
                 .append(SPARQL_QUERY_NEWLINE);
+        }
+        
+        // eco (textual)
+        if (this.fields.containsKey(FIELD_KEY_CG_ECO) &&
+                (null != this.fields.get(FIELD_KEY_CG_ECO)))
+        {
+            String var_eco = "?eco_var";
+            sb  // UNION
+                // eco as literal on game
+                .append(SPARQL_QUERY_UNION_START)
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.eco.getLocalName())
+                .append(" \"")
+                .append(this.fields.get(FIELD_KEY_CG_ECO))
+                .append("\".")
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_UNION_MIDDLE)
+                // eco as resource linked to game
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.eco.getLocalName())
+                .append(" ?")
+                .append(SPARQL_QUERY_SELECT_OPENING_VAR)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                // UNION eco as code or as name
+                .append(SPARQL_QUERY_UNION_START)
+                // eco as code
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_OPENING_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.openingCode.getLocalName())
+                .append(" \"")
+                .append(this.fields.get(FIELD_KEY_CG_ECO))
+                .append("\".")
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_UNION_MIDDLE)
+                // now eco as name with filter
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_OPENING_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.openingName.getLocalName())
+                .append(' ')
+                .append(var_eco)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append(var_eco)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(this.fields.get(FIELD_KEY_CG_ECO))
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_UNION_END)
+                .append(SPARQL_QUERY_UNION_END);
         }
         
         return sb.toString();
