@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.util.List;
 
@@ -201,7 +203,7 @@ public class Linker
                 generateQuery(uri, "dbpprop:peakRanking", 17) };
 
         List<String> resVar = new ArrayList<String>();
-        List<String> stringls = new ArrayList<String>();
+        Set<String> stringls = new HashSet<String>();
         /* for each querystring */
         for (int i = 0; i < queryString.length; i++)
         {
@@ -221,7 +223,6 @@ public class Linker
 
                     resVar = results.getResultVars();
 
-                    boolean addAllowed = true;
                     /* extract the categorizationNumber */
                     int identifier = Integer.parseInt(resVar.get(0).toString()
                             .substring(4));
@@ -274,20 +275,9 @@ public class Linker
 
                     String comp = "<" + sourceUri + "> <" + attribute + "> "
                             + value + ".";
-                    System.out.println(comp);
-
-                    /* compares if entry already exists */
-                    for (int k = 0; k < stringls.size(); k++)
-                    {
-                        if (stringls.get(k).equals(comp))
-                        {
-                            addAllowed = false;
-                        }
-                    }
-                    if (addAllowed == true)
-                    {
-                        stringls.add(comp);
-                    }
+                    
+                    stringls.add(comp);
+                    //System.out.println(comp);
                 }
             }
             finally
@@ -295,7 +285,7 @@ public class Linker
                 qexec.close();
             }
         }
-        return stringls;
+        return new ArrayList<String>(stringls);
     }
 
     /**
@@ -366,8 +356,8 @@ public class Linker
             n3Liste.addAll(resListe);
             if (i % 10 == 0)
             {
-                System.out.println("Progress: " + (double) i
-                        / mappingList.size());
+                System.out.print("\rProgress: " + Float.toString((float) i
+                        * 100 / mappingList.size()) + "% (" + i + ")");
             }
         }
         System.out.println("Finished!");
