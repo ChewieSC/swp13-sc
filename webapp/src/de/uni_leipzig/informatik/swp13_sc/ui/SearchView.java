@@ -26,6 +26,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import de.uni_leipzig.informatik.swp13_sc.sparql.QuerySearch;
 import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
+import de.uni_leipzig.informatik.swp13_sc.ui.ResultTable;
 import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
 
 /**
@@ -374,7 +375,10 @@ public class SearchView extends VerticalLayout
                 {
                     removeComponent(resultTable);
                 }
-                resultTable = new ResultTable(ss.getResult(),ui);
+                if(cb_ResultType.getValue().equals(SL_GAME))
+                	resultTable = new ResultTable(ss.getResult(),ui);
+                else
+                	resultTable = new ResultTable(ss.getResult());
                 addComponent(resultTable);
                 activeResults = true;
 
