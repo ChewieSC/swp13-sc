@@ -18,7 +18,8 @@ public class ECOToRDFConverter
     {
         if (args.length < 1)
         {
-            System.out.println("ERR: Arguments missing.");
+            System.err.println("ERR: Arguments missing.");
+            System.out.println("Usage: java -jar Program.jar <input file>");
             System.exit(1);
         }
         
