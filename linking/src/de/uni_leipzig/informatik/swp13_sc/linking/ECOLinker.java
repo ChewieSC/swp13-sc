@@ -6,6 +6,7 @@ package de.uni_leipzig.informatik.swp13_sc.linking;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,11 @@ public class ECOLinker
      * cached mappings of ECOs and chess game URIs
      */
     protected Map<String, List<String>> ecoGameMapping;
+    /**
+     * List of all ECOs which causes errors and therefore returned invalid
+     * results.
+     */
+    protected List<String> ecoWithQueryError;
     /**
      * if cached mappings are available
      */
@@ -205,7 +211,8 @@ public class ECOLinker
      * those stored in the ChessOpening object.
      * 
      * @param   co  ChessOpening object (contains the opening moves)
-     * @return  List<String> with mapped games for those opening moves
+     * @return  List<String> with mapped games for those opening moves,
+     *              returns null on error
      */
     public List<String> getGamesForOpenings(ChessOpening co, String coURI)
     {
@@ -385,21 +392,37 @@ public class ECOLinker
         }
         catch (Exception e)
         {
-            System.out.println(e.getLocalizedMessage());
+            System.out.println("Error with <" + coURI + "> : " + e.getLocalizedMessage());
             e.printStackTrace();
-            return new ArrayList<String>();
+            return null;
         }
         
         return list;
     }
     
     /**
+     * <p>
      * For the given URIs it will query the VirtGraph to get chess openings
      * (ECOs). It will then take the moves to get chess games with equal
      * openings and returns them for the opening URI.
+     * </p>
+     * <p>
+     * It will remove openings from the URIs list if they were successful
+     * processed. If there occurred an error the URI will remain in this list
+     * waiting to be processed later on. -> So, if you want the list of URIs to
+     * remain unchanged it would be best to create a work copy for this method.
+     * It would also be possible to create a read-only list with
      * 
-     * @param   uris    URIs of chess openings
-     * @return  Map with URI of chess opening (ECO) and mapped games (URIs)
+     * <pre>
+     * &lt;Object&gt; List&lt;Object&gt; java.util.Collections.unmodifiableList(List<? extends Object> list)
+     * </pre>
+     * 
+     * but this is discouraged.
+     * </p>
+     * 
+     * @param uris
+     *            URIs of chess openings
+     * @return Map with URI of chess opening (ECO) and mapped games (URIs)
      */
     public Map<String, List<String>> getMappings(List<String> uris)
     {   
@@ -416,6 +439,7 @@ public class ECOLinker
         }
         
         Map<String, List<String>> mappings = new HashMap<String, List<String>>();
+        List<String> errorURIs = new ArrayList<String>();
         
         // get Openings / ECOs objects
         for (String uri : uris)
@@ -429,13 +453,34 @@ public class ECOLinker
             
             long start = System.currentTimeMillis();
             List<String> games = getGamesForOpenings(co, uri);
+            if (games == null)
+            {
+                //System.err.println("Error with Opening <" + uri + ">");
+                continue;
+            }
+            
+            mappings.put(uri, games);
+            errorURIs.add(uri);
+            
             // %f --> #.######
             // %s -- Float.toString(((System.currentTimeMillis() - startFile) / 1000.0f))
             System.out.format("Took %s sec. for %d mappings with %s.%n",
                     Float.toString(((System.currentTimeMillis() - start) / 1000.f)),
-                    games.size(), co);
-            
-            mappings.put(uri, games);
+                    ((games == null) ? 0 : games.size()), co);
+        }
+        
+        try
+        {
+            uris.clear();
+            uris.addAll(errorURIs);
+        }
+        catch (Exception e)
+        {
+            // UnsupportedOperationException
+            // ClassCastException
+            // NullPointerException
+            // IllegalArgumentException
+            e.printStackTrace();
         }
         
         return mappings;
@@ -493,7 +538,23 @@ public class ECOLinker
         }
         
         this.ecoGameMapping = new HashMap<String, List<String>>();
-        this.ecoGameMapping = this.getMappings(this.getOpeningURIs());
+        
+        long start = System.currentTimeMillis();
+        List<String> uris = this.getOpeningURIs();
+        System.out.format("Took %s sec. for %d openings.%n",
+                Float.toString(((System.currentTimeMillis() - start) / 1000.f)),
+                uris.size());
+        
+        this.ecoGameMapping = this.getMappings(uris);
+        
+        if (uris.size() > 0)
+        {
+            System.out.println(uris.size() + " URIs caused an error and were therefore skipped:");
+            for (String uri : uris)
+            {
+                System.out.println("<" + uri + ">");
+            }
+        }
         
         this.hasMappings = true;
         
