@@ -3,8 +3,6 @@ package de.uni_leipzig.informatik.swp13_sc.ui;
 
 import java.util.Iterator;
 
-import org.mortbay.servlet.CGI;
-
 import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.query.ResultSet;
