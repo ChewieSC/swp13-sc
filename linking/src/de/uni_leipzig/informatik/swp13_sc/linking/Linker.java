@@ -230,13 +230,50 @@ public class Linker
                     String value = qs.get(resVar.get(0)).toString();
                     
                     /* gives URIs <> and Non-URIs "" */
-                    if ((value.contains("http://")))
+                    if ((value.startsWith("http://")))
                     {
+                        // case: http://dbpedia.org/resource/London
                         value = "<" + value + "> ";
                     }
                     else
                     {
-                        value = "\"" + value + "\" ";
+                        int j = value.indexOf("^^");
+                        if (j == -1)
+                        {
+                            j = value.indexOf('@');                            
+                            if (j == -1)
+                            {
+                                // default "value" or better <value> ?
+                                value = "\"" + value + "\" ";
+                            }
+                            else
+                            {
+                                // case: London, England@en
+                                String first = value.substring(0, j);
+                                if (! first.startsWith("\""))
+                                {
+                                    first = "\"" + first + "\"";
+                                }
+                                String second = value.substring(j + 1);
+                                value = first + '@' + second;
+                            }
+                        }
+                        else
+                        {
+                            // case: 1963-08-28^^http://www.w3.org/2001/XMLSchema#date
+                            //       2650^^http://www.w3.org/2001/XMLSchema#int
+                            String first = value.substring(0, j);
+                            if (! first.startsWith("\""))
+                            {
+                                first = "\"" + first + "\"";
+                            }
+                            String second = value.substring(j+2);
+                            if (second.startsWith("http://"))
+                            {
+                                second = "<" + second + ">";
+                            }
+                            value = first + "^^" + second;
+                        }
                     }
 
                     /* sets the attribute by the categorizationNumber */
