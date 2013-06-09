@@ -79,7 +79,7 @@ public class ECOLinker
     /**
      * maximum depth to create subqueries
      */
-    public final static int MAX_SUBQUERY_DEPTH = 10;
+    public final static int MAX_SUBQUERY_DEPTH = 15;
     
     // ------------------------------------------------------------------------
     
@@ -674,7 +674,7 @@ public class ECOLinker
         String link = args[1];
         String user = args[2];
         String pass = args[3];
-        boolean ecoless = (args.length == 5) ? "yes".equalsIgnoreCase(args[4]) : false;
+        boolean ecoless = (args.length >= 5) ? "yes".equalsIgnoreCase(args[4]) : false;
         String file = (args.length == 6) ? args[5] : "Mapping_ECO_GAME.ttl";
         
         ECOLinker ecol = new ECOLinker(new VirtGraph(graph, "jdbc:virtuoso://"

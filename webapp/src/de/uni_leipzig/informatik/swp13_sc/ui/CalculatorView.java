@@ -101,12 +101,12 @@ public class CalculatorView extends VerticalLayout
         else
         {
             moveList = cmldr.getMoves(gameURI);
-        }
-
-        for (ChessMove cm : moveList)
-        {
-            fen = cm.getFEN();
-            fenList.add(fen);
+            
+            for (ChessMove cm : moveList)
+            {
+                fen = cm.getFEN();
+                fenList.add(fen);
+            }
         }
 
         return fenList;
@@ -118,6 +118,7 @@ public class CalculatorView extends VerticalLayout
     public void initMoves()
     {
         moves = this.getGameMoveFens(ui.getCurrentGameURI());
+        //moveFen = moves.get(0); // check list
     }
 
     /**
@@ -149,7 +150,7 @@ public class CalculatorView extends VerticalLayout
      */
     public void nextProb()
     {
-        int length = moveFen.length();
+        int length = (moveFen == null) ? 0 : moveFen.length();
 
         moveCount++;
 
@@ -160,7 +161,7 @@ public class CalculatorView extends VerticalLayout
         winChance[1] = wc.getWinBlack();
         winChance[2] = wc.getWinWhite();
 
-        if (length == moveFen.length())
+        if (null == moveFen || length == moveFen.length())
         {
             lblInfo.setValue("No further turns");
             btnNextProb.setEnabled(false);

@@ -373,7 +373,7 @@ public class SearchView extends VerticalLayout
                 {
                     removeComponent(resultTable);
                 }
-                if(cb_ResultType.getValue().equals(SL_GAME))
+                if(cb_ResultType.getValue() == null || cb_ResultType.getValue().equals(SL_GAME))
                 	resultTable = new ResultTable(ss.getResult(),ui);
                 else
                 	resultTable = new ResultTable(ss.getResult());

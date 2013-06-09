@@ -97,6 +97,13 @@ public class Swp13scUI extends UI
     @SuppressWarnings("deprecation")
     public void initChessEngine()
     {
+        try
+        {
+            removeChessEngine();
+        }
+        catch (Exception ex)
+        {
+        }
         splitPanel.removeComponent(logo);
 
         explorerLayout = new GridLayout(2, 2);
@@ -212,12 +219,13 @@ public class Swp13scUI extends UI
     @SuppressWarnings("deprecation")
     public void initChessEngine(String uri)
     {
-    	try{
-    		removeChessEngine();
-    	}catch (Exception ex)
-    	{
-    		
-    	}
+        try
+        {
+            removeChessEngine();
+        }
+        catch (Exception ex)
+        {
+        }
         splitPanel.removeComponent(logo);
 
         explorerLayout = new GridLayout(2, 2);
@@ -336,7 +344,7 @@ public class Swp13scUI extends UI
      */
     public String getCurrentGameURI()
     {
-        if (taToParsURI != null && taToParsURI.getValue().equals(""))
+        if (taToParsURI == null || taToParsURI.getValue().equals(""))
         {
             System.out.println("No Game URI found");
             return null;
