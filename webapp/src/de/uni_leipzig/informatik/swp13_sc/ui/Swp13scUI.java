@@ -45,6 +45,8 @@ public class Swp13scUI extends UI
     private VerticalLayout guiGameLayout;
 
     private Label lblInfoURI;
+    
+    private CalculatorView calcView;
 
     // ---------------MenuView-------------//
     private MenuView menuView;
@@ -202,6 +204,8 @@ public class Swp13scUI extends UI
         explorerLayout.addComponent(guiGameLayout, 0, 0);
         explorerLayout.setComponentAlignment(guiGameLayout,
                 Alignment.TOP_CENTER);
+        
+        calcView = new CalculatorView(explorerLayout);
 
         splitPanel.addComponent(explorerLayout);
     }
@@ -325,6 +329,24 @@ public class Swp13scUI extends UI
         splitPanel.addComponent(explorerLayout);
         btnReplay.click();
     }
+    
+    
+    /**
+     * Get URI of current game
+     */
+    public String getCurrentGameURI()
+    {
+        if (taToParsURI != null && taToParsURI.getValue().equals(""))
+        {
+            System.out.println("No Game URI found");
+            return null;
+        }
+        else
+        {
+            return taToParsURI.getValue();
+        }
+    }
+    
     public void removeChessEngine()
     {
         splitPanel.removeComponent(explorerLayout);

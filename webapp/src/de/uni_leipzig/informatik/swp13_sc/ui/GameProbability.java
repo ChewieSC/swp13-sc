@@ -128,8 +128,16 @@ public class GameProbability extends Table implements CellStyleGenerator
      *
      *
      */
-    public void showProb(double whiteProb, double drawProb, double blackProb)
+    public void showProb(double[] gameProb)
     {
+    	for(int i=0;i<gameProb.length;i++)
+    	{
+    	 this.drawProb = gameProb[0];
+    	 this.blackProb = gameProb[1];   
+         this.whiteProb = gameProb[2]; 
+           		
+    	}
+    	
         this.whiteProb = whiteProb;
         this.drawProb = drawProb;
         this.blackProb = blackProb;
@@ -143,7 +151,7 @@ public class GameProbability extends Table implements CellStyleGenerator
         this.setColumnWidth("Draw", drawWidth);
         this.setColumnWidth("Black wins", blackWidth);
 
-        // to do farbe in die zelen einfügen ....
+        // to do farbe in die zelen einfuegen ....
         // Versuch
 
     }
