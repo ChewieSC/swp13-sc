@@ -59,6 +59,7 @@ public class SimpleSearch
      * The result count. Will always be executed and available.
      */
     private long resultCount;
+
     /**
      * The list with results. String URI/IRIs from players or games.
      */
@@ -369,7 +370,7 @@ public class SimpleSearch
     public SimpleSearch(Map<String, String> fields)
     {
         this();
-        this.fields = fields;
+        this.fields.putAll(fields);
     }
         
     // ------------------------------------------------------------------------
@@ -468,33 +469,10 @@ public class SimpleSearch
         
         try
         {
-            //QueryExecution vqeS = QueryExecutionFactory.create(this.selectQuery, new VirtModel(virtuosoGraph));
             VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(this.getSPARQLQuery(), virtuosoGraph);
             
             if (! this.count)
             {
-                try {
-                    //QueryExecution vqeC = QueryExecutionFactory.create(this.countQuery, new VirtModel(virtuosoGraph));
-                    //QueryExecution vqeC = VirtuosoQueryExecutionFactory.create(this.countQuery, virtuosoGraph);
-                    // using only virtuoso !
-                    VirtuosoQueryExecution vqeC = VirtuosoQueryExecutionFactory.create(this.getSPARQLCountQuery(), virtuosoGraph);
-                    
-                    ResultSet results = vqeC.execSelect();
-                    
-                    if (results.hasNext())
-                    {
-                        QuerySolution result = (QuerySolution) results.next();
-                        Literal c = result.getLiteral(COUNT_VARIABLE);
-                        this.resultCount = c.getLong();
-                    }
-                    
-                    vqeC.close();
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                
                 ResultSet results = vqeS.execSelect();
                 
                 String vari = GAME_VARIABLE;
@@ -513,6 +491,8 @@ public class SimpleSearch
                     RDFNode iri = result.get(vari);
                     this.resultList.add(iri.toString());
                 }
+                // results of integer?
+                this.resultCount = this.resultList.size();
             }
             else
             {
@@ -564,7 +544,7 @@ public class SimpleSearch
     }
     
     /**
-     * Returns the number of results without database limit.
+     * Returns the number of results of the previously executed query.
      * 
      * @return  Number (long) of results or -1 on error.
      */
@@ -573,6 +553,30 @@ public class SimpleSearch
         if (! this.hasResult())
         {
             return -1;
+        }
+        
+        return this.resultCount;
+    }
+    
+    /**
+     * Returns the number (!) of results without a LIMIT clause.
+     * 
+     * @return  Number (long) of results or -1 on error.
+     */
+    public long getResultCountUnLimited()
+    {
+        // check if not executed before - else skip
+        if (! (this.hasResult && this.resultList != null && this.resultList.size() == 0))
+        {
+            // temporarily set count on
+            boolean countOn = this.count;
+            this.count = true;
+            
+            // query with default mode
+            this.query();
+            
+            // set to previous value
+            this.count = countOn;
         }
         
         return this.resultCount;
@@ -877,7 +881,8 @@ public class SimpleSearch
     
     /**
      * Constructs a SPARQL query string. It puts the game and player parts together.
-     *  Creates a UNION if needed.
+     * Creates a UNION if needed.<br />
+     * Will only work with resources where players and chess games are linked!
      *  
      * @return  SPARQL-Query String (part only)
      */

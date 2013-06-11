@@ -15,6 +15,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessOpening;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 
@@ -235,6 +236,16 @@ public class ChessOpeningDataRetriever
         return list;
     }
     
-    
-    
+    /**
+     * Returns a list of {@link ChessMove}s for a given game URI/IRI. On error
+     * it will return an empty list.
+     * 
+     * @param   uri URI/IRI of game or opening
+     * @return  List<{@link ChessMove}>
+     * @see ChessMoveListDataRetriever
+     */
+    public List<ChessMove> getMoves(String uri)
+    {
+        return this.cmdr.getMoves(uri);
+    }
 }
