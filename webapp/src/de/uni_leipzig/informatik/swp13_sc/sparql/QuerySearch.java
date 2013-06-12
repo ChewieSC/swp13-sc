@@ -28,14 +28,26 @@ public class QuerySearch {
 	{
 		this.sparqlQuery = sparqlQuery;
 
-		System.out.println(sparqlQuery); // nur zum testen
+		System.out.println("User-Query: " + sparqlQuery); // nur zum testen
+		
+		// patch query to contain a LIMIT
+		int i = sparqlQuery.lastIndexOf('}');
+		if (i != -1)
+		{
+		    String last = sparqlQuery.substring(i);
+	        if (! last.contains("LIMIT "))
+	        {
+	            this.sparqlQuery += " \nLIMIT 100";
+	            System.out.println("Add a LIMIT: " + sparqlQuery);
+	        }
+		}
 		
 		Configuration c = Configuration.getInstance();
 		
 		virtuosoGraph = new VirtGraph (c.getVirtuosoBasegraph(),
 		        "jdbc:virtuoso://" + c.getVirtuosoHostname(),
 		        c.getVirtuosoUsername(), c.getVirtuosoPassword());
-		virtuosoGraph.setQueryTimeout(30); // 30 s
+		virtuosoGraph.setQueryTimeout(60); // 30 s
 
 		System.out.println(virtuosoGraph.getGraphUrl());
 	}
