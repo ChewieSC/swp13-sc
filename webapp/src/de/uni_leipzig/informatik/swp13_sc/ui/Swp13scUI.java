@@ -105,6 +105,9 @@ public class Swp13scUI extends UI
         {
         }
         mainFrame.removeComponent(logo);
+        menuView.removeSearchViewIfEnabled();
+        menuView.removeConverterViewIfEnabled();
+        
         explorerLayout = new VerticalLayout();
         explorerLayout.setSizeFull();
 

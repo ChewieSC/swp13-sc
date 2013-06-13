@@ -61,17 +61,8 @@ public class MenuView extends VerticalLayout
             public void buttonClick(ClickEvent event)
             {
             	//check if one of the other two windows are open
-            	if (converterViewEnabled)
-                {
-                    removeComponent(converterView);
-                    converterViewEnabled = false;
-                }
-                
-                if (searchViewEnabled)
-                {
-                    removeComponent(searchView);
-                    searchViewEnabled = false;
-                }
+            	removeConverterViewIfEnabled();
+            	removeSearchViewIfEnabled();
                 
                 if (inGame == false)
                 {
@@ -92,11 +83,9 @@ public class MenuView extends VerticalLayout
             {
             	searchView.setUi(ui);
             	//check if one of the other two windows are open
-                if (inGame == true)
-                {
-                    ui.removeChessEngine();
-                    inGame = false;
-                }
+            	removeConverterViewIfEnabled();
+            	removeGameViewIfEnabled();
+
                 if (converterViewEnabled)
                 {
                     removeComponent(converterView);
@@ -123,16 +112,9 @@ public class MenuView extends VerticalLayout
             public void buttonClick(ClickEvent event)
             {
             	//check if one of the other two windows are open
-            	if (searchViewEnabled)
-                {
-                    removeComponent(searchView);
-                    searchViewEnabled = false;
-                }
-            	if (inGame == true)
-                {
-                    ui.removeChessEngine();
-                    inGame = false;
-                }
+            	removeSearchViewIfEnabled();
+            	removeGameViewIfEnabled();
+            	
             	/////
                 if (converterViewEnabled)
                 {
@@ -149,5 +131,38 @@ public class MenuView extends VerticalLayout
             }
         });
     }
+    
+    public void removeConverterViewIfEnabled()
+    {
+    	if (converterViewEnabled)
+        {
+            removeComponent(converterView);
+            converterViewEnabled = false;
+        }
 
+    }
+    
+    public void removeSearchViewIfEnabled()
+    {
+    	if (searchViewEnabled)
+        {
+            removeComponent(searchView);
+            searchViewEnabled = false;
+        }
+
+    }
+    
+    public void removeGameViewIfEnabled()
+    {
+        if (inGame == true)
+        {
+            ui.removeChessEngine();
+            inGame = false;
+        }
+
+    }
+    
+    
+    
+	
 }
