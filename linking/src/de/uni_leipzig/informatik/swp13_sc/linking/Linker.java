@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.util.List;
 
@@ -201,7 +203,7 @@ public class Linker
                 generateQuery(uri, "dbpprop:peakRanking", 17) };
 
         List<String> resVar = new ArrayList<String>();
-        List<String> stringls = new ArrayList<String>();
+        Set<String> stringls = new HashSet<String>();
         /* for each querystring */
         for (int i = 0; i < queryString.length; i++)
         {
@@ -221,7 +223,6 @@ public class Linker
 
                     resVar = results.getResultVars();
 
-                    boolean addAllowed = true;
                     /* extract the categorizationNumber */
                     int identifier = Integer.parseInt(resVar.get(0).toString()
                             .substring(4));
@@ -229,13 +230,50 @@ public class Linker
                     String value = qs.get(resVar.get(0)).toString();
                     
                     /* gives URIs <> and Non-URIs "" */
-                    if ((value.contains("http://")))
+                    if ((value.startsWith("http://")))
                     {
+                        // case: http://dbpedia.org/resource/London
                         value = "<" + value + "> ";
                     }
                     else
                     {
-                        value = "\"" + value + "\" ";
+                        int j = value.indexOf("^^");
+                        if (j == -1)
+                        {
+                            j = value.indexOf('@');                            
+                            if (j == -1)
+                            {
+                                // default "value" or better <value> ?
+                                value = "\"" + value + "\" ";
+                            }
+                            else
+                            {
+                                // case: London, England@en
+                                String first = value.substring(0, j);
+                                if (! first.startsWith("\""))
+                                {
+                                    first = "\"" + first + "\"";
+                                }
+                                String second = value.substring(j + 1);
+                                value = first + '@' + second;
+                            }
+                        }
+                        else
+                        {
+                            // case: 1963-08-28^^http://www.w3.org/2001/XMLSchema#date
+                            //       2650^^http://www.w3.org/2001/XMLSchema#int
+                            String first = value.substring(0, j);
+                            if (! first.startsWith("\""))
+                            {
+                                first = "\"" + first + "\"";
+                            }
+                            String second = value.substring(j+2);
+                            if (second.startsWith("http://"))
+                            {
+                                second = "<" + second + ">";
+                            }
+                            value = first + "^^" + second;
+                        }
                     }
 
                     /* sets the attribute by the categorizationNumber */
@@ -274,20 +312,9 @@ public class Linker
 
                     String comp = "<" + sourceUri + "> <" + attribute + "> "
                             + value + ".";
-                    System.out.println(comp);
-
-                    /* compares if entry already exists */
-                    for (int k = 0; k < stringls.size(); k++)
-                    {
-                        if (stringls.get(k).equals(comp))
-                        {
-                            addAllowed = false;
-                        }
-                    }
-                    if (addAllowed == true)
-                    {
-                        stringls.add(comp);
-                    }
+                    
+                    stringls.add(comp);
+                    //System.out.println(comp);
                 }
             }
             finally
@@ -295,7 +322,7 @@ public class Linker
                 qexec.close();
             }
         }
-        return stringls;
+        return new ArrayList<String>(stringls);
     }
 
     /**
@@ -366,8 +393,8 @@ public class Linker
             n3Liste.addAll(resListe);
             if (i % 10 == 0)
             {
-                System.out.println("Progress: " + (double) i
-                        / mappingList.size());
+                System.out.print("\rProgress: " + Float.toString((float) i
+                        * 100 / mappingList.size()) + "% (" + i + ")");
             }
         }
         System.out.println("Finished!");

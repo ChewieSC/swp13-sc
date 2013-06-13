@@ -30,6 +30,10 @@ public class ChessGame
      */
     private final ChessPlayer blackPlayer;
     /**
+     * The opening / ECO of the game.
+     */
+    private final ChessOpening opening;
+    /**
      * The event this game was played at.
      */
     private final String event;
@@ -68,6 +72,7 @@ public class ChessGame
     {
         this.whitePlayer = builder.whitePlayer;
         this.blackPlayer = builder.blackPlayer;
+        this.opening     = builder.opening;
         this.event       = builder.event;
         this.site        = builder.site;
         this.date        = builder.date;
@@ -97,6 +102,16 @@ public class ChessGame
     public ChessPlayer getBlackPlayer()
     {
         return this.blackPlayer;
+    }
+    
+    /**
+     * Returns the opening / ECO of the game.
+     * 
+     * @return  {@link ChessOpening}
+     */
+    public ChessOpening getOpening()
+    {
+        return this.opening;
     }
     
     /**
@@ -191,11 +206,11 @@ public class ChessGame
         StringBuilder builder2 = new StringBuilder();
         builder2.append("ChessGame [whitePlayer=").append(whitePlayer)
                 .append(", blackPlayer=").append(blackPlayer)
-                .append(", event=").append(event).append(", site=")
-                .append(site).append(", date=").append(date).append(", round=")
-                .append(round).append(", result=").append(result)
-                .append(", moves=").append(moves).append(", meta=")
-                .append(meta).append("]");
+                .append(", opening=").append(opening).append(", event=")
+                .append(event).append(", site=").append(site).append(", date=")
+                .append(date).append(", round=").append(round)
+                .append(", result=").append(result).append(", moves=")
+                .append(moves).append(", meta=").append(meta).append("]");
         return builder2.toString();
     }
     
@@ -213,6 +228,7 @@ public class ChessGame
     {
         private ChessPlayer whitePlayer = null;
         private ChessPlayer blackPlayer = null;
+        private ChessOpening opening = null;
         private String event = null;
         private String site = null;
         private String date = null;
@@ -249,6 +265,18 @@ public class ChessGame
         public Builder setBlackPlayer(ChessPlayer blackPlayer)
         {
             this.blackPlayer = blackPlayer;
+            return this;
+        }
+        
+        /**
+         * Sets the chess opening / ECO for this game.
+         * 
+         * @param   opening The {@link ChessOpening} / ECO.
+         * @return  Builder
+         */
+        public Builder setOpening(ChessOpening opening)
+        {
+            this.opening = opening;
             return this;
         }
         
@@ -427,11 +455,12 @@ public class ChessGame
             StringBuilder builder = new StringBuilder();
             builder.append("Builder [whitePlayer=").append(whitePlayer)
                     .append(", blackPlayer=").append(blackPlayer)
-                    .append(", event=").append(event).append(", site=")
-                    .append(site).append(", date=").append(date)
-                    .append(", round=").append(round).append(", result=")
-                    .append(result).append(", moves=").append(moves)
-                    .append(", meta=").append(meta).append("]");
+                    .append(", opening=").append(opening).append(", event=")
+                    .append(event).append(", site=").append(site)
+                    .append(", date=").append(date).append(", round=")
+                    .append(round).append(", result=").append(result)
+                    .append(", moves=").append(moves).append(", meta=")
+                    .append(meta).append("]");
             return builder.toString();
         }
     }

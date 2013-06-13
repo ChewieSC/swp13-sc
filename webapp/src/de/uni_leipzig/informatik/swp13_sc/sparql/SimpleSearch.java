@@ -42,19 +42,13 @@ public class SimpleSearch
      */
     private boolean distinct;
     /**
+     * Sets the maximum number of results returned.
+     */
+    private int limit;
+    /**
      * Tells the SPARQL Query composer to construct a COUNT query.
      */
     private boolean count;
-    
-    /**
-     * specifies the number of maximal Results
-     */
-    private final int maxNumberOfRes = 500;
-    
-    /**
-     * counts the number of Results to exercise some control of the query time
-     */
-    private int numberOfResults;
     
     /**
      * The virtuosoGraph from which the results are fetched from.
@@ -107,6 +101,10 @@ public class SimpleSearch
      */
     private final static String SPARQL_QUERY_SELECT_GAME_VAR = "game";
     /**
+     * SPARQL_QUERY_SELECT_OPENING_VAR
+     */
+    private final static String SPARQL_QUERY_SELECT_OPENING_VAR = "opening";
+    /**
      * SPARQL_QUERY_SELECT_PLAYER_VAR
      */
     private final static String SPARQL_QUERY_SELECT_PLAYER_VAR = "player";
@@ -138,6 +136,10 @@ public class SimpleSearch
      */
     private final static String SPARQL_QUERY_WHERE_END = "}";
             //SPARQL_QUERY_NEWLINE + "}";
+    /**
+     * SPARQL_QUERY_LIMIT
+     */
+    private final static String SPARQL_QUERY_LIMIT = "LIMIT "; //TODO: could also be in the config file
     
     /**
      * SPARQL_QUERY_FILTER_REGEX_START
@@ -238,6 +240,10 @@ public class SimpleSearch
      * FIELD_KEY_CG_RESULT
      */
     public final static String FIELD_KEY_CG_RESULT = "cg-result";
+    /**
+     * FIELD_KEY_CG_ECO
+     */
+    public final static String FIELD_KEY_CG_ECO = "cg-eco";
     /**
      * FIELD_VALUE_CG_RESULT_WHITE
      */
@@ -351,6 +357,7 @@ public class SimpleSearch
         this.distinct = true;
         this.hasResult = false;
         this.resultCount = -1;
+        this.limit = 100;
     }
     
     /**
@@ -400,6 +407,24 @@ public class SimpleSearch
     }
     
     /**
+     * Sets the maximum number of results to be returned. If the argument is
+     * less 0 than the previous limit will stay in effect. If the argument is
+     * 0 it will mean no limit at all.
+     * 
+     * @param   limit   maximum number of results greater 0
+     * @return  SimpleSearch (this) to chain calls
+     */
+    public SimpleSearch setLimit(int limit)
+    {
+        if (limit >= 0)
+        {
+            this.limit = limit;
+        }
+        
+        return this;
+    }
+    
+    /**
      * Tells the SPARQL Query constructor to construct a COUNT SPARQL query
      * if set to true.
      * 
@@ -434,7 +459,6 @@ public class SimpleSearch
      */
     public boolean query()
     {
-    	numberOfResults = 0;
         if (this.virtuosoGraph == null)
         {
             return false;
@@ -483,32 +507,19 @@ public class SimpleSearch
                     vari = PLAYER2_VARIABLE;
                 }
                 
-                while(results.hasNext() && numberOfResults <= maxNumberOfRes ) //TODO: passt das?
-                {                
-                	numberOfResults++;
-                	if ( numberOfResults == maxNumberOfRes ){
-                		this.hasResult = true;
-                        return true;
-                	}
-                	
+                while(results.hasNext())
+                {
                     QuerySolution result = (QuerySolution) results.next();
                     RDFNode iri = result.get(vari);
                     this.resultList.add(iri.toString());
-                    
                 }
             }
             else
             {
                 ResultSet results = vqeS.execSelect();
                 
-                if (results.hasNext() && numberOfResults <= maxNumberOfRes ) //TODO: passt das?
+                if (results.hasNext())
                 {
-                	numberOfResults++;
-                	if ( numberOfResults == maxNumberOfRes ){
-                		this.hasResult = true;
-                        return true;
-                	}
-                	
                     QuerySolution result = (QuerySolution) results.next();
                     Literal c = result.getLiteral(COUNT_VARIABLE);
                     this.resultCount = c.getLong();
@@ -656,6 +667,14 @@ public class SimpleSearch
         // query end
         sb.append(SPARQL_QUERY_WHERE_END);
         
+        // limit results if not counting and not unlimited
+        if ((! this.count) && (this.limit > 0))
+        {
+            sb.append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_LIMIT)
+                .append(this.limit);
+        }
+        
         return sb.toString();
     }
     
@@ -789,6 +808,68 @@ public class SimpleSearch
                 .append(this.fields.get(FIELD_KEY_CG_RESULT))
                 .append("\".")
                 .append(SPARQL_QUERY_NEWLINE);
+        }
+        
+        // eco (textual)
+        if (this.fields.containsKey(FIELD_KEY_CG_ECO) &&
+                (null != this.fields.get(FIELD_KEY_CG_ECO)))
+        {
+            String var_eco = "?eco_var";
+            sb  // UNION
+                // eco as literal on game
+                .append(SPARQL_QUERY_UNION_START)
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.eco.getLocalName())
+                .append(" \"")
+                .append(this.fields.get(FIELD_KEY_CG_ECO))
+                .append("\".")
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_UNION_MIDDLE)
+                // eco as resource linked to game
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_GAME_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.eco.getLocalName())
+                .append(" ?")
+                .append(SPARQL_QUERY_SELECT_OPENING_VAR)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                // UNION eco as code or as name
+                .append(SPARQL_QUERY_UNION_START)
+                // eco as code
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_OPENING_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.openingCode.getLocalName())
+                .append(" \"")
+                .append(this.fields.get(FIELD_KEY_CG_ECO))
+                .append("\".")
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_UNION_MIDDLE)
+                // now eco as name with filter
+                .append('?')
+                .append(SPARQL_QUERY_SELECT_OPENING_VAR)
+                .append(' ')
+                .append(SPARQL_QUERY_PREFIX_CONT)
+                .append(ChessRDFVocabulary.openingName.getLocalName())
+                .append(' ')
+                .append(var_eco)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_FILTER_REGEX_START)
+                .append(var_eco)
+                .append(SPARQL_QUERY_FILTER_REGEX_MIDDLE)
+                .append(this.fields.get(FIELD_KEY_CG_ECO))
+                .append(SPARQL_QUERY_FILTER_REGEX_END)
+                .append('.')
+                .append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_UNION_END)
+                .append(SPARQL_QUERY_UNION_END);
         }
         
         return sb.toString();
@@ -1236,6 +1317,14 @@ public class SimpleSearch
         
         // query end
         sb.append(SPARQL_QUERY_WHERE_END);
+        
+        // limit results if not counting and not unlimited
+        if ((! this.count) && (this.limit > 0))
+        {
+            sb.append(SPARQL_QUERY_NEWLINE)
+                .append(SPARQL_QUERY_LIMIT)
+                .append(this.limit);
+        }
         
         return sb.toString();
     }

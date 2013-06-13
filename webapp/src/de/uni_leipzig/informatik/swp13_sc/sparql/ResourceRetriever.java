@@ -21,6 +21,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
+import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
 
 /**
  * <p>
@@ -100,8 +101,11 @@ public class ResourceRetriever extends HttpServlet
         pw.println(sparql);
         pw.println();
         
+        Configuration c = Configuration.getInstance();
+        
         // query Virtuoso
-        VirtGraph virtuosoGraph = new VirtGraph("jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357", "dba", "dba");
+        VirtGraph virtuosoGraph = new VirtGraph("jdbc:virtuoso://" + c.getVirtuosoHostname(),
+                c.getVirtuosoUsername(), c.getVirtuosoPassword());
         VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create(sparql, virtuosoGraph);
         ResultSet results = vqe.execSelect();
         

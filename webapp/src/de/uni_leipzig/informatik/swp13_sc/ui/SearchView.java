@@ -1,23 +1,31 @@
+
 package de.uni_leipzig.informatik.swp13_sc.ui;
+
+import java.util.Iterator;
 
 import virtuoso.jena.driver.VirtGraph;
 
 import com.hp.hpl.jena.query.ResultSet;
-import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import de.uni_leipzig.informatik.swp13_sc.sparql.QuerySearch;
 import de.uni_leipzig.informatik.swp13_sc.sparql.SimpleSearch;
+import de.uni_leipzig.informatik.swp13_sc.ui.ResultTable;
+import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
 
 /**
  * Kapselt das Layout und die Funktionalitï¿½ten des Suchfensters und dessen
@@ -53,47 +61,50 @@ public class SearchView extends VerticalLayout
     private Button btnSearch;
 
     /** Layout fuer erweiterte Suche */
-    private HorizontalLayout simpleSearchLayout;
-    
-    private FormLayout exSearchLayout01;
-    
-    private FormLayout exSearchLayout02;
+    private VerticalLayout simpleSearchLayout;
+
+    private FormLayout fly_cg_1;
+    private FormLayout fly_cg_2;
 
     /** Suchfelder fuer erweiterte Suche */
-    private FieldGroup exSearchFields;
 
     private TextField tf_Name_1; // name player 1
     private TextField tf_Name_2; // name player 2
-    
-    private TextField tf_birth_p1;  //Geburt player1
-    private TextField tf_birth_p2;  //Geburt player2
-    
-    private TextField tf_death_p1;  //Todestag player1
-    private TextField tf_death_p2;  //Todestag player2
-    
+
+    private TextField tf_birth_p1; // Geburt player1
+    private TextField tf_birth_p2; // Geburt player2
+
+    private TextField tf_death_p1; // Todestag player1
+    private TextField tf_death_p2; // Todestag player2
+
     private TextField tf_nation_p1;
     private TextField tf_nation_p2;
-    
-    private TextField tf_elo_p1;    //elo player 1,2  
+
+    private TextField tf_elo_p1; // elo player 1,2
     private TextField tf_elo_p2;
-    
-    private TextField tf_birthPlace_p1; 
+
+    private TextField tf_birthPlace_p1;
     private TextField tf_birthPlace_p2;
-    
-    private TextField tf_peak_p1;   //PeakRanking player 1,2
+
+    private TextField tf_peak_p1; // PeakRanking player 1,2
     private TextField tf_peak_p2;
-    
-    private ComboBox cb_Color_1; // color of player 1
+
+    private ComboBox cb_Color_1; // color of player 1 
+    private Object cbCol1NoCol;
+    private Object cbCol1White;
+    private Object cbCol1Black;
     private ComboBox cb_Color_2; // color of player 2
+    private Object cbCol2NoCol;
+    private Object cbCol2White;
+    private Object cbCol2Black;
     private ComboBox cb_ResultType; // player or game
     private ComboBox cb_Result; // result of game - 1-0, 0-1, 1/2-1/2
-    
 
     private TextField tf_Date; // date of game
     private TextField tf_Event; // event of game
     private TextField tf_Site; // site of game
-    private TextField tf_Round; // round of game    
-   
+    private TextField tf_Round; // round of game
+    private TextField tf_ECO; // ECO/Opening of game
 
     private final static String SL_GAME = "Game";
     private final static String SL_PLAYER1 = "Player 1";
@@ -104,6 +115,8 @@ public class SearchView extends VerticalLayout
 
     /** beendet simpleSearch */
     private Button btnEndSearch;
+    
+    private Swp13scUI ui;
 
     // ----- Instanzen Querysuche -----//
 
@@ -135,7 +148,7 @@ public class SearchView extends VerticalLayout
     public SearchView()
     {
         setSpacing(true);
-        
+
         searchLayoutInner = new HorizontalLayout();
         searchLayoutInner.setSizeFull();
         searchLayoutInner.setWidth("100%");
@@ -148,41 +161,39 @@ public class SearchView extends VerticalLayout
 
         searchLayoutInner.addComponent(btnOpenSearch);
         searchLayoutInner.addComponent(btnOpenQuerySearch);
-        
+
         addComponent(searchLayoutInner);
     }
-
+    public void setUi(Swp13scUI ui)
+    {
+    	this.ui = ui;	
+    }
     public void initSearch()
     {
         simpleSearchLayoutInner = new HorizontalLayout();
         simpleSearchLayoutInner.setSizeFull();
         simpleSearchLayoutInner.setWidth("100%");
-        
-        simpleSearchLayout = new HorizontalLayout();
+
+        simpleSearchLayout = new VerticalLayout();
 
         btnSearch = new Button("Suche Starten");
         btnEndSearch = new Button("Zurück");
 
-        btnSearch.addClickListener(new ClickListener()
-        {
+        btnSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void buttonClick(ClickEvent event)
             {
+                Configuration c = Configuration.getInstance();
                 SimpleSearch ss = new SimpleSearch();
-                ss.setDBConnection(new VirtGraph
-                	(
-                		"millionbase",
-                		"jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
-                		"dba", 
-                		"dba"           				
-                				
-                       /* "http://localhost:1358/millionbase",
-                        "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
-                        "dba", "dba"*/
-                		
-                	));                                              
+//                ss.setDBConnection(new VirtGraph ("millionbase",
+//                        "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
+//                        "dba", "dba"));
+                //TODO: set back on deployment
+                ss.setDBConnection(new VirtGraph(c.getVirtuosoBasegraph(),
+                        "jdbc:virtuoso://" + c.getVirtuosoHostname(), c
+                                .getVirtuosoUsername(), c.getVirtuosoPassword()));
 
                 String s = tf_Date.getValue();
                 if (s != null && !"".equals(s))
@@ -203,6 +214,11 @@ public class SearchView extends VerticalLayout
                 if (s != null && !"".equals(s))
                 {
                     ss.setField(SimpleSearch.FIELD_KEY_CG_SITE, s);
+                }
+                s = tf_ECO.getValue();
+                if (s != null && !"".equals(s))
+                {
+                    ss.setField(SimpleSearch.FIELD_KEY_CG_ECO, s);
                 }
 
                 s = tf_Name_1.getValue();
@@ -278,92 +294,96 @@ public class SearchView extends VerticalLayout
                                 SimpleSearch.FIELD_VALUE_RESULTTYPE_GAME);
                     }
                 }
-                
-             //-----------Ergänzungen simpleSearch---------//
-                
-                s = tf_birth_p1.getValue();               
+
+                // -----------Ergänzungen simpleSearch---------//
+
+                s = tf_birth_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_DATE, s);
-                }	
-                
-                s = tf_birth_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_DATE, s);
+                }
+
+                s = tf_birth_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_DATE, s);
-                }		
-                
-                s = tf_death_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_DATE, s);
+                }
+
+                s = tf_death_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_DEATH_DATE, s);
-                }	
-                
-                s = tf_death_p2 .getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_DEATH_DATE, s);
+                }
+
+                s = tf_death_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_DEATH_DATE, s);
-                }	
-                
-                s = tf_nation_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_DEATH_DATE, s);
+                }
+
+                s = tf_nation_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_NATION, s);
-                }		
-                
-                s = tf_nation_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_NATION, s);
+                }
+
+                s = tf_nation_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_NATION, s);
-                }		
-                
-                s = tf_elo_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_NATION, s);
+                }
+
+                s = tf_elo_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_ELO, s);
-                }		
-                
-                s = tf_elo_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_ELO, s);
+                }
+
+                s = tf_elo_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_ELO, s);
-                }		
-                
-                s = tf_birthPlace_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_ELO, s);
+                }
+
+                s = tf_birthPlace_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_PLACE, s);
-                }		
-                
-                s = tf_birthPlace_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_BIRTH_PLACE, s);
+                }
+
+                s = tf_birthPlace_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_PLACE, s);
-                }	
-                
-                s = tf_peak_p1.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_BIRTH_PLACE, s);
+                }
+
+                s = tf_peak_p1.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP1_PEAK_RANKING, s);
-                }	
-                
-                s = tf_peak_p2.getValue();               
+                    ss.setField(SimpleSearch.FIELD_KEY_CP1_PEAK_RANKING, s);
+                }
+
+                s = tf_peak_p2.getValue();
                 if (s != null && !"".equals(s))
                 {
-                  ss.setField(SimpleSearch.FIELD_KEY_CP2_PEAK_RANKING, s);
-                }	
+                    ss.setField(SimpleSearch.FIELD_KEY_CP2_PEAK_RANKING, s);
+                }
+
+                // -------------------------------------------//
                 
-             
-             //-------------------------------------------//
-                
+                System.out.println(ss.getSPARQLQuery());
+
                 if (resultTable != null)
                 {
                     removeComponent(resultTable);
                 }
-                resultTable = new ResultTable(ss.getResult());
+                if(cb_ResultType.getValue() == null || cb_ResultType.getValue().equals(SL_GAME))
+                	resultTable = new ResultTable(ss.getResult(),ui);
+                else
+                	resultTable = new ResultTable(ss.getResult());
                 addComponent(resultTable);
                 activeResults = true;
-                
+
                 Notification.show("Number of results",
                         "Total: " + ss.getResultCount(),
                         Notification.Type.TRAY_NOTIFICATION);
@@ -372,8 +392,7 @@ public class SearchView extends VerticalLayout
             }
         });
 
-        btnEndSearch.addClickListener(new ClickListener()
-        {
+        btnEndSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -384,7 +403,7 @@ public class SearchView extends VerticalLayout
                     removeComponent(resultTable);
                     resultTable = null;
                     activeResults = false;
-                    
+
                     btnSearch.setEnabled(true);
                 }
                 else
@@ -398,20 +417,14 @@ public class SearchView extends VerticalLayout
             }
         });
 
-        simpleSearchLayoutInner.addComponent(btnSearch);
         addComponent(btnEndSearch);
-
-        exSearchLayout01 = new FormLayout();
-        exSearchLayout02 = new FormLayout();
-        
-        exSearchFields = new FieldGroup();
 
         tf_Date = new TextField("Date");
         tf_Event = new TextField("Event");
-        tf_Name_1 = new TextField("Name of Player 1");
-        tf_Name_2 = new TextField("Name of Player 2");
         tf_Round = new TextField("Round");
         tf_Site = new TextField("Site");
+        tf_ECO = new TextField("ECO (Opening)");
+        //tf_ECO.setMaxLength(3); // now combined (code and name)
 
         cb_Result = new ComboBox("Result of Game");
         cb_Result.setNullSelectionAllowed(true);
@@ -420,88 +433,162 @@ public class SearchView extends VerticalLayout
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_DRAW);
         cb_Result.addItem(SimpleSearch.FIELD_VALUE_CG_RESULT_WHITE);
 
+        fly_cg_1 = new FormLayout(tf_Event, tf_Site, tf_Date);
+        fly_cg_1.setMargin(true);
+        
+        fly_cg_2 = new FormLayout(tf_Round, cb_Result, tf_ECO);
+        fly_cg_2.setMargin(true);
+        
+        HorizontalLayout hly_cg = new HorizontalLayout(fly_cg_1, fly_cg_2);
+        hly_cg.setSpacing(true);
+
+        Panel pnl_cg = new Panel();
+        pnl_cg.setCaption("Chess game");
+        pnl_cg.setContent(hly_cg);
+        
+
         cb_ResultType = new ComboBox("Search for");
-        cb_ResultType.setNullSelectionAllowed(false); // nothing will not be
-                                                      // displayed ... still not
-                                                      // working
+        cb_ResultType.setNullSelectionAllowed(false);
         Object obj = cb_ResultType.addItem(SL_GAME); // default
         // Notification.show("Debug obj ret", (obj == null)? "null" :
         // obj.getClass().toString(), Notification.Type.TRAY_NOTIFICATION);
-        cb_ResultType.addItem(SL_PLAYER1);
-        cb_ResultType.addItem(SL_PLAYER2);
+        // TODO: maybe one day there could be a click button for player details as well 
+//        cb_ResultType.addItem(SL_PLAYER1);
+//        cb_ResultType.addItem(SL_PLAYER2);
         cb_ResultType.setValue(obj);
 
-        cb_Color_1 = new ComboBox("Color of Player 1");
+        tf_Name_1 = new TextField("Name");
+        tf_Name_2 = new TextField("Name");
+
+        cb_Color_1 = new ComboBox("Color of Player");
         cb_Color_1.setNullSelectionAllowed(false);
-        obj = cb_Color_1.addItem(SL_NOCOLOR);
-        cb_Color_1.addItem(SL_WHITE);
-        cb_Color_1.addItem(SL_BLACK);
-        cb_Color_1.select(obj); // ? want to select the first ... :(
-
-        cb_Color_2 = new ComboBox("Color of Player 2");
+        cb_Color_1.setImmediate(true);
+        
+        cbCol1NoCol = cb_Color_1.addItem(SL_NOCOLOR);
+        cbCol1White =  cb_Color_1.addItem(SL_WHITE);
+        cbCol1Black =  cb_Color_1.addItem(SL_BLACK);
+        
+        cb_Color_2 = new ComboBox("Color of Player");
         cb_Color_2.setNullSelectionAllowed(false);
-        obj = cb_Color_2.addItem(SL_NOCOLOR);
-        cb_Color_2.addItem(SL_WHITE);
-        cb_Color_2.addItem(SL_BLACK);
-        cb_Color_2.setValue(obj); // ?
+        cb_Color_2.setImmediate(true);
+        cbCol2NoCol = cb_Color_2.addItem(SL_NOCOLOR);
+        cbCol2White = cb_Color_2.addItem(SL_WHITE);
+        cbCol2Black = cb_Color_2.addItem(SL_BLACK);
+        
+        cb_Color_1.addValueChangeListener(new Property.ValueChangeListener() {
+			
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Object id = event.getProperty();
+				Iterator iter = cb_Color_2.getItemIds().iterator();
+			//	System.out.println("ID: "+cb_Color_1.getItem(id).toString()+ " EventID: "+event.getProperty());
+				while(iter.hasNext())
+				{
+					Object cb2Id = iter.next();
+					if(event.getProperty().getValue().equals(cb2Id.toString()))
+					{
+						if(cb2Id.toString().equals(SL_NOCOLOR))
+						{	
+							cb_Color_2.setValue(cb2Id);
+						}
+						else if(cb2Id.toString().equals(SL_WHITE))
+						{
+							cb_Color_2.setValue(iter.next());
+						}
+						else if(cb2Id.toString().equals(SL_BLACK))
+						{
+							Iterator newIt = cb_Color_2.getItemIds().iterator();
+							newIt.next();
+							cb_Color_2.setValue(newIt.next());
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		});
+        cb_Color_2.addValueChangeListener(new Property.ValueChangeListener() {
+			
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Object id = event.getProperty();
+				Iterator iter = cb_Color_1.getItemIds().iterator();
+			//	System.out.println("ID: "+cb_Color_1.getItem(id).toString()+ " EventID: "+event.getProperty());
+				while(iter.hasNext())
+				{
+					Object cb2Id = iter.next();
+					if(event.getProperty().getValue().equals(cb2Id.toString()))
+					{
+						if(cb2Id.toString().equals(SL_NOCOLOR))
+						{	
+							cb_Color_1.setValue(cb2Id);
+						}
+						else if(cb2Id.toString().equals(SL_WHITE))
+						{
+							cb_Color_1.setValue(iter.next());
+						}
+						else if(cb2Id.toString().equals(SL_BLACK))
+						{
+							Iterator newIt = cb_Color_1.getItemIds().iterator();
+							newIt.next();
+							cb_Color_1.setValue(newIt.next());
+						}
+						
+					}
+					
+				}
+				
+			}
+			
+		});
 
-        exSearchLayout01.addComponent(tf_Date);
-        exSearchLayout01.addComponent(tf_Event);
-        exSearchLayout01.addComponent(tf_Round);
-        exSearchLayout01.addComponent(tf_Site);
-        exSearchLayout01.addComponent(cb_Result);
+        tf_birth_p1 = new TextField("Birth date");
+        tf_birth_p2 = new TextField("Birth date");
+        tf_death_p1 = new TextField("Date of death");
+        tf_death_p2 = new TextField("Date of death");
+        tf_nation_p1 = new TextField("Nationality");
+        tf_nation_p2 = new TextField("Nationality");
+        tf_elo_p1 = new TextField("ELO");
+        tf_elo_p2 = new TextField("ELO");
+        tf_birthPlace_p1 = new TextField("Birth place");
+        tf_birthPlace_p2 = new TextField("Birth place");
+        tf_peak_p1 = new TextField("Peak-Ranking");
+        tf_peak_p2 = new TextField("Peak-Ranking");
 
-        exSearchLayout01.addComponent(tf_Name_1);
-        exSearchLayout01.addComponent(cb_Color_1);
-        exSearchLayout01.addComponent(tf_Name_2);
-        exSearchLayout01.addComponent(cb_Color_2);
+        Panel pnl_p1 = new Panel();
+        pnl_p1.setCaption("First player");
+        pnl_p1.setSizeUndefined();
 
-        exSearchLayout01.addComponent(cb_ResultType);
+        FormLayout fly_p1 = new FormLayout(tf_Name_1, cb_Color_1, tf_nation_p1,
+                tf_birth_p1, tf_birthPlace_p1, tf_death_p1, tf_elo_p1,
+                tf_peak_p1);
+        fly_p1.setSizeUndefined();
+        fly_p1.setMargin(true);
+        pnl_p1.setContent(fly_p1);
 
-        exSearchLayout01.addComponent(btnSearch);
-        exSearchFields.setBuffered(false);
+        Panel pnl_p2 = new Panel();
+        pnl_p2.setCaption("Second player");
 
-               
+        FormLayout fly_p2 = new FormLayout(tf_Name_2, cb_Color_2, tf_nation_p2,
+                tf_birth_p2, tf_birthPlace_p2, tf_death_p2, tf_elo_p2,
+                tf_peak_p2);
+        fly_p2.setMargin(true);
+        pnl_p2.setContent(fly_p2);
         
-        tf_birth_p1 = new TextField("Birthdate p1");  //Geburt player1
-        tf_birth_p2 = new TextField("Birthdate p2");  //Geburt player2
+        GridLayout gl = new GridLayout(2, 2);
+        gl.addComponent(pnl_cg, 0, 0, 1, 0);
+        gl.addComponent(pnl_p1);
+        gl.addComponent(pnl_p2);
+        gl.setSizeUndefined();
+        gl.setSpacing(true);
         
-        tf_death_p1 = new TextField("Date of death p1");  //Todestag player1
-        tf_death_p2 = new TextField("Date of death p2");  //Todestag player2
-        
-        tf_nation_p1 = new TextField("Nation p1");
-        tf_nation_p2 = new TextField("Nation p2");
-        
-        tf_elo_p1 = new TextField("Elo p1");    //elo player 1,2  
-        tf_elo_p2 = new TextField("Elo p2");
-        
-        tf_birthPlace_p1 = new TextField("Birthplace p1"); 
-        tf_birthPlace_p2 = new TextField("Birthplace p2");
-        
-        tf_peak_p1 = new TextField("Peakranking p1");   //PeakRanking player 1,2
-        tf_peak_p2 = new TextField("Peakranking p2");
-        
-        exSearchLayout02.addComponent(tf_birth_p1);
-        exSearchLayout02.addComponent( tf_birth_p2);
-        exSearchLayout02.addComponent(tf_death_p1);
-        exSearchLayout02.addComponent(tf_death_p2);
-        exSearchLayout02.addComponent( tf_nation_p1);
-        
-        exSearchLayout02.addComponent(tf_nation_p2);
-        exSearchLayout02.addComponent(tf_elo_p1);
-        exSearchLayout02.addComponent(tf_elo_p2);
-        exSearchLayout02.addComponent(tf_birthPlace_p1);
-        exSearchLayout02.addComponent(tf_birthPlace_p2);
-        
-        exSearchLayout02.addComponent(tf_peak_p1);
-        exSearchLayout02.addComponent(tf_peak_p2);
-        
-        
-        simpleSearchLayout.addComponent(exSearchLayout01); 
-        simpleSearchLayout.addComponent(exSearchLayout02);
-        
-        
-        addComponent(simpleSearchLayoutInner);
+        simpleSearchLayout.addComponent(gl);
+//        simpleSearchLayout.addComponent(cb_ResultType);
+        simpleSearchLayout.addComponent(btnSearch);
+        simpleSearchLayout.setSpacing(true);
+
         addComponent(simpleSearchLayout);
     }
 
@@ -514,12 +601,11 @@ public class SearchView extends VerticalLayout
         lblQSearch = new Label("SPARQL Abfrage für Fortgeschrittene Benutzer");
 
         taQuery = new TextArea();
-        taQuery.setWidth("100%");
+        taQuery.setWidth("75%");
 
         btnEndQSearch = new Button("Zurück");
-        btnEndQSearch.addClickListener(new ClickListener()
-        {
-            private static final long serialVersionUID = 1L; 
+        btnEndQSearch.addClickListener(new ClickListener() {
+            private static final long serialVersionUID = 1L;
 
             @Override
             public void buttonClick(ClickEvent event)
@@ -546,8 +632,7 @@ public class SearchView extends VerticalLayout
         });
 
         btnQSearch = new Button("Absenden");
-        btnQSearch.addClickListener(new ClickListener()
-        {
+        btnQSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -589,8 +674,7 @@ public class SearchView extends VerticalLayout
     public void initFunktion()
     {
         // oeffne simpleSearchView
-        btnOpenSearch.addClickListener(new ClickListener()
-        {
+        btnOpenSearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -605,7 +689,7 @@ public class SearchView extends VerticalLayout
 
                     removeComponent(lblQSearch);
                     removeComponent(taQuery);
-                    removeComponent(qLayoutInner);  
+                    removeComponent(qLayoutInner);
 
                     removeComponent(btnEndQSearch);
 
@@ -627,8 +711,7 @@ public class SearchView extends VerticalLayout
         });
 
         // oeffne QuerySearchView
-        btnOpenQuerySearch.addClickListener(new ClickListener()
-        {
+        btnOpenQuerySearch.addClickListener(new ClickListener() {
             private static final long serialVersionUID = 1L;
 
             @Override

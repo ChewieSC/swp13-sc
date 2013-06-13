@@ -20,6 +20,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessGame;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessOpening;
 import de.uni_leipzig.informatik.swp13_sc.datamodel.rdf.ChessRDFVocabulary;
 import de.uni_leipzig.informatik.swp13_sc.util.FileUtils;
 
@@ -110,6 +111,10 @@ public class ChessDataModelToRDFConverter
     //private Set<String> convertedGames;
     private Map<String, Integer> convertedGames;
     /**
+     * Internal. List of all opening resource names.
+     */
+    private Map<String, Integer> convertedOpenings;
+    /**
      * Internal. Seperator char for URI names.
      */
     private static char separator = '_';
@@ -127,6 +132,7 @@ public class ChessDataModelToRDFConverter
         model = createModel();
         
         convertedGames = new HashMap<String, Integer>();
+        convertedOpenings = new HashMap<String, Integer>();
     }
     
     // ------------------------------------------------------------------------
@@ -134,7 +140,7 @@ public class ChessDataModelToRDFConverter
     /**
      * Returns a Set of all converted game names.
      * 
-     * @return  unmodifiableSet<String>
+     * @return  List<String>
      */
     public List<String> getConvertedGameNames()
     {
@@ -151,6 +157,32 @@ public class ChessDataModelToRDFConverter
                     gameName += separator + "1";
                 }
                 list.add(gameName);
+            }
+        }
+        
+        return list;
+    }
+    
+    /**
+     * Returns a Set of all converted opening names.
+     * 
+     * @return  List<String>
+     */
+    public List<String> getConvertedOpeningNames()
+    {
+        List<String> list = new ArrayList<String>();
+        
+        for (String key : this.convertedOpenings.keySet())
+        {
+            int n = this.convertedOpenings.get(key);
+            for (int i = 1; i <= n; i ++)
+            {
+                String openingName = key;
+                if (i > 1)
+                {
+                    openingName += separator + "1";
+                }
+                list.add(openingName);
             }
         }
         
@@ -389,6 +421,152 @@ public class ChessDataModelToRDFConverter
     // ------------------------------------------------------------------------
     
     /**
+     * Takes a {@link ChessOpening} and converts it (and its members) to RDF data.<br />
+     * Returns if values are null!
+     * 
+     * @param   opening    {@link ChessOpening} to convert
+     * @return  true if successful else false
+     */
+    public boolean convert(ChessOpening opening)
+    {
+        // check for close?
+        
+        // check values
+        if (opening == null)
+        {
+            return false;
+        }
+        if (opening.getCode() == null || EMPTY.equals(opening.getCode()))
+        {
+            return false;
+        }
+        if (opening.getName() == null)
+        {
+            return false;
+        }
+        if (opening.getMoves() == null)
+        {
+            return false;
+        }
+        
+        // --------------------------------------------------------------------
+        
+        // generate game for opening
+        String openingName = getUniqueOpeningName(opening.getCode(), opening.getName());
+        //System.out.println(openingName);
+        // create resource object in model
+        Resource r_opening = model.createResource(ChessRDFVocabulary
+                .getResourceURI() + openingName, ChessRDFVocabulary.ChessOpening);
+        
+        // add code name
+        r_opening.addProperty(ChessRDFVocabulary.openingCode, opening.getCode());
+        
+        // add normal name if not ""
+        if (! EMPTY.equals(opening.getName()))
+        {
+            r_opening.addProperty(ChessRDFVocabulary.openingName, opening.getName());
+        }
+        
+        // --------------------------------------------------------------------
+        // add moves to opening
+        int nr = 0;
+        for (ChessMove m : opening.getMoves())
+        {
+            // convert & add move
+            nr ++;
+            Resource r_move = model.createResource(ChessRDFVocabulary.ChessMove)
+                    .addProperty(ChessRDFVocabulary.move, m.getMove())
+                    .addProperty(ChessRDFVocabulary.moveNr, "" + nr,
+                            XSDDatatype.XSDnonNegativeInteger);
+            model.add(r_opening, ChessRDFVocabulary.moves, r_move);
+            if (m.hasComment() && m.getComment() != null)
+            {
+                r_move.addProperty(ChessRDFVocabulary.comment, m.getComment());
+            }
+            if (m.getFEN() != null)
+            {
+                r_move.addProperty(ChessRDFVocabulary.fen, m.getFEN());
+            }
+            // ignore to reduce size ... interferes with querying??
+            //else
+            //{
+            //  r_move.addProperty(ChessRDFVocabulary.fen, ""); // add empty?
+            //}
+        }
+        // finished!
+        return true;
+    }
+    
+    /**
+     * Converts the whole list of {@link ChessOpening}s.
+     * 
+     * @param   openings   List<{@link ChessOpening}>
+     * @return  true if successful else false
+     */
+    public boolean convertOpenings(List<ChessOpening> openings)
+    {
+        if (openings == null)
+        {
+            return false;
+        }
+        if (this.model.isClosed())
+        {
+            return false;
+        }
+        
+        for (ChessOpening co : openings)
+        {
+            // to add all openings fail-safe
+            try
+            {
+                convert(co);
+            }
+            // TODO: differentiate exceptions
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Converts a subset of the list openings.
+     * 
+     * @param   openings   List to convert.
+     * @param   count   Number of items to convert before stopping
+     * @return  true if successful else false
+     */
+    public boolean convertOpenings(List<ChessOpening> openings, int count)
+    {
+        if (openings == null)
+        {
+            return false;
+        }
+        if (this.model.isClosed())
+        {
+            return false;
+        }
+        
+        for (int i = 0; (i < count) && (! openings.isEmpty()); i ++)
+        {
+            try
+            {
+                convert(openings.remove(0));
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
+        return true;
+    }
+    
+    // ------------------------------------------------------------------------
+    
+    /**
      * Internal method.<br />
      * Flushes the model into the OutputStream output with the format.
      * 
@@ -493,6 +671,11 @@ public class ChessDataModelToRDFConverter
      */
     public boolean writeConvertedGameNames(OutputStream outputStream)
     {
+        if (this.convertedGames.size() == 0)
+        {
+            return false;
+        }
+        
         BufferedWriter bw = FileUtils.openWriter(outputStream);
         if (bw == null)
         {
@@ -602,5 +785,37 @@ public class ChessDataModelToRDFConverter
         }
         
         return game;
+    }
+    
+    /**
+     * Generates a new unique opening identifier.
+     * 
+     * @param   code  code name of opening
+     * @param   name  name of opening (ignored)
+     * @return  String with unique ID
+     */
+    protected String getUniqueOpeningName(String code, String name)
+    {
+        //String key = code + separator + getNormalizedString(name);
+        String key = code;
+        
+        String opening;
+        if (convertedOpenings.containsKey(key))
+        {
+            int nr = convertedOpenings.get(key);
+            nr ++;
+            opening = key + separator + "" + nr;
+            this.convertedOpenings.put(key, nr);
+        }
+        else
+        {
+            opening = key;
+            this.convertedOpenings.put(key, 1);
+        }
+        
+        // DEBUG:
+        //System.out.println(code + " -> " + opening);
+        
+        return opening;
     }
 }
