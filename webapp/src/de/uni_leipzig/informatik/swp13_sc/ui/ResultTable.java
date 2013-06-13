@@ -13,6 +13,7 @@ import com.vaadin.ui.Button.*;
 public class ResultTable extends Table
 {
 	private static final long serialVersionUID = 1L;
+	private long nr = 0;
 
 	public ResultTable(final List<String> resultList,final Swp13scUI ui)
 	{
@@ -65,7 +66,7 @@ public class ResultTable extends Table
 			this.addContainerProperty(resultVars.get(i), String.class, null);
 		}
 		
-		long nr = 0;
+		nr = 0;
 		while (resultSet.hasNext())
 		{
 			QuerySolution result = resultSet.nextSolution();
@@ -75,7 +76,11 @@ public class ResultTable extends Table
 				resultObject[i] = result.get(resultVars.get(i)).toString();
 			}
 
-			this.addItem(resultObject, new Long(nr ++));
+			this.addItem(resultObject, new Long(nr++));
 		}
+	}
+	
+	public Long getNr(){
+		return nr;
 	}
 }

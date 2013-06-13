@@ -60,10 +60,22 @@ public class MenuView extends VerticalLayout
             @Override
             public void buttonClick(ClickEvent event)
             {
+            	//check if one of the other two windows are open
+            	if (converterViewEnabled)
+                {
+                    removeComponent(converterView);
+                    converterViewEnabled = false;
+                }
+                
+                if (searchViewEnabled)
+                {
+                    removeComponent(searchView);
+                    searchViewEnabled = false;
+                }
+                
                 if (inGame == false)
                 {
-
-                    ui.initChessEngine();
+                    ui.initChessEngine("");
                     inGame = true;
                 }
                 else
@@ -79,13 +91,27 @@ public class MenuView extends VerticalLayout
             public void buttonClick(ClickEvent event)
             {
             	searchView.setUi(ui);
+            	//check if one of the other two windows are open
+                if (inGame == true)
+                {
+                    ui.removeChessEngine();
+                    inGame = false;
+                }
+                if (converterViewEnabled)
+                {
+                    removeComponent(converterView);
+                    converterViewEnabled = false;
+                }
+                
                 if (searchViewEnabled)
                 {
                     removeComponent(searchView);
                     searchViewEnabled = false;
+                    ui.addLogoToMainFrame();
                 }
                 else
                 {
+                	ui.removeLogoFromMainFrame();
                     addComponent(searchView);
                     searchViewEnabled = true;
                 }
@@ -96,13 +122,27 @@ public class MenuView extends VerticalLayout
             @Override
             public void buttonClick(ClickEvent event)
             {
+            	//check if one of the other two windows are open
+            	if (searchViewEnabled)
+                {
+                    removeComponent(searchView);
+                    searchViewEnabled = false;
+                }
+            	if (inGame == true)
+                {
+                    ui.removeChessEngine();
+                    inGame = false;
+                }
+            	/////
                 if (converterViewEnabled)
                 {
                     removeComponent(converterView);
+                    ui.addLogoToMainFrame();
                     converterViewEnabled = false;
                 }
                 else
                 {
+                	ui.removeLogoFromMainFrame();
                     addComponent(converterView);
                     converterViewEnabled = true;
                 }

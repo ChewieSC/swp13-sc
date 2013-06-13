@@ -71,6 +71,7 @@ public class GameProbability extends Table implements CellStyleGenerator
         this.setSelectable(false); //
         this.setMultiSelect(false); // set some table-attributes
         this.setWidth(String.valueOf(tableWidth) + "px");
+        this.setHeight("100px");
 
         // Zellinhalt
         this.addItem(new Object[] { whiteProb, drawProb, blackProb },
@@ -112,7 +113,7 @@ public class GameProbability extends Table implements CellStyleGenerator
      *
      *
      */
-    public void changeVisability()
+    public void changeVisibility()
     {
         if (this.isVisible() == false)
         {

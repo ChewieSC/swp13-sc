@@ -20,6 +20,8 @@ public class QuerySearch {
 	private VirtGraph virtuosoGraph;
 	
 	private ResultSet results = null;
+	
+	private int numberOfResults=0;
 
 	/**
 	 * Ein neues Objekt zur sparql-Querysuche wird erstellt
@@ -27,27 +29,31 @@ public class QuerySearch {
 	public QuerySearch(String sparqlQuery)
 	{
 		this.sparqlQuery = sparqlQuery;
+		
+				System.out.println("User-Query: " + sparqlQuery); // nur zum testen
+				
+				// patch query to contain a LIMIT
+				int i = sparqlQuery.lastIndexOf('}');
+				if (i != -1)
+				{
+				    String last = sparqlQuery.substring(i);
+			        if (! last.contains("LIMIT "))
+			        {
+			            this.sparqlQuery += " \nLIMIT 100";
+			            System.out.println("Add a LIMIT: " + sparqlQuery);
+			        }
+				}
 
-		System.out.println("User-Query: " + sparqlQuery); // nur zum testen
-		
-		// patch query to contain a LIMIT
-		int i = sparqlQuery.lastIndexOf('}');
-		if (i != -1)
-		{
-		    String last = sparqlQuery.substring(i);
-	        if (! last.contains("LIMIT "))
-	        {
-	            this.sparqlQuery += " \nLIMIT 100";
-	            System.out.println("Add a LIMIT: " + sparqlQuery);
-	        }
-		}
-		
 		Configuration c = Configuration.getInstance();
 		
+//		//TESTING
+//		virtuosoGraph = new VirtGraph ("millionbase",
+//        "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
+//        "dba", "dba");
 		virtuosoGraph = new VirtGraph (c.getVirtuosoBasegraph(),
 		        "jdbc:virtuoso://" + c.getVirtuosoHostname(),
 		        c.getVirtuosoUsername(), c.getVirtuosoPassword());
-		virtuosoGraph.setQueryTimeout(60); // 30 s
+		virtuosoGraph.setQueryTimeout(15); // 15 s
 
 		System.out.println(virtuosoGraph.getGraphUrl());
 	}
@@ -57,9 +63,12 @@ public class QuerySearch {
 	{
 		try
 		{
+//			numberOfResults=0;
 			VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (this.sparqlQuery, virtuosoGraph);
-
 		    results = vqe.execSelect();
+//		    for ( ; results.hasNext() ; ){
+//				numberOfResults++;
+//			}
 		}
 		catch (Exception e)
 		{
@@ -80,5 +89,9 @@ public class QuerySearch {
 			}
 		}
 		return results;
+	}
+	
+	public int getNumberOfResults(){
+		return numberOfResults;
 	}
 }

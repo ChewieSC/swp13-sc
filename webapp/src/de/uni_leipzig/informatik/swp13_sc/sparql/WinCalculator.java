@@ -11,7 +11,11 @@ package de.uni_leipzig.informatik.swp13_sc.sparql;
 import com.hp.hpl.jena.*;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Resource;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class WinCalculator {
@@ -58,27 +62,43 @@ FILTER(regex ( ?fen,"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K"))
       */
     QuerySearch qs;
 
-    public boolean calculateChances()
+    @SuppressWarnings("unchecked")
+	public ResultSet calculateChances()
     {
         totalWWin=0;
         totalBWin=0;
         totalDraw=0;
         totalGames = 0;
         qs = new QuerySearch(resultQueryWithFen);
+        qs.sendQuery();
         ResultSet resultSet = qs.getResultSet();
-        QuerySolution querySolution = resultSet.nextSolution();
-        totalWWin = Integer.parseInt(querySolution.get("whiteWin").toString());
-        totalBWin = Integer.parseInt(querySolution.get("blackWin").toString());
-        totalDraw = Integer.parseInt(querySolution.get("draw").toString());
-        winRateBlack = (double) totalBWin / totalGames;
-        winRateWhite = (double) totalWWin / totalGames;
-        drawRate = (double) totalDraw / totalGames;
-        return true;
+        int j = qs.getNumberOfResults();
+        System.out.println(j);
+//        List<String> resultVars = resultSet.getResultVars();
+//        int j = 0;
+//        while (resultSet.hasNext()){
+//        	j++;
+//        }
+        
+//        QuerySolution querySolution = null;
+//        while(resultSet.hasNext()){
+//        	String querySolution2 = resultSet.toString(); //TODO: NullPointerException
+//        }
+        
+        //TODO: TESTING
+//        totalWWin = Integer.parseInt(querySolution.get("whiteWin").toString());
+//        totalBWin = Integer.parseInt(querySolution.get("blackWin").toString());
+//        totalDraw = Integer.parseInt(querySolution.get("draw").toString());
+//        winRateBlack = (double) totalBWin / totalGames;
+//        winRateWhite = (double) totalWWin / totalGames;
+//        drawRate = (double) totalDraw / totalGames;
+        return resultSet;
     }
-    public void calculateChances(String fen)
+    public ResultSet calculateChances(String fen)
     {
         setFen(fen);
-        calculateChances();
+        ResultSet result = calculateChances();
+        return result;
     }
     public void setFen(String fen)
     {
@@ -88,23 +108,12 @@ FILTER(regex ( ?fen,"6k1/4r3/1p2P1q1/p1pQ4/P4P2/1P4Pp/3R3P/7K"))
 
     private void updateQuery()
     {
-        resultQueryWithFen = "SELECT count(distinct ?w) as ?whiteWin " +
-        		"count(distinct ?b) as ?blackWin " +
-        		"count(distinct ?d) as ?draw " +
-        		"WHERE{{" +
-        		"?w cont:result '1-0'." +
-        				"?w cont:moves ?m." +
-        				"?m cont:fen "+fen+"}" +
-        				"union" +
-        				"{" +
-        				"?b cont:result '0-1'." +
-        						"?b cont:moves ?m." +
-        						"?m cont:fen "+fen+"}" +
-        						"union" +
-        						"{" +
-        						"?d cont:result '1/2-1/2'." +
-        								"?d cont:moves ?m." +
-        								"?m cont:fen "+fen+"}}"; 
+    	
+    	resultQueryWithFen = "SELECT *" +
+    						"WHERE" + 
+    						"{?g cont:fen ?fen ." + 
+    						"FILTER regex(?fen, '" + fen + "')" + 
+    						"?m cont:result '1-0'}"; //1/2-1/2 & 0-1
     }
     public double getWinWhite()
     {

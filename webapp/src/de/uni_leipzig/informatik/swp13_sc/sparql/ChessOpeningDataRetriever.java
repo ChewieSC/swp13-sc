@@ -236,16 +236,18 @@ public class ChessOpeningDataRetriever
         return list;
     }
     
-    /**
-     * Returns a list of {@link ChessMove}s for a given game URI/IRI. On error
-     * it will return an empty list.
-     * 
-     * @param   uri URI/IRI of game or opening
-     * @return  List<{@link ChessMove}>
-     * @see ChessMoveListDataRetriever
-     */
-    public List<ChessMove> getMoves(String uri)
-    {
-        return this.cmdr.getMoves(uri);
-    }
+    
+        /**
+         * Returns a list of {@link ChessMove}s for a given game URI/IRI. On error
+         * it will return an empty list.
+         * 
+         * @param   uri URI/IRI of game or opening
+         * @return  List<{@link ChessMove}>
+         * @see ChessMoveListDataRetriever
+         */
+        public List<ChessMove> getMoves(String uri)
+        {
+            return this.cmdr.getMoves(uri);
+        }
+
 }

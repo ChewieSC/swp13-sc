@@ -7,6 +7,8 @@ import de.uni_leipzig.informatik.swp13_sc.sparql.ChessGameDataRetriever;
 import de.uni_leipzig.informatik.swp13_sc.sparql.ChessMoveListDataRetriever;
 import de.uni_leipzig.informatik.swp13_sc.util.Configuration;
 import virtuoso.jena.driver.VirtGraph;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,12 +22,14 @@ public class ReplayGame
 {
 
     private VirtGraph virtuosoGraph;
+    private ArrayList<String> fenList = new ArrayList<String>();
     private String blackPlayerName;
     private String whitePlayerName;
     private String eco;
     private String gameInfo;
     private String gameInfo2;
     private String gameInfo3; // TODO: for extra information from LIMES, etc.
+    private boolean querySuccess = false;
 
     /**
      * Constructor. Empty (?)
@@ -52,6 +56,9 @@ public class ReplayGame
         try
         {
             Configuration c = Configuration.getInstance();
+//            this.virtuosoGraph = new VirtGraph ("millionbase",
+//                    "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
+//                    "dba", "dba");
             this.virtuosoGraph = new VirtGraph(c.getVirtuosoBasegraph(),
                     "jdbc:virtuoso://" + c.getVirtuosoHostname(),
                     c.getVirtuosoUsername(), c.getVirtuosoPassword());
@@ -157,6 +164,7 @@ public class ReplayGame
      */
     public String createPGN(String uri)
     {
+    	querySuccess = false;
 
         ChessGame cg = getGame(uri);
 
@@ -171,12 +179,15 @@ public class ReplayGame
             String gameRound = cg.getRound();
             String gameResult = cg.getResult();
 
+//            gameInfo = "Event: " + gameEvent + ", Runde: " + gameRound
+//                    + "&emsp;&emsp;&emsp;&emsp; Datum: " + gameDate
+//                    + "&emsp;&emsp;&emsp;&emsp; Ort: " + gameSite;
             gameInfo = "Event: " + gameEvent + ", Runde: " + gameRound
-                    + "&emsp;&emsp;&emsp;&emsp; Datum: " + gameDate
-                    + "&emsp;&emsp;&emsp;&emsp; Ort: " + gameSite;
+                    + "\t\t Datum: " + gameDate
+                    + "\t Ort: " + gameSite;
             gameInfo2 = whitePlayerName + " vs. " + blackPlayerName
-                    + "&emsp;&emsp;&emsp;&emsp; Ergebnis: " + gameResult
-                    + "&emsp;&emsp;&emsp;&emsp; ECO: " + eco;
+                    + "\t Ergebnis: " + gameResult
+                    + "\t\t ECO: " + eco;
             // TODO: peakrating
 
             String pgn = "";
@@ -185,6 +196,7 @@ public class ReplayGame
 
             for (ChessMove m : cgl)
             {
+            	fenList.add(m.getFEN());
                 k++;
                 if (k != m.getNr())
                 {
@@ -201,6 +213,8 @@ public class ReplayGame
                 }
             }
             System.out.println(pgn);
+            
+            querySuccess = true;
 
             return pgn;
 
@@ -228,6 +242,18 @@ public class ReplayGame
     {
         return gameInfo2;
     }
-
+    
+    public ArrayList<String> getFenList(){
+    	return fenList;
+    }
+    /**
+     * state whether or not a prior query was successful, mainly for CalcularView
+     * @return
+     */
+    public boolean getQuerySuccess()
+    {
+        return querySuccess;
+    }
+    
     // TODO: Show Player names, Event/Game number, Score
 }

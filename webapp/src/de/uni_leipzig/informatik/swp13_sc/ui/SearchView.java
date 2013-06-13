@@ -187,6 +187,10 @@ public class SearchView extends VerticalLayout
             {
                 Configuration c = Configuration.getInstance();
                 SimpleSearch ss = new SimpleSearch();
+//                ss.setDBConnection(new VirtGraph ("millionbase",
+//                        "jdbc:virtuoso://pcai042.informatik.uni-leipzig.de:1357",
+//                        "dba", "dba"));
+                //TODO: set back on deployment
                 ss.setDBConnection(new VirtGraph(c.getVirtuosoBasegraph(),
                         "jdbc:virtuoso://" + c.getVirtuosoHostname(), c
                                 .getVirtuosoUsername(), c.getVirtuosoPassword()));
@@ -448,8 +452,9 @@ public class SearchView extends VerticalLayout
         Object obj = cb_ResultType.addItem(SL_GAME); // default
         // Notification.show("Debug obj ret", (obj == null)? "null" :
         // obj.getClass().toString(), Notification.Type.TRAY_NOTIFICATION);
-        cb_ResultType.addItem(SL_PLAYER1);
-        cb_ResultType.addItem(SL_PLAYER2);
+        // TODO: maybe one day there could be a click button for player details as well 
+//        cb_ResultType.addItem(SL_PLAYER1);
+//        cb_ResultType.addItem(SL_PLAYER2);
         cb_ResultType.setValue(obj);
 
         tf_Name_1 = new TextField("Name");
@@ -580,7 +585,7 @@ public class SearchView extends VerticalLayout
         gl.setSpacing(true);
         
         simpleSearchLayout.addComponent(gl);
-        simpleSearchLayout.addComponent(cb_ResultType);
+//        simpleSearchLayout.addComponent(cb_ResultType);
         simpleSearchLayout.addComponent(btnSearch);
         simpleSearchLayout.setSpacing(true);
 
@@ -596,7 +601,7 @@ public class SearchView extends VerticalLayout
         lblQSearch = new Label("SPARQL Abfrage für Fortgeschrittene Benutzer");
 
         taQuery = new TextArea();
-        taQuery.setWidth("100%");
+        taQuery.setWidth("75%");
 
         btnEndQSearch = new Button("Zurück");
         btnEndQSearch.addClickListener(new ClickListener() {

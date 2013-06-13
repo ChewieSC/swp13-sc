@@ -3,10 +3,13 @@
  */
 package de.uni_leipzig.informatik.swp13_sc.sparql;
 
+import de.uni_leipzig.informatik.swp13_sc.datamodel.ChessMove;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
@@ -59,7 +62,6 @@ public class SimpleSearch
      * The result count. Will always be executed and available.
      */
     private long resultCount;
-
     /**
      * The list with results. String URI/IRIs from players or games.
      */
@@ -140,7 +142,7 @@ public class SimpleSearch
     /**
      * SPARQL_QUERY_LIMIT
      */
-    private final static String SPARQL_QUERY_LIMIT = "LIMIT ";
+    private final static String SPARQL_QUERY_LIMIT = "LIMIT "; //TODO: could also be in the config file
     
     /**
      * SPARQL_QUERY_FILTER_REGEX_START
@@ -469,10 +471,13 @@ public class SimpleSearch
         
         try
         {
+            //QueryExecution vqeS = QueryExecutionFactory.create(this.selectQuery, new VirtModel(virtuosoGraph));
             VirtuosoQueryExecution vqeS = VirtuosoQueryExecutionFactory.create(this.getSPARQLQuery(), virtuosoGraph);
             
             if (! this.count)
             {
+
+            	
                 ResultSet results = vqeS.execSelect();
                 
                 String vari = GAME_VARIABLE;
@@ -491,7 +496,7 @@ public class SimpleSearch
                     RDFNode iri = result.get(vari);
                     this.resultList.add(iri.toString());
                 }
-                // results of integer?
+                // results of integer? (probably not)
                 this.resultCount = this.resultList.size();
             }
             else
@@ -558,9 +563,9 @@ public class SimpleSearch
         return this.resultCount;
     }
     
-    /**
+    
+	/**
      * Returns the number (!) of results without a LIMIT clause.
-     * 
      * @return  Number (long) of results or -1 on error.
      */
     public long getResultCountUnLimited()
@@ -592,7 +597,6 @@ public class SimpleSearch
     {
         return this.hasResult;
     }
-    
     
     /**
      * Constructs a COUNT SPARQL-Wrapper around given variables or a COUNT(*)

@@ -6,8 +6,10 @@ import java.util.List;
 
 import virtuoso.jena.driver.VirtGraph;
 
+import com.hp.hpl.jena.query.ResultSet;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -25,6 +27,7 @@ public class CalculatorView extends VerticalLayout
 
     private Swp13scUI ui;
     private WinCalculator wc;
+    private ReplayGame rg;
 
     private HorizontalLayout gameProbLayoutInner;
     private Button btnNextProb;
@@ -36,14 +39,21 @@ public class CalculatorView extends VerticalLayout
     private List<String> moves;
     private int moveCount = 0;
     private String moveFen = null;
+    private int length = 0;
+    private ResultTable resultTable;
+    private VerticalLayout expl;
+    private boolean explorerLayoutEnabled;
 
     private double[] winChance = new double[3];
 
-    /** Adds GameProbabilityLayout to GameExplorer Grid */
-    public CalculatorView(GridLayout expl)
+    /** 
+     * Adds GameProbabilityLayout to GameExplorer Grid 
+     */
+    
+    public CalculatorView(Swp13scUI ui)
     {
-        ui = new Swp13scUI();
-
+        this.ui = ui;
+        
         wc = new WinCalculator();
 
         gameProbLayoutInner = new HorizontalLayout();
@@ -51,65 +61,22 @@ public class CalculatorView extends VerticalLayout
         btnPreProb = new Button("Previous Turn");
 
         lblInfo = new Label();
+        btnPreProb.setEnabled(false);
 
         gameProbLayoutInner.addComponent(btnNextProb);
         gameProbLayoutInner.addComponent(btnPreProb);
 
-        gameProb = new GameProbability(2); // only for testing how size of this
+        gameProb = new GameProbability(500); // only for testing how size of this
                                            // table looks, it is no magic number
 
         addComponent(lblInfo);
         addComponent(gameProbLayoutInner);
         addComponent(gameProb);
-
-        expl.addComponent(this, 1, 1);
-        expl.setComponentAlignment(this, Alignment.BOTTOM_RIGHT);
-
-        initMoves();
-        initButtons();
-
-    }
-    
-    /**
-     * Getting MoveList(fen) of the current Game
-     */
-    public List<String> getGameMoveFens(String gameURI)
-    {
-        Configuration c = Configuration.getInstance();
-        ChessMoveListDataRetriever cmldr = null; // maybe catch null in an
-                                                 // if-statement
-        String fen;
-        List<ChessMove> moveList = null; // same
-        List<String> fenList = new ArrayList<String>();
-
-        try
-        {
-            cmldr = new ChessMoveListDataRetriever(new VirtGraph(
-                    c.getVirtuosoBasegraph(), "jdbc:virtuoso://"
-                            + c.getVirtuosoHostname(), c.getVirtuosoUsername(),
-                    c.getVirtuosoPassword()));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
         
-        if (gameURI == null)
-        {
-            System.out.println("No Game URI found");
-        }
-        else
-        {
-            moveList = cmldr.getMoves(gameURI);
-            
-            for (ChessMove cm : moveList)
-            {
-                fen = cm.getFEN();
-                fenList.add(fen);
-            }
-        }
+        explorerLayoutEnabled = false;
 
-        return fenList;
+//        initButtons(null, null);
+
     }
 
     /**
@@ -117,27 +84,45 @@ public class CalculatorView extends VerticalLayout
      */
     public void initMoves()
     {
-        moves = this.getGameMoveFens(ui.getCurrentGameURI());
+        moves = rg.getFenList();
         //moveFen = moves.get(0); // check list
     }
 
     /**
-     * adding funktions to buttons
+     * adding functions to buttons
+     * @param explorerLayout 
      */
-    private void initButtons()
+    public void initButtons(ReplayGame rgTemp, VerticalLayout explorerLayout)
     {
+        this.rg = rgTemp;
+        this.expl = explorerLayout;
+        
+    	if(rg.getQuerySuccess() == false){
+    		btnPreProb.setEnabled(false);
+    		btnNextProb.setEnabled(false);
+        }
+    	
+    	if(ui.getExplorerLayout() != null && !explorerLayoutEnabled ){
+        	expl = ui.getExplorerLayout();
+        	expl.addComponent(this);
+            expl.setComponentAlignment(this, Alignment.MIDDLE_CENTER);
+            explorerLayoutEnabled = true;
+        }
+    	
         btnNextProb.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event)
             {
+                initMoves();
                 nextProb();
             }
         });
 
-        btnNextProb.addClickListener(new ClickListener() {
+        btnPreProb.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event)
             {
+            	initMoves();
                 prevProb();
             }
         });
@@ -150,22 +135,35 @@ public class CalculatorView extends VerticalLayout
      */
     public void nextProb()
     {
-        int length = (moveFen == null) ? 0 : moveFen.length();
+        length = (moveFen == null) ? 0 : moveFen.length();
 
         moveCount++;
+        if (moveCount >= 1){
+        	btnPreProb.setEnabled(true);
+        }
 
         moveFen = moves.get(moveCount);
-        lblInfo.setValue("Move: " + moveCount);
+        lblInfo.setCaption("Move: " + moveCount);
+        
+        //TESTING
+        ResultSet result = wc.calculateChances(moveFen);
+//        resultTable = new ResultTable(result);
+//        System.out.println("Anzahl der Ergebnisse:" + resultTable.getNr());
+//        addComponent(resultTable);
+        
 
         winChance[0] = wc.getDraw();
         winChance[1] = wc.getWinBlack();
         winChance[2] = wc.getWinWhite();
-
+        
+       
         if (null == moveFen || length == moveFen.length())
         {
             lblInfo.setValue("No further turns");
             btnNextProb.setEnabled(false);
         }
+        
+        gameProb.showProb(winChance);
     }
 
     /**
@@ -177,13 +175,21 @@ public class CalculatorView extends VerticalLayout
     {
         if (moveCount < 1)
         {
-            lblInfo.setValue("No previous Move...");
-
-            btnPreProb.setEnabled(false);
+            lblInfo.setCaption("No previous Move...");
         }
         else
         {
             moveCount--;
+            
+            if(moveCount < 1){
+            	btnPreProb.setEnabled(false);
+            }
+            
+            if (null != moveFen || length != moveFen.length())
+            {
+                btnNextProb.setEnabled(true);
+            }
+            
             moveFen = moves.get(moveCount);
 
             lblInfo.setValue("Move: " + moveCount);
@@ -193,6 +199,8 @@ public class CalculatorView extends VerticalLayout
             winChance[0] = wc.getDraw();
             winChance[1] = wc.getWinBlack();
             winChance[2] = wc.getWinWhite();
+            
+            gameProb.showProb(winChance);
         }
     }
 }
